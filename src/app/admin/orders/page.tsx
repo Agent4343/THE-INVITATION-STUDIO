@@ -97,7 +97,7 @@ export default function AdminOrdersPage() {
     setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("admin_token");
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
@@ -135,7 +135,7 @@ export default function AdminOrdersPage() {
     setUpdatingId(orderId);
     setError("");
     try {
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("admin_token");
       const res = await fetch(`/api/admin/orders/${orderId}/status`, {
         method: "PATCH",
         headers: {
