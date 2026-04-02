@@ -1,0 +1,58 @@
+import { Palette } from "../types";
+
+export const palettes: Palette[] = [
+  {
+    id: "sage-gold",
+    name: "Sage & Gold",
+    bg: "#F5F2EC",
+    primary: "#7A8B6F",
+    accent: "#C5A55A",
+    text: "#2C3E2D",
+    muted: "#A8B09E",
+  },
+  {
+    id: "dusty-rose",
+    name: "Dusty Rose",
+    bg: "#FDF6F4",
+    primary: "#C4878E",
+    accent: "#E8B4B8",
+    text: "#4A2C2A",
+    muted: "#D4A5A5",
+  },
+  {
+    id: "navy-cream",
+    name: "Navy & Cream",
+    bg: "#FFFEF7",
+    primary: "#1B2A4A",
+    accent: "#B8860B",
+    text: "#1B2A4A",
+    muted: "#6B7B99",
+  },
+  {
+    id: "classic-black",
+    name: "Classic Black",
+    bg: "#FFFFFF",
+    primary: "#1A1A1A",
+    accent: "#8C7853",
+    text: "#1A1A1A",
+    muted: "#6B6B6B",
+  },
+  {
+    id: "ocean-mist",
+    name: "Ocean Mist",
+    bg: "#F2F7F8",
+    primary: "#3D6B7E",
+    accent: "#7AAFBF",
+    text: "#1E3A45",
+    muted: "#91B4BF",
+  },
+  {
+    id: "burgundy-blush",
+    name: "Burgundy & Blush",
+    bg: "#FBF5F3",
+    primary: "#722F37",
+    accent: "#D4A5A5",
+    text: "#3B1218",
+    muted: "#A67B7B",
+  },
+];
