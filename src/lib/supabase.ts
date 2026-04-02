@@ -1,10 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Browser client – uses the public anon key (safe to expose in client bundles)
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+// Browser client – lazy-initialized to avoid build-time errors
+// when environment variables are not yet available.
+let _browserClient: ReturnType<typeof createClient> | null = null;
+
+export function getSupabase() {
+  if (!_browserClient) {
+    _browserClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+  }
+  return _browserClient;
+}
 
 // Server client – uses the service-role key for privileged operations.
 // Call this inside API routes / server actions only.
