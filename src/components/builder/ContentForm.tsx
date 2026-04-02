@@ -112,7 +112,7 @@ export default function ContentForm() {
                 key={field.key}
                 label={field.label}
                 placeholder={field.placeholder}
-                value={(content as Record<string, string>)[field.key] ?? ""}
+                value={(content as unknown as Record<string, string>)[field.key] ?? ""}
                 multiline={field.multiline}
                 onChange={(e) => setContent({ [field.key]: e.target.value })}
               />

@@ -3,8 +3,7 @@ import { loadStripe, type Stripe as StripeClient } from "@stripe/stripe-js";
 
 // Server-side Stripe instance (use in API routes only)
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
-  typescript: true,
+  apiVersion: "2023-10-16",
 });
 
 // Client-side Stripe.js promise (singleton)
