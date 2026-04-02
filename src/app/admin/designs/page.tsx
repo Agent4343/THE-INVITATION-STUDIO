@@ -39,16 +39,6 @@ function formatDate(iso: string) {
   });
 }
 
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 export default function AdminDesignsPage() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [total, setTotal] = useState(0);
@@ -230,81 +220,45 @@ export default function AdminDesignsPage() {
                     {expandedId === design.id && (
                       <tr>
                         <td colSpan={7} className="bg-slate-50 px-6 py-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                            <div className="space-y-3">
-                              <h4 className="font-semibold text-slate-900">
-                                Design Details
-                              </h4>
-                              <div className="space-y-1.5">
-                                <p>
-                                  <span className="font-medium text-slate-600">Full ID:</span>{" "}
-                                  <code className="text-xs font-mono text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                                    {design.id}
-                                  </code>
-                                </p>
-                                <p>
-                                  <span className="font-medium text-slate-600">Template:</span>{" "}
-                                  <span className="text-slate-700">{design.template || "N/A"}</span>
-                                </p>
-                                <p>
-                                  <span className="font-medium text-slate-600">Palette:</span>{" "}
-                                  <span className="text-slate-700">{design.palette || "N/A"}</span>
-                                </p>
-                                <p>
-                                  <span className="font-medium text-slate-600">Font:</span>{" "}
-                                  <span className="text-slate-700">{design.font || "N/A"}</span>
-                                </p>
-                                <p>
-                                  <span className="font-medium text-slate-600">Created:</span>{" "}
-                                  <span className="text-slate-700">{formatDateTime(design.created_at)}</span>
-                                </p>
-                                <p>
-                                  <span className="font-medium text-slate-600">Updated:</span>{" "}
-                                  <span className="text-slate-700">{formatDateTime(design.updated_at)}</span>
-                                </p>
+                          <div className="space-y-3">
+                            <h4 className="font-semibold text-slate-900 text-sm">
+                              Full Content JSON
+                            </h4>
+                            {design.content ? (
+                              <pre className="bg-white border border-slate-200 rounded-lg p-4 text-xs text-slate-700 overflow-auto max-h-64 font-mono">
+                                {JSON.stringify(design.content, null, 2)}
+                              </pre>
+                            ) : (
+                              <p className="text-slate-400 text-sm">No content data</p>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm pt-2">
+                              <div>
+                                <span className="font-medium text-slate-600">Full ID:</span>{" "}
+                                <code className="text-xs font-mono text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                                  {design.id}
+                                </code>
                               </div>
-                            </div>
-
-                            <div className="space-y-3">
-                              <h4 className="font-semibold text-slate-900">Content</h4>
-                              {design.content ? (
-                                <pre className="bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-700 overflow-auto max-h-48">
-                                  {JSON.stringify(design.content, null, 2)}
-                                </pre>
-                              ) : (
-                                <p className="text-slate-400">No content data</p>
-                              )}
-
                               {design.access_codes && (
-                                <div className="space-y-1.5">
-                                  <h4 className="font-semibold text-slate-900">Access Code</h4>
-                                  <p>
-                                    <span className="font-medium text-slate-600">Code:</span>{" "}
-                                    <code className="text-xs font-mono text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                                      {design.access_codes.code}
-                                    </code>
-                                  </p>
-                                  {design.access_codes.couple_names && (
-                                    <p>
-                                      <span className="font-medium text-slate-600">Couple:</span>{" "}
-                                      <span className="text-slate-700">{design.access_codes.couple_names}</span>
-                                    </p>
-                                  )}
+                                <div>
+                                  <span className="font-medium text-slate-600">Access Code:</span>{" "}
+                                  <code className="text-xs font-mono text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                                    {design.access_codes.code}
+                                  </code>
                                 </div>
                               )}
-
                               {design.pdf_url && (
-                                <p>
-                                  <span className="font-medium text-slate-600">PDF URL:</span>{" "}
+                                <div>
+                                  <span className="font-medium text-slate-600">PDF:</span>{" "}
                                   <a
                                     href={design.pdf_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-indigo-600 hover:text-indigo-800 underline text-xs break-all"
                                   >
-                                    {design.pdf_url}
+                                    View PDF
                                   </a>
-                                </p>
+                                </div>
                               )}
                             </div>
                           </div>
