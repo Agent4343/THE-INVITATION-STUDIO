@@ -1,11 +1,18 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let _resend: Resend | null = null;
+
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY!);
+  }
+  return _resend;
+}
 
 const FROM_ADDRESS = "The Invitation Studio <orders@theinvitationstudio.com>";
 
 export async function sendOrderConfirmation(email: string, orderId: string) {
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_ADDRESS,
     to: email,
     subject: "Your print order has been placed",
@@ -43,7 +50,7 @@ export async function sendShippingNotification(
   email: string,
   trackingNumber: string,
 ) {
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_ADDRESS,
     to: email,
     subject: "Your invitations have shipped!",

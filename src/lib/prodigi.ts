@@ -1,11 +1,16 @@
 import type { ShippingAddress } from "@/types";
 
-const PRODIGI_BASE_URL = process.env.PRODIGI_BASE_URL!;
-const PRODIGI_API_KEY = process.env.PRODIGI_API_KEY!;
+function getBaseUrl() {
+  return process.env.PRODIGI_BASE_URL!;
+}
+
+function getApiKey() {
+  return process.env.PRODIGI_API_KEY!;
+}
 
 function headers() {
   return {
-    "X-API-Key": PRODIGI_API_KEY,
+    "X-API-Key": getApiKey(),
     "Content-Type": "application/json",
   } as const;
 }
@@ -15,7 +20,7 @@ export async function createProdigiOrder(
   items: Array<{ piece: string; quantity: number; paper: string }>,
   shippingAddress: ShippingAddress,
 ) {
-  const response = await fetch(`${PRODIGI_BASE_URL}/v4.0/Orders`, {
+  const response = await fetch(`${getBaseUrl()}/v4.0/Orders`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({
@@ -57,7 +62,7 @@ export async function createProdigiOrder(
 }
 
 export async function getProdigiOrderStatus(orderId: string) {
-  const response = await fetch(`${PRODIGI_BASE_URL}/v4.0/Orders/${orderId}`, {
+  const response = await fetch(`${getBaseUrl()}/v4.0/Orders/${orderId}`, {
     method: "GET",
     headers: headers(),
   });

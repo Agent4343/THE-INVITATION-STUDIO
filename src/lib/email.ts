@@ -1,9 +1,15 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let _resend: Resend | null = null;
+
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY!);
+  }
+  return _resend;
+}
 
 const FROM_ADDRESS = "The Invitation Studio <orders@theinvitationstudio.com>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://theinvitationstudio.com";
 
 const TIER_NAMES: Record<string, string> = {
   standard: "Wedding Invitation Suite Builder",
@@ -16,10 +22,11 @@ export async function sendAccessCodeEmail(
   code: string,
   tier: string,
 ) {
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://theinvitationstudio.com";
   const tierName = TIER_NAMES[tier] || tier;
   const designUrl = `${APP_URL}/design?code=${code}`;
 
-  const { error } = await resend.emails.send({
+  const { error } = await getResend().emails.send({
     from: FROM_ADDRESS,
     to: email,
     subject: "Your Access Code — The Invitation Studio",
