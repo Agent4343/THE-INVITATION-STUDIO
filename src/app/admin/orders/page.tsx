@@ -24,29 +24,30 @@ interface Order {
 const STATUS_TABS = [
   "all",
   "pending",
-  "processing",
+  "paid",
+  "printing",
   "shipped",
   "delivered",
-  "cancelled",
-  "refunded",
 ] as const;
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800 border border-yellow-300",
-  processing: "bg-blue-100 text-blue-700 border border-blue-300",
-  shipped: "bg-indigo-100 text-indigo-700 border border-indigo-300",
+  paid: "bg-blue-100 text-blue-700 border border-blue-300",
+  submitted: "bg-indigo-100 text-indigo-700 border border-indigo-300",
+  printing: "bg-purple-100 text-purple-700 border border-purple-300",
+  shipped: "bg-orange-100 text-orange-700 border border-orange-300",
   delivered: "bg-green-100 text-green-700 border border-green-300",
   cancelled: "bg-red-100 text-red-700 border border-red-300",
-  refunded: "bg-orange-100 text-orange-700 border border-orange-300",
 };
 
 const VALID_STATUSES = [
   "pending",
-  "processing",
+  "paid",
+  "submitted",
+  "printing",
   "shipped",
   "delivered",
   "cancelled",
-  "refunded",
 ];
 
 function formatDate(iso: string) {
@@ -74,6 +75,12 @@ function formatCurrency(cents: number) {
   }).format(cents / 100);
 }
 
+function summarizeItems(items: unknown[]): string {
+  if (!Array.isArray(items) || items.length === 0) return "--";
+  if (items.length === 1) return "1 item";
+  return `${items.length} items`;
+}
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
@@ -84,12 +91,13 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [statusSelections, setStatusSelections] = useState<Record<string, string>>({});
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem("admin_token");
+      const token = localStorage.getItem("adminToken");
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
@@ -120,11 +128,14 @@ export default function AdminOrdersPage() {
     setPage(1);
   }, [statusFilter]);
 
-  async function updateStatus(orderId: string, newStatus: string) {
+  async function updateStatus(orderId: string) {
+    const newStatus = statusSelections[orderId];
+    if (!newStatus) return;
+
     setUpdatingId(orderId);
     setError("");
     try {
-      const token = localStorage.getItem("admin_token");
+      const token = localStorage.getItem("adminToken");
       const res = await fetch(`/api/admin/orders/${orderId}/status`, {
         method: "PATCH",
         headers: {
@@ -139,12 +150,16 @@ export default function AdminOrdersPage() {
         throw new Error(data.error || "Failed to update status");
       }
 
-      // Update the order in local state
       setOrders((prev) =>
         prev.map((o) =>
           o.id === orderId ? { ...o, status: newStatus } : o
         )
       );
+      setStatusSelections((prev) => {
+        const next = { ...prev };
+        delete next[orderId];
+        return next;
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to update status"
@@ -197,7 +212,6 @@ export default function AdminOrdersPage() {
             <thead>
               <tr className="bg-slate-800 text-white">
                 <th className="text-left px-4 py-3 font-medium">Order ID</th>
-                <th className="text-left px-4 py-3 font-medium">Design ID</th>
                 <th className="text-left px-4 py-3 font-medium">Status</th>
                 <th className="text-left px-4 py-3 font-medium">Items</th>
                 <th className="text-left px-4 py-3 font-medium">Amount</th>
@@ -209,13 +223,13 @@ export default function AdminOrdersPage() {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
-                    Loading...
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                    Loading orders...
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-400">
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
                     No orders found
                   </td>
                 </tr>
@@ -237,11 +251,6 @@ export default function AdminOrdersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-mono text-xs text-slate-600">
-                          {order.design_id.slice(0, 8)}...
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
                             STATUS_COLORS[order.status] ||
@@ -252,9 +261,7 @@ export default function AdminOrdersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-slate-600">
-                        {Array.isArray(order.items)
-                          ? order.items.length
-                          : "--"}
+                        {summarizeItems(order.items)}
                       </td>
                       <td className="px-4 py-3 text-slate-700 font-medium">
                         {formatCurrency(order.amount_paid)}
@@ -275,27 +282,43 @@ export default function AdminOrdersPage() {
                         className="px-4 py-3 text-right"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            updateStatus(order.id, e.target.value)
-                          }
-                          disabled={updatingId === order.id}
-                          className="text-xs rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-stone-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {VALID_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                              {s.charAt(0).toUpperCase() + s.slice(1)}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="flex items-center justify-end gap-2">
+                          <select
+                            value={statusSelections[order.id] || order.status}
+                            onChange={(e) =>
+                              setStatusSelections((prev) => ({
+                                ...prev,
+                                [order.id]: e.target.value,
+                              }))
+                            }
+                            disabled={updatingId === order.id}
+                            className="text-xs rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {VALID_STATUSES.map((s) => (
+                              <option key={s} value={s}>
+                                {s.charAt(0).toUpperCase() + s.slice(1)}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={() => updateStatus(order.id)}
+                            disabled={
+                              updatingId === order.id ||
+                              (!statusSelections[order.id] ||
+                                statusSelections[order.id] === order.status)
+                            }
+                            className="px-2.5 py-1 text-xs font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          >
+                            {updatingId === order.id ? "..." : "Update"}
+                          </button>
+                        </div>
                       </td>
                     </tr>
 
                     {/* Expanded Detail Row */}
                     {expandedId === order.id && (
                       <tr key={`${order.id}-detail`}>
-                        <td colSpan={8} className="bg-slate-50 px-6 py-4">
+                        <td colSpan={7} className="bg-slate-50 px-6 py-4">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                             {/* Shipping Address */}
                             <div className="space-y-2">
@@ -335,20 +358,12 @@ export default function AdminOrdersPage() {
                               )}
                             </div>
 
-                            {/* Order IDs */}
+                            {/* Order References */}
                             <div className="space-y-2">
                               <h4 className="font-semibold text-slate-900">
                                 Order References
                               </h4>
                               <div className="space-y-1.5">
-                                <p>
-                                  <span className="font-medium text-slate-600">
-                                    Order ID:
-                                  </span>{" "}
-                                  <code className="text-xs font-mono text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
-                                    {order.id}
-                                  </code>
-                                </p>
                                 <p>
                                   <span className="font-medium text-slate-600">
                                     Stripe Session:
