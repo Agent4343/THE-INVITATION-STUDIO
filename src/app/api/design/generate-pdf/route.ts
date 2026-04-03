@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { verifyToken } from "@/lib/auth";
-import { generateSuitePdf } from "@/lib/pdf";
-import { uploadPdf, getSignedDownloadUrl } from "@/lib/storage";
+import { generateSuiteHtml } from "@/lib/pdf";
 import { templates } from "@/data/templates";
 import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
@@ -57,29 +56,29 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate PDF
-    const pdfBuffer = await generateSuitePdf(design, template, palette, font);
+    // Generate HTML for the full suite
+    const html = generateSuiteHtml(
+      { ...design, content: design.content },
+      template,
+      palette,
+      font,
+    );
 
-    // Upload to storage
-    const key = `pdfs/${designId}/${Date.now()}.pdf`;
-    await uploadPdf(key, pdfBuffer);
-
-    // Get signed download URL
-    const downloadUrl = await getSignedDownloadUrl(key);
-    const expiresAt = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
-    ).toISOString();
-
-    // Update design record with pdf_url
+    // Update design record
     await supabase
       .from("designs")
-      .update({ pdf_url: key, updated_at: new Date().toISOString() })
+      .update({ pdf_generated_at: new Date().toISOString() })
       .eq("id", designId);
 
-    return NextResponse.json({ downloadUrl, expiresAt });
-  } catch {
+    // Return HTML — client will open in new window for print-to-PDF
+    return new NextResponse(html, {
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+      },
+    });
+  } catch (err) {
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: `PDF generation failed: ${err instanceof Error ? err.message : "Unknown error"}` },
       { status: 500 },
     );
   }

@@ -29,18 +29,35 @@ export default function DownloadPanel() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to generate PDF. Please try again.");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to generate PDF. Please try again.");
       }
 
-      const data = await res.json();
-      const url: string = data.url;
+      // Response is HTML — open in new window for print-to-PDF
+      const html = await res.text();
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        throw new Error("Please allow popups to download your suite.");
+      }
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "wedding-suite.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      printWindow.document.write(html);
+      printWindow.document.close();
+
+      // Wait for fonts to load then trigger print dialog
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+        }, 1000);
+      };
+
+      // Also trigger after a delay in case onload already fired
+      setTimeout(() => {
+        try {
+          printWindow.print();
+        } catch {
+          // Window may have been closed
+        }
+      }, 2000);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred."
@@ -62,12 +79,16 @@ export default function DownloadPanel() {
         size="lg"
         className="w-full"
       >
-        {isGeneratingPdf ? "Generating PDF..." : "Download Full Suite"}
+        {isGeneratingPdf ? "Preparing your suite..." : "Download Full Suite"}
       </Button>
 
       {error && (
         <p className="text-center text-sm text-red-500">{error}</p>
       )}
+
+      <p className="text-xs text-stone-400 text-center">
+        Opens a print preview — choose &quot;Save as PDF&quot; to download your print-ready invitation suite.
+      </p>
 
       <div className="pt-2">
         <p className="mb-2 text-xs font-medium text-stone-400">
