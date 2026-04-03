@@ -17,6 +17,26 @@ import LivePreview from "@/components/builder/LivePreview";
 import StepNavigator from "@/components/builder/StepNavigator";
 import EtsyCheckoutPanel from "@/components/builder/EtsyCheckoutPanel";
 
+function normalizeLegacyEventCopy(content: Record<string, unknown>) {
+  const normalized = { ...content };
+
+  const preHeading = typeof normalized.preHeading === "string"
+    ? normalized.preHeading.trim().toLowerCase()
+    : "";
+  if (preHeading === "together with their families") {
+    normalized.preHeading = "Hosted by their loved ones";
+  }
+
+  const invitationLine = typeof normalized.invitationLine === "string"
+    ? normalized.invitationLine.trim().toLowerCase()
+    : "";
+  if (invitationLine === "invite you to celebrate their marriage") {
+    normalized.invitationLine = "invite you to celebrate with us";
+  }
+
+  return normalized;
+}
+
 function PrintOffer() {
   return (
     <div className="mt-6 rounded-lg border border-stone-200 bg-white p-5">
@@ -150,7 +170,11 @@ function DesignPageInner() {
           if (f) setFont(f);
         }
         if (design.content && Object.keys(design.content).length > 0) {
-          setContent(design.content);
+          setContent(
+            normalizeLegacyEventCopy(
+              design.content as unknown as Record<string, unknown>,
+            ),
+          );
         }
 
         // Set the initial saved content ref so we don't immediately re-save
