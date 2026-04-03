@@ -6,7 +6,11 @@ let _stripe: Stripe | null = null;
 
 export function getStripe() {
   if (!_stripe) {
-    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      throw new Error("STRIPE_SECRET_KEY is not configured.");
+    }
+    _stripe = new Stripe(secretKey, {
       apiVersion: "2023-10-16",
     });
   }
@@ -26,9 +30,11 @@ let stripePromise: Promise<StripeClient | null> | null = null;
 
 export function getStripePromise() {
   if (!stripePromise) {
-    stripePromise = loadStripe(
-      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-    );
+    const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    if (!publishableKey) {
+      throw new Error("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not configured.");
+    }
+    stripePromise = loadStripe(publishableKey);
   }
   return stripePromise;
 }

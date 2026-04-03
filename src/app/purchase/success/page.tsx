@@ -6,8 +6,6 @@ import Link from "next/link";
 
 interface PurchaseStatus {
   status: "ready" | "processing";
-  code?: string;
-  email?: string;
 }
 
 function PurchaseSuccessContent() {
@@ -99,29 +97,20 @@ function PurchaseSuccessContent() {
         </h1>
 
         <p className="mt-4 text-[#6b5e4f]">
-          Your access code has been created and emailed to{" "}
-          <span className="font-medium">{data.email}</span>.
+          Your access code has been created and sent to the email address you
+          used at checkout.
         </p>
 
-        <div className="mx-auto mt-8 rounded-lg border border-[#e0d6c8] bg-[#f5f0e8] px-8 py-6">
-          <p className="text-xs uppercase tracking-widest text-[#9a8e7f]">
-            Your Access Code
-          </p>
-          <p className="mt-2 font-mono text-3xl font-bold tracking-widest text-[#3d3427]">
-            {data.code}
-          </p>
-        </div>
-
         <p className="mt-6 text-sm text-[#9a8e7f]">
-          Keep this code safe &mdash; you can use it to return to your design
-          anytime.
+          Open your email to get your code, then use it on the homepage to
+          start designing.
         </p>
 
         <Link
-          href={`/design?code=${data.code}`}
+          href="/"
           className="mt-8 inline-block rounded bg-[#3d3427] px-10 py-3 font-serif text-sm tracking-wide text-white transition-colors hover:bg-[#2a241b]"
         >
-          Start Designing
+          Go to Homepage
         </Link>
 
         <p className="mt-10 text-xs text-[#9a8e7f]">

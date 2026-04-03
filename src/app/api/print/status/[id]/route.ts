@@ -15,8 +15,9 @@ export async function GET(
     }
 
     const token = authHeader.slice(7);
+    let payload: ReturnType<typeof verifyToken>;
     try {
-      verifyToken(token);
+      payload = verifyToken(token);
     } catch {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -32,6 +33,11 @@ export async function GET(
 
     if (error || !order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Enforce order ownership to prevent cross-design status access.
+    if (order.design_id !== payload.designId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     let trackingNumber: string | null = null;

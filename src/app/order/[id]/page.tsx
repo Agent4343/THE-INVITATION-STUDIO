@@ -3,19 +3,7 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-
-function OrderStatus({ orderId }: { orderId: string }) {
-  return (
-    <div className="rounded-lg border border-stone-200 bg-white p-8 text-center">
-      <p className="text-sm text-stone-500">
-        Order tracking for <span className="font-mono font-semibold text-stone-700">{orderId}</span>
-      </p>
-      <p className="mt-4 text-sm text-stone-400">
-        Order status tracking will be available once print ordering launches.
-      </p>
-    </div>
-  );
-}
+import OrderStatus from "@/components/print/OrderStatus";
 
 export default function OrderPage() {
   const params = useParams<{ id: string }>();

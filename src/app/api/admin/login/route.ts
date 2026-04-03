@@ -1,8 +1,28 @@
 import { NextResponse } from "next/server";
 import { createAdminToken } from "@/lib/adminAuth";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+
+const ADMIN_LOGIN_LIMIT = {
+  windowMs: 10 * 60 * 1000,
+  maxRequests: 10,
+};
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rateLimit = checkRateLimit(`admin-login:${ip}`, ADMIN_LOGIN_LIMIT);
+    if (rateLimit.limited) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimit.retryAfterSeconds),
+          },
+        },
+      );
+    }
+
     const body = await request.text();
 
     if (!body) {
@@ -51,9 +71,9 @@ export async function POST(request: Request) {
     const token = createAdminToken(email);
 
     return NextResponse.json({ token, email });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
-      { error: `Server error: ${err instanceof Error ? err.message : "Unknown error"}` },
+      { error: "Internal server error" },
       { status: 500 },
     );
   }
