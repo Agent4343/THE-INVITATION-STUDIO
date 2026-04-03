@@ -5,7 +5,7 @@ import { useDesignStore } from "@/store/designStore";
 import type { SuitePiece } from "@/types";
 
 const pieces: { id: SuitePiece; label: string }[] = [
-  { id: "invitation", label: "Invitation" },
+  { id: "invitation", label: "Main Invitation" },
   { id: "rsvp", label: "RSVP" },
   { id: "details", label: "Details" },
   { id: "menu", label: "Menu" },

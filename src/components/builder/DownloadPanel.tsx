@@ -63,7 +63,7 @@ export default function DownloadPanel() {
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold uppercase tracking-widest text-stone-500">
-        Download
+        Download Event Stationery
       </h3>
 
       <Button
@@ -72,7 +72,9 @@ export default function DownloadPanel() {
         size="lg"
         className="w-full"
       >
-        {isGeneratingPdf ? "Preparing your suite..." : "Download Full Suite"}
+        {isGeneratingPdf
+          ? "Preparing your event stationery..."
+          : "Download Event Stationery"}
       </Button>
 
       {error && (
@@ -80,7 +82,8 @@ export default function DownloadPanel() {
       )}
 
       <p className="text-xs text-stone-400 text-center">
-        Opens a print preview — choose &quot;Save as PDF&quot; to download your print-ready invitation suite.
+        Opens a print preview — choose &quot;Save as PDF&quot; to download your
+        print-ready event stationery suite.
       </p>
 
     </div>

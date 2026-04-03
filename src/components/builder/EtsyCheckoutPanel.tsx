@@ -138,7 +138,7 @@ export default function EtsyCheckoutPanel() {
           Finish on Etsy
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-stone-600">
-          Your design is ready as {headline}. For compliance, payment is completed
+          Your event stationery is ready as {headline}. For compliance, payment is completed
           on Etsy. We send your personalization details so the seller can produce
           exactly what you approved.
         </p>
@@ -223,7 +223,7 @@ export default function EtsyCheckoutPanel() {
         className="w-full"
         size="lg"
       >
-        {loading ? "Preparing Etsy handoff..." : "Continue to Etsy Checkout"}
+        {loading ? "Preparing Etsy handoff..." : "Continue to Etsy Purchase"}
       </Button>
 
       <p className="text-center text-xs text-stone-500">

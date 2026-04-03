@@ -21,11 +21,11 @@ function PrintOffer() {
   return (
     <div className="mt-6 rounded-lg border border-stone-200 bg-white p-5">
       <h3 className="mb-2 text-sm font-semibold uppercase tracking-widest text-stone-500">
-        Want it printed?
+        Want your stationery printed?
       </h3>
       <p className="mb-4 text-sm leading-relaxed text-stone-500">
-        Order professionally printed cards on premium paper, delivered to your
-        door.
+        Order professionally printed event stationery on premium paper,
+        delivered to your door.
       </p>
       <button
         disabled
