@@ -26,11 +26,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 export default function WelcomeSignPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
   const textAlign = template.layout === "left" ? "left" as const : "center" as const;
-  const welcomeFallback =
-    content.eventType &&
-    !["wedding", "elopement"].includes(content.eventType.toLowerCase())
-      ? "Welcome to our Celebration"
-      : "Welcome to our Event";
+  const welcomeFallback = "Welcome to our Event";
 
   const containerStyle: React.CSSProperties = {
     width: "100%",

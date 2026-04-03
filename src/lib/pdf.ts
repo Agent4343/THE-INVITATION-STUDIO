@@ -26,7 +26,7 @@ export function renderPieceHtml(
         ? fallback
         : String(value),
     );
-  const eventType = String(c.eventType || "wedding").toLowerCase();
+  const eventType = String(c.eventType || "event").toLowerCase();
   const defaultInviteLine =
     eventType === "wedding"
       ? "invite you to celebrate their marriage"

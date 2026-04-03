@@ -7,7 +7,7 @@ import { useDesignStore } from "@/store/designStore";
 type Tab = "code" | "purchase";
 
 const SUITE_PIECES = [
-  "Wedding Invitation",
+  "Main Invitation",
   "RSVP Card",
   "Details Card",
   "Dinner Menu",

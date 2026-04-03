@@ -70,7 +70,7 @@ export interface DesignContent {
   guestName: string;  // placeholder name for preview
 
   // Welcome Sign
-  welcomeMessage: string;  // e.g. "Welcome to our wedding"
+  welcomeMessage: string;  // e.g. "Welcome to our celebration"
   welcomeSubtext: string;  // e.g. "Please find your seat"
 }
 

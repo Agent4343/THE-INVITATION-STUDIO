@@ -91,7 +91,7 @@ export function buildEtsyDraftPayload(input: {
   selectedItems?: EtsySelectionInput[];
 }): EtsyDraftOrderPayload {
   const c = input.content;
-  const eventType = normalizeText(c.eventType, "wedding", 32).toLowerCase();
+  const eventType = normalizeText(c.eventType, "event", 32).toLowerCase();
   const eventFormality = normalizeText(c.eventFormality, "classic", 32).toLowerCase();
   const guestCountBand = normalizeText(c.guestCountBand, "medium", 32).toLowerCase();
   const weddingRole = normalizeText(c.weddingRole, "couple", 32).toLowerCase();

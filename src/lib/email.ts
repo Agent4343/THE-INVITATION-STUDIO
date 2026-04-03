@@ -16,9 +16,9 @@ function getResend() {
 const FROM_ADDRESS = "The Invitation Studio <orders@theinvitationstudio.com>";
 
 const TIER_NAMES: Record<string, string> = {
-  standard: "Wedding Invitation Suite Builder",
-  premium: "Premium Wedding Suite Builder",
-  complete: "Complete Wedding Suite Builder + Premium Templates",
+  standard: "Event Stationery Suite Builder",
+  premium: "Premium Event Stationery Suite Builder",
+  complete: "Complete Event Stationery Suite + Premium Templates",
 };
 
 export async function sendAccessCodeEmail(

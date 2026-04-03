@@ -50,7 +50,7 @@ export default function EtsyCheckoutPanel() {
   const [selectedRouteLabel, setSelectedRouteLabel] = useState<string>("");
 
   const headline = useMemo(() => {
-    const eventType = (content.eventType || "wedding").toLowerCase();
+    const eventType = (content.eventType || "event").toLowerCase();
     if (eventType === "anniversary") return "Anniversary stationery";
     if (eventType === "vow-renewal") return "Vow renewal stationery";
     if (eventType === "engagement") return "Engagement stationery";

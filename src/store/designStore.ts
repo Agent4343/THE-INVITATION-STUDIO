@@ -12,7 +12,7 @@ import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
 
 const defaultContent: DesignContent = {
-  eventType: "wedding",
+  eventType: "celebration",
   wordingTone: "classic",
   hostingStyle: "couple",
   eventFormality: "classic",

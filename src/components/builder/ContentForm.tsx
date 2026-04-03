@@ -28,7 +28,7 @@ const sections: Section[] = [
         key: "eventType",
         label: "Event Type",
         placeholder:
-          "wedding, elopement, civil-ceremony, anniversary, vow-renewal, engagement, bridal-shower, baby-shower, birthday, graduation, retirement, holiday",
+          "birthday, anniversary, wedding, elopement, civil-ceremony, vow-renewal, engagement, bridal-shower, baby-shower, graduation, retirement, holiday",
         maxLength: 40,
       },
       {
@@ -73,8 +73,8 @@ const sections: Section[] = [
       },
       {
         key: "weddingRole",
-        label: "Planner Profile",
-        placeholder: "Couple, Planner, Parent, Friend",
+        label: "Buyer / Planner Role",
+        placeholder: "Host, Planner, Parent, Friend, Couple",
         maxLength: 30,
       },
       {
@@ -243,7 +243,7 @@ const sections: Section[] = [
       {
         key: "welcomeMessage",
         label: "Welcome Message",
-        placeholder: "Welcome to our Wedding",
+        placeholder: "Welcome to our Celebration",
         maxLength: 80,
         aiField: true,
       },

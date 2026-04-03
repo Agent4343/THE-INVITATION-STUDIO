@@ -27,7 +27,7 @@ const FIELD_GUIDANCE: Record<Field, string> = {
   preHeading:
     "A short phrase that appears above the names, typically 3-8 words. Examples: 'Together with their loved ones', 'With joy in our hearts'.",
   invitationLine:
-    "A short invitation sentence suitable for weddings and other celebrations. Example: 'invite you to celebrate with us'.",
+    "A short invitation sentence suitable for birthdays, anniversaries, weddings, showers, and other celebrations. Example: 'invite you to celebrate with us'.",
   hostLine:
     "A concise line introducing hosts. Examples: 'Together with our families', 'Hosted by the Johnson family'.",
   rsvpPrompt:

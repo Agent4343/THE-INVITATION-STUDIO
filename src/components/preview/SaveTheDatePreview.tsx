@@ -26,10 +26,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 export default function SaveTheDatePreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
   const textAlign = template.layout === "left" ? "left" as const : "center" as const;
-  const defaultSaveText =
-    content.eventType && content.eventType.toLowerCase() !== "wedding"
-      ? "Save the Date"
-      : "Save the Date";
+  const defaultSaveText = "Save the Date";
   const headingText = content.saveTheDateMessage || defaultSaveText;
   const hasCustomHeading = !!content.saveTheDateMessage;
 

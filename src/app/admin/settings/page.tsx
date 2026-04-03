@@ -461,7 +461,7 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setRouteForm((prev) => ({ ...prev, eventType: e.target.value }))
                 }
-                placeholder="wedding, anniversary, default"
+                placeholder="birthday, anniversary, shower, default"
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
               />
             </div>
@@ -490,7 +490,7 @@ export default function AdminSettingsPage() {
                     listingLabel: e.target.value,
                   }))
                 }
-                placeholder="Wedding Invitations Listing"
+                placeholder="Birthday Collection Listing"
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
               />
             </div>

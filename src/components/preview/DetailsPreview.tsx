@@ -28,14 +28,11 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
   const ornStyle = template.ornamentStyle || "classic";
 
   const sections = [
-    { label: "Ceremony", icon: "\u2736", detail: content.ceremonyDetails, placeholder: "Ceremony begins at 4:30 PM\nin the Rose Garden" },
-    { label: "Reception", icon: "\u2737", detail: content.receptionDetails, placeholder: "Dinner and dancing to follow\nin the Grand Ballroom" },
+    { label: "Ceremony", icon: "\u2736", detail: content.ceremonyDetails, placeholder: "Main event begins at 4:30 PM\nin the Rose Garden" },
+    { label: "Reception", icon: "\u2737", detail: content.receptionDetails, placeholder: "Celebration to follow\nin the Grand Ballroom" },
     { label: "Dress Code", icon: "\u2726", detail: content.dressCode, placeholder: "Black Tie Optional" },
   ];
-  const dayLabel =
-    content.eventType && content.eventType.toLowerCase() !== "wedding"
-      ? "Event Day"
-      : "Wedding Day";
+  const dayLabel = "Event Day";
 
   return (
     <div
