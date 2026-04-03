@@ -1,11 +1,19 @@
 import type { ShippingAddress } from "@/types";
 
 function getBaseUrl() {
-  return process.env.PRODIGI_BASE_URL!;
+  const baseUrl = process.env.PRODIGI_BASE_URL;
+  if (!baseUrl) {
+    throw new Error("PRODIGI_BASE_URL is not configured.");
+  }
+  return baseUrl;
 }
 
 function getApiKey() {
-  return process.env.PRODIGI_API_KEY!;
+  const apiKey = process.env.PRODIGI_API_KEY;
+  if (!apiKey) {
+    throw new Error("PRODIGI_API_KEY is not configured.");
+  }
+  return apiKey;
 }
 
 function headers() {

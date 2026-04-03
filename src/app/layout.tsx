@@ -3,17 +3,17 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "The Invitation Studio",
-  description: "Design your perfect wedding invitation suite",
+  description: "Design your perfect event stationery suite",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://theinvitationstudio.com'),
   openGraph: {
     title: 'The Invitation Studio',
-    description: 'Design your perfect wedding invitation suite',
+    description: 'Design your perfect event stationery suite',
     type: 'website',
   },
   twitter: {
     card: 'summary',
     title: 'The Invitation Studio',
-    description: 'Design your perfect wedding invitation suite',
+    description: 'Design your perfect event stationery suite',
   },
   themeColor: '#44403c',
 };

@@ -6,50 +6,8 @@ import { useDesignStore } from "@/store/designStore";
 
 type Tab = "code" | "purchase";
 
-const TIERS = [
-  {
-    id: "standard" as const,
-    name: "Standard",
-    price: "$24.99",
-    description: "Everything you need for your big day",
-    features: [
-      "9-piece invitation suite",
-      "12 designer templates",
-      "12 curated color palettes",
-      "12 premium font pairings",
-      "AI-powered wording assistant",
-      "Unlimited downloads",
-    ],
-  },
-  {
-    id: "premium" as const,
-    name: "Premium",
-    price: "$34.99",
-    description: "Our most popular choice",
-    features: [
-      "Everything in Standard",
-      "All current & future templates",
-      "Priority email support",
-      "Extended access (1 year)",
-    ],
-    popular: true,
-  },
-  {
-    id: "complete" as const,
-    name: "Complete",
-    price: "$49.99",
-    description: "The ultimate wedding suite",
-    features: [
-      "Everything in Premium",
-      "Lifetime access",
-      "Print fulfillment discount",
-      "Early access to new designs",
-    ],
-  },
-];
-
 const SUITE_PIECES = [
-  "Wedding Invitation",
+  "Main Invitation",
   "RSVP Card",
   "Details Card",
   "Dinner Menu",
@@ -61,6 +19,9 @@ const SUITE_PIECES = [
 ];
 
 function HomePageInner() {
+  const ETSY_SHOP_URL =
+    process.env.NEXT_PUBLIC_ETSY_SHOP_URL ||
+    "https://www.etsy.com/shop/theinvitationstudio";
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setDesignId, setToken } = useDesignStore();
@@ -69,11 +30,6 @@ function HomePageInner() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const [email, setEmail] = useState("");
-  const [selectedTier, setSelectedTier] = useState<"standard" | "premium" | "complete">("premium");
-  const [purchaseLoading, setPurchaseLoading] = useState(false);
-  const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
   const formatCode = (value: string) => {
     const digits = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12);
@@ -135,36 +91,8 @@ function HomePageInner() {
     }
   };
 
-  const handlePurchase = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) {
-      setPurchaseError("Please enter a valid email address.");
-      return;
-    }
-
-    setPurchaseLoading(true);
-    setPurchaseError(null);
-
-    try {
-      const res = await fetch("/api/purchase/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, tier: selectedTier }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setPurchaseError(data.error || "Something went wrong. Please try again.");
-        return;
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch {
-      setPurchaseError("Something went wrong. Please try again.");
-    } finally {
-      setPurchaseLoading(false);
-    }
+  const handlePurchase = () => {
+    window.open(ETSY_SHOP_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -173,7 +101,7 @@ function HomePageInner() {
       <main className="flex flex-1 flex-col items-center px-4">
         <section className="w-full max-w-4xl py-16 text-center">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.4em] text-stone-400">
-            Design Your Dream Wedding Stationery
+            Event Stationery for Every Style
           </p>
           <h1
             className="mb-4 text-5xl font-light tracking-tight text-stone-800 sm:text-6xl"
@@ -182,13 +110,20 @@ function HomePageInner() {
             The Invitation Studio
           </h1>
           <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-stone-500">
-            Create a stunning 9-piece wedding invitation suite in minutes.
-            Choose from 12 designer templates, customize every detail, and download
-            print-ready files instantly.
+            Build complete event stationery across 9 matching pieces in minutes.
+            Made for weddings, anniversaries, birthdays, showers, and more —
+            personalized for your style and guests.
           </p>
           <p className="mb-12 text-sm text-stone-400">
-            1,728 unique design combinations &middot; AI-powered wording &middot; Instant download
+            1,728 combinations &middot; AI wording help &middot; Instant event
+            stationery PDFs
           </p>
+
+          <div className="mx-auto mb-8 grid max-w-3xl grid-cols-1 gap-2 rounded-lg border border-stone-200 bg-white p-4 text-xs text-stone-500 sm:grid-cols-3">
+            <p>Etsy checkout for event stationery</p>
+            <p>Access code delivered by email</p>
+            <p>Friendly support: support@theinvitationstudio.com</p>
+          </div>
 
           {/* Tab Switcher */}
           <div className="mx-auto mb-8 flex max-w-md rounded-lg border border-stone-200 bg-white p-1">
@@ -200,7 +135,7 @@ function HomePageInner() {
                   : "text-stone-500 hover:text-stone-700"
               }`}
             >
-              Get Started
+              Buy Event Access
             </button>
             <button
               onClick={() => setTab("code")}
@@ -210,85 +145,31 @@ function HomePageInner() {
                   : "text-stone-500 hover:text-stone-700"
               }`}
             >
-              I Have a Code
+              Redeem Access Code
             </button>
           </div>
 
           {/* Purchase Tab */}
           {tab === "purchase" && (
-            <div className="mx-auto max-w-3xl">
-              <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {TIERS.map((tier) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => setSelectedTier(tier.id)}
-                    className={`relative rounded-xl border-2 p-5 text-left transition-all ${
-                      selectedTier === tier.id
-                        ? "border-stone-800 bg-white shadow-lg"
-                        : "border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm"
-                    }`}
-                  >
-                    {tier.popular && (
-                      <span className="absolute -top-2.5 right-4 rounded-full bg-stone-800 px-3 py-0.5 text-xs font-medium text-white">
-                        Popular
-                      </span>
-                    )}
-                    <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-600">
-                      {tier.name}
-                    </h3>
-                    <p
-                      className="mt-1 text-3xl font-semibold text-stone-800"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
-                    >
-                      {tier.price}
-                    </p>
-                    <p className="mt-1 text-xs text-stone-400">{tier.description}</p>
-                    <ul className="mt-4 space-y-1.5">
-                      {tier.features.map((f) => (
-                        <li key={f} className="flex items-start text-xs text-stone-500">
-                          <svg className="mr-1.5 mt-0.5 h-3 w-3 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </button>
-                ))}
-              </div>
-
-              <form onSubmit={handlePurchase} className="mx-auto max-w-md space-y-4">
-                <div>
-                  <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-600">
-                    Your Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setPurchaseError(null); }}
-                    placeholder="you@example.com"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-center text-stone-800 placeholder-stone-300 transition-colors focus:border-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                    required
-                  />
-                </div>
-
-                {purchaseError && (
-                  <p className="text-sm text-red-500">{purchaseError}</p>
-                )}
-
+            <div className="mx-auto max-w-xl">
+              <div className="mx-auto max-w-md space-y-4">
                 <button
-                  type="submit"
-                  disabled={purchaseLoading}
+                  type="button"
+                  onClick={handlePurchase}
                   className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {purchaseLoading ? "Redirecting to checkout..." : `Purchase — ${TIERS.find(t => t.id === selectedTier)?.price}`}
+                  Buy Event Stationery Access on Etsy
                 </button>
 
-                <p className="text-xs text-stone-400">
-                  Secure payment via Stripe. Access code delivered instantly after purchase.
+                <p className="text-xs text-stone-500">
+                  All payments are completed on Etsy. This app does not process
+                  payments directly.
                 </p>
-              </form>
+                <p className="text-xs text-stone-400">
+                  After Etsy checkout, you receive an access code by email to
+                  redeem here and start your event stationery.
+                </p>
+              </div>
             </div>
           )}
 
@@ -320,11 +201,12 @@ function HomePageInner() {
                 disabled={loading}
                 className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {loading ? "Validating..." : "Start Designing"}
+                {loading ? "Validating..." : "Start Event Stationery Builder"}
               </button>
 
               <p className="text-xs text-stone-400">
-                Access codes are delivered via email after purchase or through Etsy.
+                Access code format: XXXX-XXXX-XXXX. Delivered by email after
+                purchase.
               </p>
             </form>
           )}
@@ -336,10 +218,10 @@ function HomePageInner() {
             className="mb-3 text-center text-2xl font-light text-stone-800"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Complete 9-Piece Suite
+            Complete 9-Piece Event Stationery Collection
           </h2>
           <p className="mb-10 text-center text-sm text-stone-400">
-            Everything you need for a cohesive, beautiful wedding
+            Everything you need for cohesive, beautiful event stationery
           </p>
 
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9">
@@ -370,18 +252,18 @@ function HomePageInner() {
             className="mb-10 text-center text-2xl font-light text-stone-800"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Designed to Delight
+            Event Stationery, Simplified
           </h2>
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                title: "12 Designer Templates",
+                title: "12 Event Stationery Styles",
                 desc: "From Classic Elegance to Art Deco Luxe, Botanical Bliss to Coastal Breeze. Each with unique decorative elements.",
               },
               {
                 title: "12 Color Palettes",
-                desc: "Sage & Gold, Dusty Rose, Midnight & Pearl, Terracotta Sunset — curated palettes for every wedding style.",
+                desc: "Sage & Gold, Dusty Rose, Midnight & Pearl, Terracotta Sunset — curated palettes for every event style.",
               },
               {
                 title: "12 Premium Fonts",
@@ -396,8 +278,8 @@ function HomePageInner() {
                 desc: "See your changes in real-time. Every edit updates the preview instantly — what you see is what you print.",
               },
               {
-                title: "Print-Ready Downloads",
-                desc: "High-resolution PDF output with proper margins, bleed, and color accuracy for professional printing.",
+                title: "Print-Ready Event Files",
+                desc: "High-resolution event stationery PDFs with proper margins, bleed, and color accuracy for professional printing.",
               },
             ].map((feature) => (
               <div key={feature.title} className="text-center">
@@ -425,18 +307,18 @@ function HomePageInner() {
             {[
               {
                 step: "01",
-                title: "Choose Your Style",
-                desc: "Browse 12 designer templates and find the perfect match for your wedding aesthetic.",
+                title: "Pick Your Event Template",
+                desc: "Choose from designer-made styles curated for modern, romantic, and classic events.",
               },
               {
                 step: "02",
-                title: "Personalize Everything",
-                desc: "Add your details, pick colors and fonts, use AI to craft the perfect wording.",
+                title: "Personalize Event Details",
+                desc: "Add your details, tune fonts and palettes, and use AI for polished wording.",
               },
               {
                 step: "03",
-                title: "Download & Print",
-                desc: "Get your complete 9-piece suite as print-ready PDFs. Print at home or professionally.",
+                title: "Export Event Stationery Files",
+                desc: "Export print-ready event stationery PDFs instantly or order professionally printed sets.",
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
@@ -474,6 +356,9 @@ function HomePageInner() {
           >
             support@theinvitationstudio.com
           </a>
+        </p>
+        <p className="mt-2 text-[11px] text-stone-400">
+          Etsy-compliant final checkout &middot; Access code sent to your email after purchase
         </p>
       </footer>
     </div>

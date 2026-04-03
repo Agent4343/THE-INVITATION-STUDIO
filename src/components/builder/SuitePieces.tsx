@@ -5,15 +5,15 @@ import { useDesignStore } from "@/store/designStore";
 import type { SuitePiece } from "@/types";
 
 const pieces: { id: SuitePiece; label: string }[] = [
-  { id: "invitation", label: "Invitation" },
+  { id: "invitation", label: "Main Event Invite" },
   { id: "rsvp", label: "RSVP" },
-  { id: "details", label: "Details" },
-  { id: "menu", label: "Menu" },
+  { id: "details", label: "Event Details" },
+  { id: "menu", label: "Event Menu" },
   { id: "thankyou", label: "Thank You" },
   { id: "savethedate", label: "Save the Date" },
-  { id: "tablenumber", label: "Table No." },
-  { id: "placecard", label: "Place Card" },
-  { id: "welcomesign", label: "Welcome Sign" },
+  { id: "tablenumber", label: "Table Number" },
+  { id: "placecard", label: "Guest Place Card" },
+  { id: "welcomesign", label: "Event Welcome Sign" },
 ];
 
 export default function SuitePieces() {

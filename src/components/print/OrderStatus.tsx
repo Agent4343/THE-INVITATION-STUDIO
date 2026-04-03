@@ -4,13 +4,22 @@ import React, { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface OrderStatusData {
-  status: "paid" | "printing" | "shipped" | "delivered";
+  status:
+    | "pending"
+    | "paid"
+    | "submitted"
+    | "printing"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
   trackingNumber?: string;
   estimatedDelivery?: string;
 }
 
 const steps: { key: OrderStatusData["status"]; label: string }[] = [
+  { key: "pending", label: "Pending" },
   { key: "paid", label: "Paid" },
+  { key: "submitted", label: "Submitted" },
   { key: "printing", label: "Printing" },
   { key: "shipped", label: "Shipped" },
   { key: "delivered", label: "Delivered" },
@@ -33,7 +42,14 @@ export default function OrderStatus({ orderId }: OrderStatusProps) {
 
     async function fetchStatus() {
       try {
-        const res = await fetch(`/api/print/status/${orderId}`);
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/print/status/${orderId}`, {
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : undefined,
+        });
         if (!res.ok) throw new Error("Failed to fetch order status");
         const json = await res.json();
         if (!cancelled) setData(json);
@@ -68,6 +84,8 @@ export default function OrderStatus({ orderId }: OrderStatusProps) {
   }
 
   const currentIdx = stepIndex(data.status);
+  const progressIdx = currentIdx < 0 ? 0 : currentIdx;
+  const isCancelled = data.status === "cancelled";
 
   return (
     <div className="space-y-8">
@@ -75,72 +93,77 @@ export default function OrderStatus({ orderId }: OrderStatusProps) {
         Order Status
       </h2>
 
-      {/* Stepper / Timeline */}
-      <div className="relative flex items-center justify-between">
-        {/* Connecting line */}
-        <div className="absolute left-0 right-0 top-4 h-0.5 bg-stone-200" />
-        <div
-          className="absolute left-0 top-4 h-0.5 bg-stone-700 transition-all duration-500"
-          style={{
-            width:
-              currentIdx === 0
-                ? "0%"
-                : `${(currentIdx / (steps.length - 1)) * 100}%`,
-          }}
-        />
+      {isCancelled ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          This order was cancelled. Please contact support if you need help.
+        </div>
+      ) : (
+        <div className="relative flex items-center justify-between">
+          {/* Connecting line */}
+          <div className="absolute left-0 right-0 top-4 h-0.5 bg-stone-200" />
+          <div
+            className="absolute left-0 top-4 h-0.5 bg-stone-700 transition-all duration-500"
+            style={{
+              width:
+                progressIdx === 0
+                  ? "0%"
+                  : `${(progressIdx / (steps.length - 1)) * 100}%`,
+            }}
+          />
 
-        {steps.map((step, idx) => {
-          const isCompleted = idx < currentIdx;
-          const isCurrent = idx === currentIdx;
+          {steps.map((step, idx) => {
+            const isCompleted = idx < progressIdx;
+            const isCurrent = idx === progressIdx;
 
-          return (
-            <div
-              key={step.key}
-              className="relative z-10 flex flex-col items-center"
-            >
-              {/* Circle */}
+            return (
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors duration-300 ${
-                  isCompleted
-                    ? "border-stone-700 bg-stone-700 text-white"
-                    : isCurrent
-                      ? "border-stone-700 bg-white text-stone-700"
-                      : "border-stone-300 bg-white text-stone-400"
-                }`}
+                key={step.key}
+                className="relative z-10 flex flex-col items-center"
               >
-                {isCompleted ? (
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                ) : (
-                  idx + 1
-                )}
-              </div>
+                {/* Circle */}
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors duration-300 ${
+                    isCompleted
+                      ? "border-stone-700 bg-stone-700 text-white"
+                      : isCurrent
+                        ? "border-stone-700 bg-white text-stone-700"
+                        : "border-stone-300 bg-white text-stone-400"
+                  }`}
+                >
+                  {isCompleted ? (
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : (
+                    idx + 1
+                  )}
+                </div>
 
-              {/* Label */}
-              <span
-                className={`mt-2 text-xs font-medium tracking-wide ${
-                  isCompleted || isCurrent
-                    ? "text-stone-800"
-                    : "text-stone-400"
-                }`}
-              >
-                {step.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                {/* Label */}
+                <span
+                  className={`mt-2 text-xs font-medium tracking-wide ${
+                    isCompleted || isCurrent
+                      ? "text-stone-800"
+                      : "text-stone-400"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Details */}
       <div className="space-y-3 text-center">

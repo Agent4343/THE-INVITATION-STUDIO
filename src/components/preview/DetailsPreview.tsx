@@ -11,6 +11,91 @@ interface PreviewProps {
   content: DesignContent;
 }
 
+function normalizeEventType(value?: string): string {
+  return (value || "celebration").trim().toLowerCase();
+}
+
+function detailsConfigForEventType(eventType: string): {
+  dayLabel: string;
+  detailsTitle: string;
+  sectionOneLabel: string;
+  sectionOnePlaceholder: string;
+  sectionTwoLabel: string;
+  sectionTwoPlaceholder: string;
+  dressCodeLabel: string;
+  dressCodePlaceholder: string;
+} {
+  switch (eventType) {
+    case "birthday":
+      return {
+        dayLabel: "Birthday Event",
+        detailsTitle: "Celebration Details",
+        sectionOneLabel: "Main Event",
+        sectionOnePlaceholder: "Birthday celebration starts at 4:30 PM\nin the main event space",
+        sectionTwoLabel: "After Party",
+        sectionTwoPlaceholder: "Dinner, cake, and dancing to follow\nin the lounge",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Party Chic",
+      };
+    case "anniversary":
+      return {
+        dayLabel: "Anniversary Event",
+        detailsTitle: "Anniversary Details",
+        sectionOneLabel: "Ceremony",
+        sectionOnePlaceholder: "Anniversary ceremony starts at 4:30 PM\nin the garden",
+        sectionTwoLabel: "Celebration",
+        sectionTwoPlaceholder: "Dinner and toasts to follow\nin the ballroom",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Cocktail Attire",
+      };
+    case "baby-shower":
+    case "bridal-shower":
+      return {
+        dayLabel: "Shower Event",
+        detailsTitle: "Shower Details",
+        sectionOneLabel: "Gathering",
+        sectionOnePlaceholder: "Shower gathering begins at 11:00 AM\nin the garden room",
+        sectionTwoLabel: "Activities",
+        sectionTwoPlaceholder: "Brunch, games, and gifts to follow\nin the main hall",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Daytime Smart Casual",
+      };
+    case "graduation":
+      return {
+        dayLabel: "Graduation Event",
+        detailsTitle: "Graduation Details",
+        sectionOneLabel: "Ceremony",
+        sectionOnePlaceholder: "Graduation ceremony begins at 2:00 PM\nat the auditorium",
+        sectionTwoLabel: "Reception",
+        sectionTwoPlaceholder: "Family reception to follow\nat the celebration hall",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Semi-Formal",
+      };
+    case "retirement":
+      return {
+        dayLabel: "Retirement Event",
+        detailsTitle: "Retirement Details",
+        sectionOneLabel: "Reception",
+        sectionOnePlaceholder: "Retirement reception starts at 6:00 PM\nin the banquet room",
+        sectionTwoLabel: "Program",
+        sectionTwoPlaceholder: "Dinner, speeches, and tributes to follow\nin the main hall",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Business Casual",
+      };
+    default:
+      return {
+        dayLabel: "Event Day",
+        detailsTitle: "Event Details",
+        sectionOneLabel: "Main Event",
+        sectionOnePlaceholder: "Main event begins at 4:30 PM\nin the Rose Garden",
+        sectionTwoLabel: "Celebration",
+        sectionTwoPlaceholder: "Celebration to follow\nin the Grand Ballroom",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Black Tie Optional",
+      };
+  }
+}
+
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
   switch (borderStyle) {
     case "thin":
@@ -26,12 +111,31 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 export default function DetailsPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
   const ornStyle = template.ornamentStyle || "classic";
+  const detailsConfig = detailsConfigForEventType(
+    normalizeEventType(content.eventType),
+  );
 
   const sections = [
-    { label: "Ceremony", icon: "\u2736", detail: content.ceremonyDetails, placeholder: "Ceremony begins at 4:30 PM\nin the Rose Garden" },
-    { label: "Reception", icon: "\u2737", detail: content.receptionDetails, placeholder: "Dinner and dancing to follow\nin the Grand Ballroom" },
-    { label: "Dress Code", icon: "\u2726", detail: content.dressCode, placeholder: "Black Tie Optional" },
+    {
+      label: detailsConfig.sectionOneLabel,
+      icon: "\u2736",
+      detail: content.ceremonyDetails,
+      placeholder: detailsConfig.sectionOnePlaceholder,
+    },
+    {
+      label: detailsConfig.sectionTwoLabel,
+      icon: "\u2737",
+      detail: content.receptionDetails,
+      placeholder: detailsConfig.sectionTwoPlaceholder,
+    },
+    {
+      label: detailsConfig.dressCodeLabel,
+      icon: "\u2726",
+      detail: content.dressCode,
+      placeholder: detailsConfig.dressCodePlaceholder,
+    },
   ];
+  const dayLabel = detailsConfig.dayLabel;
 
   return (
     <div
@@ -77,7 +181,7 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
           zIndex: 1,
         }}
       >
-        Wedding Day
+        {dayLabel}
       </p>
 
       <h2
@@ -92,7 +196,7 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
           zIndex: 1,
         }}
       >
-        Details
+        {detailsConfig.detailsTitle}
       </h2>
 
       {template.ornament && (

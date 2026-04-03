@@ -4,6 +4,10 @@ import { getAnthropicClient } from "@/lib/anthropic";
 
 const VALID_FIELDS = [
   "preHeading",
+  "invitationLine",
+  "hostLine",
+  "rsvpPrompt",
+  "guestPrompt",
   "ceremonyDetails",
   "receptionDetails",
   "dressCode",
@@ -21,7 +25,15 @@ type Tone = (typeof VALID_TONES)[number];
 
 const FIELD_GUIDANCE: Record<Field, string> = {
   preHeading:
-    "A short phrase that appears above the couple's names, typically 3-8 words. Examples: 'Together with their families', 'With joy in their hearts'.",
+    "A short phrase that appears above the names, typically 3-8 words. Examples: 'Together with their loved ones', 'With joy in our hearts'.",
+  invitationLine:
+    "A short invitation sentence suitable for birthdays, anniversaries, weddings, showers, and other celebrations. Example: 'invite you to celebrate with us'.",
+  hostLine:
+    "A concise line introducing hosts. Examples: 'Together with our families', 'Hosted by the Johnson family'.",
+  rsvpPrompt:
+    "A short RSVP prompt. Examples: 'Please respond by', 'Kindly RSVP by'.",
+  guestPrompt:
+    "A short label for guest/place card line. Examples: 'Guest Name', 'Name'.",
   ceremonyDetails:
     "A brief, elegant description of the ceremony. Include the date, time, and venue naturally. Keep it to 2-3 sentences maximum.",
   receptionDetails:
@@ -95,14 +107,14 @@ export async function POST(request: Request) {
     const { name1, name2, date, time, venue } = context;
 
     const systemPrompt = [
-      "You are an expert wedding invitation copywriter.",
-      "You write elegant, concise text for wedding stationery.",
+      "You are an expert event stationery copywriter.",
+      "You write elegant, concise text for invitations and event stationery.",
       "You always respond with exactly 3 suggestions, one per line, numbered 1-3.",
       "Do not include any other text, explanations, or formatting — just the three numbered suggestions.",
     ].join(" ");
 
     const userPrompt = [
-      `Write 3 ${tone} wording suggestions for the "${field}" section of a wedding invitation.`,
+      `Write 3 ${tone} wording suggestions for the "${field}" section of event stationery.`,
       name1 && name2 ? `The couple: ${name1} & ${name2}.` : "",
       date ? `Date: ${date}.` : "",
       time ? `Time: ${time}.` : "",

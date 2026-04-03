@@ -32,6 +32,7 @@ export default function MenuPreview({ template, palette, font, content }: Previe
     { label: "Main Course", item: content.entree, placeholder: "Herb-Crusted Lamb with rosemary jus" },
     { label: "Dessert", item: content.dessert, placeholder: "Vanilla Bean Cr\u00e8me Br\u00fbl\u00e9e" },
   ];
+  const menuHeading = content.menuHeading || "Menu";
 
   return (
     <div
@@ -77,7 +78,7 @@ export default function MenuPreview({ template, palette, font, content }: Previe
           zIndex: 1,
         }}
       >
-        Dinner
+        {menuHeading}
       </p>
 
       <h2

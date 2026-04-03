@@ -6,6 +6,9 @@ import { sendOrderConfirmation } from "@/lib/resend";
 import { getSignedDownloadUrl } from "@/lib/storage";
 import type Stripe from "stripe";
 
+const WEBHOOK_SECRET =
+  process.env.STRIPE_PRINT_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET;
+
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
@@ -18,12 +21,19 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!WEBHOOK_SECRET) {
+      return NextResponse.json(
+        { error: "Webhook secret not configured" },
+        { status: 500 },
+      );
+    }
+
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(
         rawBody,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET!,
+        WEBHOOK_SECRET,
       );
     } catch {
       return NextResponse.json(
@@ -48,11 +58,27 @@ export async function POST(request: Request) {
         return NextResponse.json({ received: true }, { status: 200 });
       }
 
+      if (order.prodigi_order_id) {
+        return NextResponse.json({ received: true }, { status: 200 });
+      }
+
       // Update order status to paid
       await supabase
         .from("print_orders")
         .update({ status: "paid" })
         .eq("id", order.id);
+
+      const checkoutShipping = session.customer_details?.address
+        ? {
+            name: session.customer_details?.name || "Stripe Checkout Customer",
+            address1: session.customer_details.address.line1 || "",
+            address2: session.customer_details.address.line2 || "",
+            city: session.customer_details.address.city || "",
+            state: session.customer_details.address.state || "",
+            zip: session.customer_details.address.postal_code || "",
+            country: session.customer_details.address.country || "US",
+          }
+        : null;
 
       // Get the design's PDF URL for Prodigi
       const { data: design } = await supabase
@@ -65,12 +91,24 @@ export async function POST(request: Request) {
         ? await getSignedDownloadUrl(design.pdf_url)
         : "";
 
+      const shippingAddress = checkoutShipping || order.shipping_address;
+      if (checkoutShipping) {
+        await supabase
+          .from("print_orders")
+          .update({ shipping_address: checkoutShipping })
+          .eq("id", order.id);
+      }
+
       // Submit to Prodigi
       try {
+        if (!pdfUrl) {
+          throw new Error("Design PDF is missing for print order.");
+        }
+
         const prodigiResult = await createProdigiOrder(
           pdfUrl,
           order.items,
-          order.shipping,
+          shippingAddress,
         );
 
         const prodigiOrderId =

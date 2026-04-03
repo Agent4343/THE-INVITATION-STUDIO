@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 
+const SESSION_ID_PATTERN = /^cs_(test|live)_[A-Za-z0-9]+$/;
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,13 +15,22 @@ export async function GET(request: Request) {
       );
     }
 
+    if (!SESSION_ID_PATTERN.test(sessionId)) {
+      return NextResponse.json(
+        { error: "Invalid session_id." },
+        { status: 400 },
+      );
+    }
+
     const supabase = createServerSupabase();
 
     const { data: accessCode, error } = await supabase
       .from("access_codes")
-      .select("code, email")
+      .select("id")
       .eq("etsy_order_id", sessionId)
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     if (error || !accessCode) {
       // Webhook may not have fired yet
@@ -28,8 +39,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       status: "ready",
-      code: accessCode.code,
-      email: accessCode.email,
     });
   } catch {
     return NextResponse.json(

@@ -1,11 +1,30 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { createToken } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 const CODE_PATTERN = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+const CODE_VALIDATE_LIMIT = {
+  windowMs: 10 * 60 * 1000,
+  maxRequests: 30,
+};
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rateLimit = checkRateLimit(`auth-validate:${ip}`, CODE_VALIDATE_LIMIT);
+    if (rateLimit.limited) {
+      return NextResponse.json(
+        { valid: false, error: "RATE_LIMITED" },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimit.retryAfterSeconds),
+          },
+        },
+      );
+    }
+
     const { code } = await request.json();
 
     if (!code || !CODE_PATTERN.test(code)) {

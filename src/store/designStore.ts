@@ -12,6 +12,20 @@ import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
 
 const defaultContent: DesignContent = {
+  eventType: "celebration",
+  wordingTone: "classic",
+  hostingStyle: "couple",
+  eventFormality: "classic",
+  guestCountBand: "51-120",
+  weddingRole: "couple",
+  languages: "english",
+  specialRequests: "",
+  invitationLine: "",
+  hostLine: "",
+  rsvpPrompt: "Please respond by",
+  guestPrompt: "",
+  relationshipLabel1: "",
+  relationshipLabel2: "",
   name1: "",
   name2: "",
   preHeading: "",
@@ -27,6 +41,7 @@ const defaultContent: DesignContent = {
   appetizer: "",
   entree: "",
   dessert: "",
+  menuHeading: "",
   thankYouMessage: "",
   saveTheDateMessage: "",
   tableNumber: "",

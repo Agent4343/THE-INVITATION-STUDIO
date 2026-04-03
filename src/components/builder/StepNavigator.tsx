@@ -6,11 +6,11 @@ import Button from "@/components/ui/Button";
 import type { BuilderStep } from "@/types";
 
 const steps: { id: BuilderStep; label: string }[] = [
-  { id: "template", label: "Template" },
-  { id: "palette", label: "Palette" },
-  { id: "font", label: "Font" },
-  { id: "content", label: "Content" },
-  { id: "preview", label: "Preview" },
+  { id: "template", label: "Stationery Style" },
+  { id: "palette", label: "Colors" },
+  { id: "font", label: "Typography" },
+  { id: "content", label: "Event Details" },
+  { id: "preview", label: "Review & Export" },
 ];
 
 export default function StepNavigator({
@@ -118,7 +118,7 @@ export default function StepNavigator({
           Previous
         </Button>
         <Button onClick={goNext}>
-          {isLast ? "Download" : "Next"}
+          {isLast ? "Go to Event Exports" : "Continue Setup"}
         </Button>
       </div>
     </div>

@@ -1,5 +1,83 @@
 import type { Design, Template, Palette, Font, SuitePiece } from "@/types";
 
+function normalizeEventType(value: unknown): string {
+  return String(value || "celebration")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .trim();
+}
+
+function detailsSectionsForEvent(eventType: string): Array<{
+  label: string;
+  detail: unknown;
+  placeholder: string;
+}> {
+  const normalized = normalizeEventType(eventType);
+
+  if (normalized === "birthday") {
+    return [
+      { label: "Party", detail: undefined, placeholder: "Party starts at 4:30 PM\nwith games and cake to follow." },
+      { label: "Schedule", detail: undefined, placeholder: "Cake cutting at 6:00 PM\nand celebration photos after." },
+      { label: "Attire", detail: undefined, placeholder: "Festive Casual" },
+    ];
+  }
+
+  if (normalized === "anniversary" || normalized === "vow-renewal") {
+    return [
+      { label: "Ceremony", detail: undefined, placeholder: "Vow renewal begins at 4:30 PM\nin the garden." },
+      { label: "Celebration", detail: undefined, placeholder: "Dinner and celebration to follow\nin the main hall." },
+      { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
+    ];
+  }
+
+  if (normalized === "baby-shower" || normalized === "bridal-shower") {
+    return [
+      { label: "Shower", detail: undefined, placeholder: "Shower starts at 1:00 PM\nwith refreshments and activities." },
+      { label: "Activities", detail: undefined, placeholder: "Games, gift opening, and photos\nafter the welcome toast." },
+      { label: "Attire", detail: undefined, placeholder: "Smart Casual" },
+    ];
+  }
+
+  if (normalized === "graduation") {
+    return [
+      { label: "Ceremony", detail: undefined, placeholder: "Graduation ceremony begins at 3:00 PM\nat the auditorium." },
+      { label: "Celebration", detail: undefined, placeholder: "Family celebration to follow\nat Celebration Hall." },
+      { label: "Attire", detail: undefined, placeholder: "Semi-Formal" },
+    ];
+  }
+
+  if (normalized === "retirement") {
+    return [
+      { label: "Program", detail: undefined, placeholder: "Retirement celebration starts at 6:00 PM\nwith speeches and dinner." },
+      { label: "Reception", detail: undefined, placeholder: "Reception and memories to follow\nwith music and toasts." },
+      { label: "Attire", detail: undefined, placeholder: "Business Casual" },
+    ];
+  }
+
+  if (normalized === "engagement") {
+    return [
+      { label: "Celebration", detail: undefined, placeholder: "Engagement celebration starts at 5:00 PM\nwith cocktails and light bites." },
+      { label: "Reception", detail: undefined, placeholder: "Dinner and dancing to follow\nin the grand room." },
+      { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
+    ];
+  }
+
+  return [
+    { label: "Ceremony", detail: undefined, placeholder: "Main event begins at 4:30 PM\nin the main hall." },
+    { label: "Celebration", detail: undefined, placeholder: "Celebration to follow\nwith dinner and music." },
+    { label: "Attire", detail: undefined, placeholder: "Event Attire" },
+  ];
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /**
  * Render a single suite piece as self-contained HTML with inline styles.
  */
@@ -11,6 +89,51 @@ export function renderPieceHtml(
   font: Font,
 ): string {
   const c = design.content;
+  const e = (value: unknown, fallback = "") =>
+    escapeHtml(
+      value === undefined || value === null || value === ""
+        ? fallback
+        : String(value),
+    );
+  const normalizedEventType = normalizeEventType(c.eventType);
+  const defaultInviteLine =
+    normalizedEventType.includes("birthday")
+      ? "invite you to a birthday celebration"
+      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
+        ? "invite you to celebrate an anniversary"
+        : normalizedEventType.includes("baby-shower")
+          ? "invite you to a baby shower celebration"
+          : normalizedEventType.includes("bridal-shower")
+            ? "invite you to a bridal shower celebration"
+            : normalizedEventType.includes("graduation")
+              ? "invite you to celebrate this graduation"
+              : normalizedEventType.includes("retirement")
+                ? "invite you to celebrate a retirement"
+                : "invite you to celebrate with us";
+
+  const defaultHostLine =
+    normalizedEventType.includes("birthday")
+      ? "Join us for a birthday celebration"
+      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
+        ? "Together with our loved ones"
+        : normalizedEventType.includes("baby-shower") || normalizedEventType.includes("bridal-shower")
+          ? "Hosted with love"
+          : "Hosted by friends and family";
+
+  const defaultWelcomeMessage =
+    normalizedEventType.includes("birthday")
+      ? "Welcome to the Birthday Celebration of"
+      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
+        ? "Welcome to the Anniversary Celebration of"
+        : normalizedEventType.includes("baby-shower")
+          ? "Welcome to the Baby Shower of"
+          : normalizedEventType.includes("bridal-shower")
+            ? "Welcome to the Bridal Shower of"
+            : normalizedEventType.includes("graduation")
+              ? "Welcome to the Graduation Celebration of"
+              : normalizedEventType.includes("retirement")
+                ? "Welcome to the Retirement Celebration of"
+                : "Welcome to the Celebration of";
   const googleFontUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font.googleFontsFamily)}&display=swap`;
 
   const textAlign =
@@ -93,32 +216,32 @@ export function renderPieceHtml(
     case "invitation":
       body += `
         <p style="font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.5}px; z-index:1;">
-          ${c.preHeading || "Together with their families"}
+          ${e(c.preHeading, defaultHostLine)}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
-          ${c.name1 || "Emma Rose"}
+          ${e(c.name1, "Host Name")}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0; z-index:1;">
-          ${c.conjunction || "&"}
+          ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 2px 0 0; line-height: 1.15; z-index:1;">
-          ${c.name2 || "James William"}
+          ${e(c.name2, "Co-Host Name")}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
-          invite you to celebrate their marriage
+          ${e(c.invitationLine, defaultInviteLine)}
         </p>
         <p style="font-size: 14px; letter-spacing: 0.15em; margin: 0 0 4px; color: ${palette.text}; font-weight:500; z-index:1;">
-          ${c.date || "Saturday, October Eighteenth"}
+          ${e(c.date, "Your Event Date")}
         </p>
         <p style="font-size: 11px; color: ${palette.muted}; margin: 0 0 ${spacing}px; z-index:1;">
-          ${c.time || "Half past four in the afternoon"}
+          ${e(c.time, "Your Event Time")}
         </p>
         <p style="font-size: 13px; color: ${palette.primary}; margin: 0 0 2px; font-weight:500; z-index:1;">
-          ${c.venue || "The Grand Estate"}
+          ${e(c.venue, "Your Event Venue")}
         </p>
         <p style="font-size: 10px; color: ${palette.muted}; margin: 0; z-index:1;">
-          ${c.address || "123 Garden Lane, Napa Valley"}
+          ${e(c.address, "Your Event Address")}
         </p>
       `;
       break;
@@ -133,10 +256,10 @@ export function renderPieceHtml(
         </h2>
         ${ornamentHtml}
         <p style="font-size: 10px; color: ${palette.muted}; margin: ${spacing * 0.3}px 0 ${spacing * 0.3}px; letter-spacing:2px; text-transform:uppercase;">
-          Please respond by
+          ${e(c.rsvpPrompt, "Please respond by")}
         </p>
         <p style="font-size: 14px; color: ${palette.text}; font-weight:500; margin: 0 0 ${spacing}px; letter-spacing:1px;">
-          ${c.rsvpDeadline || "September 1, 2026"}
+          ${e(c.rsvpDeadline, "September 1, 2026")}
         </p>
         <div style="width: 75%; border-bottom: 1px solid ${palette.muted}; padding-bottom: 3px; margin-bottom:${spacing}px;">
           <p style="font-size: 11px; color: ${palette.muted}; margin: 0; text-align: left;">M</p>
@@ -148,25 +271,30 @@ export function renderPieceHtml(
       `;
       break;
 
-    case "details":
+    case "details": {
+      const detailsSections = detailsSectionsForEvent(normalizedEventType);
+      const firstDetail = c.ceremonyDetails || detailsSections[0].placeholder;
+      const secondDetail = c.receptionDetails || detailsSections[1].placeholder;
+      const attireDetail = c.dressCode || detailsSections[2].placeholder;
       body += `
         <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.4}px; opacity:0.8;">
-          Wedding Day
+          ${e(c.eventType, "Event Day")}
         </p>
         <h2 style="font-size: 20px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing * 0.3}px; letter-spacing:4px; text-transform:uppercase;">
           Details
         </h2>
         ${ornamentHtml}
         <div style="margin: ${spacing}px 0; line-height: 1.7; font-size: 12px; max-width:300px;">
-          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Ceremony</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${c.ceremonyDetails || ""}</p>
-          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Reception</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${c.receptionDetails || ""}</p>
-          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dress Code</p>
-          <p style="color: ${palette.text}; margin: 0;">${c.dressCode || ""}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(detailsSections[0].label)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${e(firstDetail)}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(detailsSections[1].label)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${e(secondDetail)}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(detailsSections[2].label)}</p>
+          <p style="color: ${palette.text}; margin: 0;">${e(attireDetail)}</p>
         </div>
       `;
       break;
+    }
 
     case "menu":
       body += `
@@ -179,11 +307,11 @@ export function renderPieceHtml(
         ${ornamentHtml}
         <div style="margin: ${spacing * 1.5}px 0; line-height: 1.6; font-size: 13px;">
           <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">First Course</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${c.appetizer || ""}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.appetizer)}</p>
           <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Main Course</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${c.entree || ""}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.entree)}</p>
           <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dessert</p>
-          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${c.dessert || ""}</p>
+          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${e(c.dessert)}</p>
         </div>
       `;
       break;
@@ -198,10 +326,10 @@ export function renderPieceHtml(
         </h2>
         ${ornamentHtml}
         <p style="font-size: 12px; color: ${palette.text}; line-height: 1.8; margin: ${spacing}px 0; max-width: 360px; white-space:pre-line;">
-          ${c.thankYouMessage || ""}
+          ${e(c.thankYouMessage)}
         </p>
         <p style="font-size: 13px; color: ${palette.primary}; font-weight:500; margin: ${spacing * 0.5}px 0 0; letter-spacing:1px;">
-          ${c.name1 || ""} &amp; ${c.name2 || ""}
+          ${e(c.name1)} &amp; ${e(c.name2)}
         </p>
       `;
       break;
@@ -209,23 +337,23 @@ export function renderPieceHtml(
     case "savethedate":
       body += `
         <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px; opacity:0.8;">
-          ${c.saveTheDateMessage || "Save the Date"}
+          ${e(c.saveTheDateMessage, "Save the Date")}
         </p>
         ${ornamentHtml}
         <h1 style="font-size: 30px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">
-          ${c.name1 || "Emma"}
+          ${e(c.name1, "Alex")}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0;">
-          ${c.conjunction || "&"}
+          ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 30px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.15;">
-          ${c.name2 || "James"}
+          ${e(c.name2, "Jordan")}
         </h1>
         <p style="font-size: 22px; font-weight: 500; color: ${palette.primary}; margin: ${spacing * 1.5}px 0 ${spacing * 0.5}px; letter-spacing:2px;">
-          ${c.date || "October 18, 2026"}
+          ${e(c.date, "Saturday, October 18, 2026")}
         </p>
         <p style="font-size: 13px; color: ${palette.muted}; margin: 0;">
-          ${c.venue || "The Grand Estate"} &bull; ${c.address || "Napa Valley, CA"}
+          ${e(c.venue, "Celebration Hall")} &bull; ${e(c.address, "Your City, ST")}
         </p>
         <p style="font-size: 10px; letter-spacing:2px; text-transform:uppercase; color: ${palette.muted}; margin: ${spacing * 1.5}px 0 0; opacity:0.7;">
           Formal invitation to follow
@@ -240,7 +368,7 @@ export function renderPieceHtml(
         </p>
         ${ornamentHtml}
         <p style="font-size: 64px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1;">
-          ${c.tableNumber || "1"}
+          ${e(c.tableNumber, "1")}
         </p>
         ${ornamentHtml}
       `;
@@ -249,7 +377,7 @@ export function renderPieceHtml(
     case "placecard":
       body += `
         <p style="font-size: 20px; font-weight: 400; color: ${palette.primary}; margin: 0; letter-spacing: 1px;">
-          ${c.guestName || "Guest Name"}
+          ${e(c.guestName, e(c.guestPrompt, "Guest Name"))}
         </p>
       `;
       break;
@@ -257,27 +385,27 @@ export function renderPieceHtml(
     case "welcomesign":
       body += `
         <p style="font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px; opacity:0.8;">
-          ${c.welcomeMessage || "Welcome to the Wedding of"}
+          ${e(c.welcomeMessage, defaultWelcomeMessage)}
         </p>
         ${ornamentHtml}
         <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">
-          ${c.name1 || "Emma"}
+          ${e(c.name1, "Alex")}
         </h1>
         <p style="font-size: 18px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 2}px 0;">
-          ${c.conjunction || "&"}
+          ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.15;">
-          ${c.name2 || "James"}
+          ${e(c.name2, "Jordan")}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 16px; color: ${palette.text}; margin: ${spacing}px 0 ${spacing * 0.5}px; letter-spacing:2px;">
-          ${c.date || "October 18, 2026"}
+          ${e(c.date, "Saturday, October 18, 2026")}
         </p>
         <p style="font-size: 13px; color: ${palette.muted}; margin: 0 0 ${spacing * 2}px;">
-          ${c.venue || "The Grand Estate"}
+          ${e(c.venue, "Celebration Hall")}
         </p>
         <p style="font-size: 12px; color: ${palette.muted}; margin: 0; letter-spacing:1px; font-style:italic;">
-          ${c.welcomeSubtext || "Please find your seat and enjoy the celebration"}
+          ${e(c.welcomeSubtext, "Please find your seat and enjoy the celebration")}
         </p>
       `;
       break;
