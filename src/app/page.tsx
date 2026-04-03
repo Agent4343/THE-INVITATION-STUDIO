@@ -11,24 +11,53 @@ const TIERS = [
     id: "standard" as const,
     name: "Standard",
     price: "$24.99",
-    description: "Full wedding invitation suite builder",
-    features: ["5 suite pieces", "4 elegant templates", "6 color palettes", "Unlimited downloads"],
+    description: "Everything you need for your big day",
+    features: [
+      "9-piece invitation suite",
+      "12 designer templates",
+      "12 curated color palettes",
+      "12 premium font pairings",
+      "AI-powered wording assistant",
+      "Unlimited downloads",
+    ],
   },
   {
     id: "premium" as const,
     name: "Premium",
     price: "$34.99",
-    description: "Everything in Standard, plus extras",
-    features: ["All Standard features", "Premium templates", "Priority support", "Extended access (1 year)"],
+    description: "Our most popular choice",
+    features: [
+      "Everything in Standard",
+      "All current & future templates",
+      "Priority email support",
+      "Extended access (1 year)",
+    ],
     popular: true,
   },
   {
     id: "complete" as const,
     name: "Complete",
     price: "$49.99",
-    description: "The full experience",
-    features: ["All Premium features", "All current & future templates", "Print discount included", "Lifetime access"],
+    description: "The ultimate wedding suite",
+    features: [
+      "Everything in Premium",
+      "Lifetime access",
+      "Print fulfillment discount",
+      "Early access to new designs",
+    ],
   },
+];
+
+const SUITE_PIECES = [
+  "Wedding Invitation",
+  "RSVP Card",
+  "Details Card",
+  "Dinner Menu",
+  "Thank You Card",
+  "Save the Date",
+  "Table Numbers",
+  "Place Cards",
+  "Welcome Sign",
 ];
 
 function HomePageInner() {
@@ -41,7 +70,6 @@ function HomePageInner() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Purchase state
   const [email, setEmail] = useState("");
   const [selectedTier, setSelectedTier] = useState<"standard" | "premium" | "complete">("premium");
   const [purchaseLoading, setPurchaseLoading] = useState(false);
@@ -56,7 +84,6 @@ function HomePageInner() {
     return parts.join("-");
   };
 
-  // Auto-detect ?code= query parameter
   useEffect(() => {
     const codeParam = searchParams.get("code");
     if (codeParam) {
@@ -142,20 +169,25 @@ function HomePageInner() {
 
   return (
     <div className="flex min-h-screen flex-col bg-stone-50">
-      {/* Hero */}
-      <main className="flex flex-1 flex-col items-center px-4 py-16">
-        <div className="w-full max-w-3xl text-center">
-          <p className="mb-2 text-sm font-medium uppercase tracking-[0.3em] text-stone-400">
-            Welcome to
+      {/* Hero Section */}
+      <main className="flex flex-1 flex-col items-center px-4">
+        <section className="w-full max-w-4xl py-16 text-center">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.4em] text-stone-400">
+            Design Your Dream Wedding Stationery
           </p>
           <h1
-            className="mb-4 text-5xl font-semibold tracking-tight text-stone-800"
+            className="mb-4 text-5xl font-light tracking-tight text-stone-800 sm:text-6xl"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             The Invitation Studio
           </h1>
-          <p className="mb-12 text-lg text-stone-500">
-            Design your perfect wedding invitation suite
+          <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-stone-500">
+            Create a stunning 9-piece wedding invitation suite in minutes.
+            Choose from 12 designer templates, customize every detail, and download
+            print-ready files instantly.
+          </p>
+          <p className="mb-12 text-sm text-stone-400">
+            1,728 unique design combinations &middot; AI-powered wording &middot; Instant download
           </p>
 
           {/* Tab Switcher */}
@@ -185,7 +217,6 @@ function HomePageInner() {
           {/* Purchase Tab */}
           {tab === "purchase" && (
             <div className="mx-auto max-w-3xl">
-              {/* Pricing Tiers */}
               <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {TIERS.map((tier) => (
                   <button
@@ -193,8 +224,8 @@ function HomePageInner() {
                     onClick={() => setSelectedTier(tier.id)}
                     className={`relative rounded-xl border-2 p-5 text-left transition-all ${
                       selectedTier === tier.id
-                        ? "border-stone-800 bg-white shadow-md"
-                        : "border-stone-200 bg-white hover:border-stone-300"
+                        ? "border-stone-800 bg-white shadow-lg"
+                        : "border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm"
                     }`}
                   >
                     {tier.popular && (
@@ -226,7 +257,6 @@ function HomePageInner() {
                 ))}
               </div>
 
-              {/* Email + Purchase */}
               <form onSubmit={handlePurchase} className="mx-auto max-w-md space-y-4">
                 <div>
                   <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-600">
@@ -250,13 +280,13 @@ function HomePageInner() {
                 <button
                   type="submit"
                   disabled={purchaseLoading}
-                  className="w-full rounded-lg bg-stone-800 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {purchaseLoading ? "Redirecting to checkout..." : `Purchase — ${TIERS.find(t => t.id === selectedTier)?.price}`}
                 </button>
 
                 <p className="text-xs text-stone-400">
-                  Secure payment via Stripe. You&apos;ll receive your access code instantly after purchase.
+                  Secure payment via Stripe. Access code delivered instantly after purchase.
                 </p>
               </form>
             </div>
@@ -266,10 +296,7 @@ function HomePageInner() {
           {tab === "code" && (
             <form onSubmit={handleCodeSubmit} className="mx-auto max-w-md space-y-4">
               <div>
-                <label
-                  htmlFor="access-code"
-                  className="mb-2 block text-sm font-medium text-stone-600"
-                >
+                <label htmlFor="access-code" className="mb-2 block text-sm font-medium text-stone-600">
                   Enter Your Access Code
                 </label>
                 <input
@@ -278,7 +305,7 @@ function HomePageInner() {
                   value={code}
                   onChange={handleCodeChange}
                   placeholder="XXXX-XXXX-XXXX"
-                  className="w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-center text-lg font-mono tracking-widest text-stone-800 placeholder-stone-300 transition-colors focus:border-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                  className="w-full rounded-lg border border-stone-300 bg-white px-4 py-3.5 text-center text-lg font-mono tracking-widest text-stone-800 placeholder-stone-300 transition-colors focus:border-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-200"
                   maxLength={14}
                   autoComplete="off"
                 />
@@ -291,7 +318,7 @@ function HomePageInner() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg bg-stone-800 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? "Validating..." : "Start Designing"}
               </button>
@@ -301,12 +328,94 @@ function HomePageInner() {
               </p>
             </form>
           )}
-        </div>
+        </section>
+
+        {/* What's Included Section */}
+        <section className="w-full max-w-4xl border-t border-stone-200 py-16">
+          <h2
+            className="mb-3 text-center text-2xl font-light text-stone-800"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Complete 9-Piece Suite
+          </h2>
+          <p className="mb-10 text-center text-sm text-stone-400">
+            Everything you need for a cohesive, beautiful wedding
+          </p>
+
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9">
+            {SUITE_PIECES.map((piece) => (
+              <div key={piece} className="flex flex-col items-center text-center">
+                <div
+                  className="mb-2 flex h-14 w-10 items-center justify-center rounded border"
+                  style={{
+                    backgroundColor: "#FAF8F5",
+                    borderColor: "#E0DAD0",
+                  }}
+                >
+                  <div className="space-y-0.5">
+                    <div className="mx-auto h-[1px] w-4 rounded-full bg-stone-300" />
+                    <div className="mx-auto h-[1px] w-3 rounded-full bg-stone-200" />
+                    <div className="mx-auto h-[1px] w-4 rounded-full bg-stone-200" />
+                  </div>
+                </div>
+                <span className="text-[10px] leading-tight text-stone-500">{piece}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Features Grid */}
+        <section className="w-full max-w-4xl border-t border-stone-200 py-16">
+          <h2
+            className="mb-10 text-center text-2xl font-light text-stone-800"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Designed to Delight
+          </h2>
+
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                title: "12 Designer Templates",
+                desc: "From Classic Elegance to Art Deco Luxe, Botanical Bliss to Coastal Breeze. Each with unique decorative elements.",
+              },
+              {
+                title: "12 Color Palettes",
+                desc: "Sage & Gold, Dusty Rose, Midnight & Pearl, Terracotta Sunset — curated palettes for every wedding style.",
+              },
+              {
+                title: "12 Premium Fonts",
+                desc: "Playfair Display, Great Vibes, Cinzel, Tangerine — beautiful typography pairings from Google Fonts.",
+              },
+              {
+                title: "AI Wording Assistant",
+                desc: "Powered by Claude AI. Get elegant wording suggestions for every section with 5 tone options.",
+              },
+              {
+                title: "Live Preview",
+                desc: "See your changes in real-time. Every edit updates the preview instantly — what you see is what you print.",
+              },
+              {
+                title: "Print-Ready Downloads",
+                desc: "High-resolution PDF output with proper margins, bleed, and color accuracy for professional printing.",
+              },
+            ].map((feature) => (
+              <div key={feature.title} className="text-center">
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-stone-700">
+                  {feature.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-stone-500">
+                  {feature.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* How It Works */}
-        <div className="mt-24 w-full max-w-2xl">
+        <section className="w-full max-w-3xl border-t border-stone-200 py-16">
           <h2
-            className="mb-10 text-center text-2xl font-semibold text-stone-700"
+            className="mb-10 text-center text-2xl font-light text-stone-800"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             How It Works
@@ -315,47 +424,53 @@ function HomePageInner() {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
             {[
               {
-                step: "1",
+                step: "01",
                 title: "Choose Your Style",
-                description:
-                  "Browse elegant templates and color palettes curated for your special day.",
+                desc: "Browse 12 designer templates and find the perfect match for your wedding aesthetic.",
               },
               {
-                step: "2",
+                step: "02",
                 title: "Personalize Everything",
-                description:
-                  "Add your names, date, venue, and all the details that make it yours.",
+                desc: "Add your details, pick colors and fonts, use AI to craft the perfect wording.",
               },
               {
-                step: "3",
+                step: "03",
                 title: "Download & Print",
-                description:
-                  "Get print-ready PDFs instantly, or order professionally printed cards.",
+                desc: "Get your complete 9-piece suite as print-ready PDFs. Print at home or professionally.",
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <span className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-stone-200 text-sm font-semibold text-stone-600">
+                <span
+                  className="mb-3 inline-block text-3xl font-light text-stone-300"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
                   {item.step}
                 </span>
                 <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-stone-700">
                   {item.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-stone-500">
-                  {item.description}
+                  {item.desc}
                 </p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-stone-200 py-8 text-center">
-        <p className="text-sm text-stone-400">
+        <p
+          className="mb-2 text-lg text-stone-300"
+          style={{ fontFamily: "'Playfair Display', serif" }}
+        >
+          The Invitation Studio
+        </p>
+        <p className="text-xs text-stone-400">
           Need help?{" "}
           <a
             href="mailto:support@theinvitationstudio.com"
-            className="text-stone-600 underline underline-offset-2 transition-colors hover:text-stone-800"
+            className="text-stone-500 underline underline-offset-2 transition-colors hover:text-stone-700"
           >
             support@theinvitationstudio.com
           </a>
