@@ -73,11 +73,17 @@ function SectionDivider({ color, ornament }: { color: string; ornament: boolean 
 export default function DetailsPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
 
+  const placeholders: Record<string, string> = {
+    Ceremony: "Ceremony details",
+    Reception: "Reception details",
+    "Dress Code": "Dress code details",
+  };
+
   const sections = [
     { label: "Ceremony", detail: content.ceremonyDetails },
     { label: "Reception", detail: content.receptionDetails },
     { label: "Dress Code", detail: content.dressCode },
-  ].filter((s) => s.detail);
+  ];
 
   return (
     <div
@@ -178,9 +184,10 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
                 margin: 0,
                 lineHeight: 1.7,
                 whiteSpace: "pre-line",
+                ...(!section.detail ? { opacity: 0.4 } : {}),
               }}
             >
-              {section.detail}
+              {section.detail || placeholders[section.label]}
             </p>
           </div>
         ))}

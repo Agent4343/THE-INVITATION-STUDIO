@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 function getJwtSecret() {
   return process.env.JWT_SECRET!;
@@ -43,7 +43,9 @@ export function verifyAdminToken(token: string): AdminTokenPayload | null {
       .update(payloadB64)
       .digest("base64url");
 
-    if (signature !== expectedSignature) return null;
+    const sigBuf = Buffer.from(signature, "base64url");
+    const expectedBuf = Buffer.from(expectedSignature, "base64url");
+    if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) return null;
 
     const payload: AdminTokenPayload = JSON.parse(
       Buffer.from(payloadB64, "base64url").toString("utf-8"),

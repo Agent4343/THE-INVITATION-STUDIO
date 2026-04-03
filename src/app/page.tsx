@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDesignStore } from "@/store/designStore";
 
 type Tab = "code" | "purchase";
@@ -31,8 +31,9 @@ const TIERS = [
   },
 ];
 
-export default function HomePage() {
+function HomePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setDesignId, setToken } = useDesignStore();
 
   const [tab, setTab] = useState<Tab>("purchase");
@@ -54,6 +55,16 @@ export default function HomePage() {
     }
     return parts.join("-");
   };
+
+  // Auto-detect ?code= query parameter
+  useEffect(() => {
+    const codeParam = searchParams.get("code");
+    if (codeParam) {
+      setTab("code");
+      setCode(formatCode(codeParam));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCode(formatCode(e.target.value));
@@ -351,5 +362,13 @@ export default function HomePage() {
         </p>
       </footer>
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense>
+      <HomePageInner />
+    </Suspense>
   );
 }

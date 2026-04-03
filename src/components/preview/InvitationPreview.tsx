@@ -98,7 +98,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               margin: `0 0 ${baseSpacing}px 0`,
             }}
           >
-            {content.preHeading}
+            <span style={!content.preHeading ? { opacity: 0.4 } : undefined}>{content.preHeading || "Together with their families"}</span>
           </p>
           <h1
             style={{
@@ -108,9 +108,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
               margin: "0 0 6px 0",
               lineHeight: 1.2,
               textAlign: "right",
+              ...(!content.name1 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name1}
+            {content.name1 || "Your Name"}
           </h1>
           <span
             style={{
@@ -118,9 +119,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
               fontStyle: "italic",
               color: palette.accent,
               margin: `${baseSpacing * 0.5}px 0`,
+              ...(!content.conjunction ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.conjunction}
+            {content.conjunction || "&"}
           </span>
           <h1
             style={{
@@ -130,9 +132,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
               margin: "6px 0 0 0",
               lineHeight: 1.2,
               textAlign: "right",
+              ...(!content.name2 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name2}
+            {content.name2 || "Partner's Name"}
           </h1>
         </div>
         <div
@@ -152,16 +155,17 @@ export default function InvitationPreview({ template, palette, font, content }: 
               letterSpacing: "1px",
             }}
           >
-            {content.date}
+            <span style={!content.date ? { opacity: 0.4 } : undefined}>{content.date || "Your Date"}</span>
           </p>
           <p
             style={{
               fontSize: "12px",
               color: palette.muted,
               margin: `0 0 ${baseSpacing}px 0`,
+              ...(!content.time ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.time}
+            {content.time || "Your Time"}
           </p>
           {template.ornament && <OrnamentalDivider color={palette.accent} />}
           <p
@@ -170,9 +174,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
               color: palette.primary,
               margin: `0 0 ${baseSpacing * 0.3}px 0`,
               fontWeight: 500,
+              ...(!content.venue ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.venue}
+            {content.venue || "Your Venue"}
           </p>
           <p
             style={{
@@ -180,9 +185,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
               color: palette.muted,
               margin: 0,
               lineHeight: 1.6,
+              ...(!content.address ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.address}
+            {content.address || "Your Address"}
           </p>
         </div>
       </div>
@@ -208,7 +214,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           textAlign,
         }}
       >
-        {content.preHeading}
+        <span style={!content.preHeading ? { opacity: 0.4 } : undefined}>{content.preHeading || "Together with their families"}</span>
       </p>
 
       <h1
@@ -220,9 +226,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           lineHeight: 1.2,
           letterSpacing: "1px",
           textAlign,
+          ...(!content.name1 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name1}
+        {content.name1 || "Your Name"}
       </h1>
 
       <span
@@ -233,9 +240,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           color: palette.accent,
           margin: `${baseSpacing * 0.75}px 0`,
           textAlign,
+          ...(!content.conjunction ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.conjunction}
+        {content.conjunction || "&"}
       </span>
 
       <h1
@@ -247,9 +255,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           lineHeight: 1.2,
           letterSpacing: "1px",
           textAlign,
+          ...(!content.name2 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name2}
+        {content.name2 || "Partner's Name"}
       </h1>
 
       {template.ornament && <OrnamentalDivider color={palette.accent} />}
@@ -261,9 +270,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           margin: `${baseSpacing * 1.5}px 0 ${baseSpacing * 0.5}px 0`,
           letterSpacing: "2px",
           textAlign,
+          ...(!content.date ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.date}
+        {content.date || "Your Date"}
       </p>
 
       <p
@@ -272,9 +282,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           color: palette.muted,
           margin: `0 0 ${baseSpacing * 1.5}px 0`,
           textAlign,
+          ...(!content.time ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.time}
+        {content.time || "Your Time"}
       </p>
 
       <p
@@ -284,9 +295,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           margin: `0 0 ${baseSpacing * 0.3}px 0`,
           fontWeight: 500,
           textAlign,
+          ...(!content.venue ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.venue}
+        {content.venue || "Your Venue"}
       </p>
 
       <p
@@ -296,9 +308,10 @@ export default function InvitationPreview({ template, palette, font, content }: 
           margin: 0,
           lineHeight: 1.6,
           textAlign,
+          ...(!content.address ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.address}
+        {content.address || "Your Address"}
       </p>
     </div>
   );

@@ -100,36 +100,55 @@ export default function ThankYouPreview({ template, palette, font, content }: Pr
           lineHeight: 1.8,
           maxWidth: "380px",
           whiteSpace: "pre-line",
+          ...(!content.thankYouMessage ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.thankYouMessage}
+        {content.thankYouMessage || "Your message here"}
       </p>
 
-      <p
-        style={{
-          fontSize: "14px",
-          color: palette.primary,
-          fontWeight: 500,
-          margin: `${baseSpacing * 1.5}px 0 0 0`,
-          textAlign: "center",
-          letterSpacing: "1px",
-        }}
-      >
-        {content.name1}
-        <span
+      {(content.name1 || content.name2) ? (
+        <p
           style={{
-            display: "inline-block",
-            margin: "0 10px",
-            color: palette.accent,
-            fontStyle: "italic",
-            fontWeight: 400,
-            fontSize: "12px",
+            fontSize: "14px",
+            color: palette.primary,
+            fontWeight: 500,
+            margin: `${baseSpacing * 1.5}px 0 0 0`,
+            textAlign: "center",
+            letterSpacing: "1px",
           }}
         >
-          &amp;
-        </span>
-        {content.name2}
-      </p>
+          {content.name1}
+          {content.name1 && content.name2 && (
+            <span
+              style={{
+                display: "inline-block",
+                margin: "0 10px",
+                color: palette.accent,
+                fontStyle: "italic",
+                fontWeight: 400,
+                fontSize: "12px",
+              }}
+            >
+              &amp;
+            </span>
+          )}
+          {content.name2}
+        </p>
+      ) : (
+        <p
+          style={{
+            fontSize: "14px",
+            color: palette.primary,
+            fontWeight: 500,
+            margin: `${baseSpacing * 1.5}px 0 0 0`,
+            textAlign: "center",
+            letterSpacing: "1px",
+            opacity: 0.4,
+          }}
+        >
+          Your Names
+        </p>
+      )}
     </div>
   );
 }

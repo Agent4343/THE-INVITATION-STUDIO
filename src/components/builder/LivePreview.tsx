@@ -24,7 +24,7 @@ export default function LivePreview() {
   return (
     <div className="flex items-center justify-center">
       <div
-        className="aspect-[5/7] w-full max-w-md overflow-hidden rounded-lg bg-white shadow-xl"
+        className="w-full max-w-md overflow-hidden rounded-lg bg-white shadow-xl"
       >
         {previewMap[activePiece]}
       </div>

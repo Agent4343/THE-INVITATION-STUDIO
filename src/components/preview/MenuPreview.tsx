@@ -58,11 +58,17 @@ function CourseDivider({ color }: { color: string }) {
 export default function MenuPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
 
+  const placeholders: Record<string, string> = {
+    "First Course": "Your appetizer",
+    "Main Course": "Your entree",
+    Dessert: "Your dessert",
+  };
+
   const courses = [
     { label: "First Course", item: content.appetizer },
     { label: "Main Course", item: content.entree },
     { label: "Dessert", item: content.dessert },
-  ].filter((c) => c.item);
+  ];
 
   return (
     <div
@@ -163,9 +169,10 @@ export default function MenuPreview({ template, palette, font, content }: Previe
                 margin: 0,
                 lineHeight: 1.6,
                 fontStyle: "italic",
+                ...(!course.item ? { opacity: 0.4 } : {}),
               }}
             >
-              {course.item}
+              {course.item || placeholders[course.label]}
             </p>
           </div>
         ))}

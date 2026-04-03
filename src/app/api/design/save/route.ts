@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { verifyToken } from "@/lib/auth";
+import { templates } from "@/data/templates";
+import { palettes } from "@/data/palettes";
+import { fonts } from "@/data/fonts";
 
 export async function POST(request: Request) {
   try {
@@ -24,6 +27,20 @@ export async function POST(request: Request) {
     // Ensure the token's designId matches the request
     if (designId !== payload.designId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Validate IDs against known data
+    if (!templates.find((t) => t.id === templateId)) {
+      return NextResponse.json({ error: "Invalid templateId" }, { status: 400 });
+    }
+    if (!palettes.find((p) => p.id === paletteId)) {
+      return NextResponse.json({ error: "Invalid paletteId" }, { status: 400 });
+    }
+    if (!fonts.find((f) => f.id === fontId)) {
+      return NextResponse.json({ error: "Invalid fontId" }, { status: 400 });
+    }
+    if (typeof content !== "object" || content === null || Array.isArray(content)) {
+      return NextResponse.json({ error: "Invalid content" }, { status: 400 });
     }
 
     const supabase = createServerSupabase();

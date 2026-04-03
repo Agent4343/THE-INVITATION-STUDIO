@@ -4,6 +4,18 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "The Invitation Studio",
   description: "Design your perfect wedding invitation suite",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://theinvitationstudio.com'),
+  openGraph: {
+    title: 'The Invitation Studio',
+    description: 'Design your perfect wedding invitation suite',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'The Invitation Studio',
+    description: 'Design your perfect wedding invitation suite',
+  },
+  themeColor: '#44403c',
 };
 
 export default function RootLayout({

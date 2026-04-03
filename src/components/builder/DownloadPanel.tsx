@@ -43,21 +43,14 @@ export default function DownloadPanel() {
       printWindow.document.write(html);
       printWindow.document.close();
 
-      // Wait for fonts to load then trigger print dialog
-      printWindow.onload = () => {
-        setTimeout(() => {
-          printWindow.print();
-        }, 1000);
-      };
-
-      // Also trigger after a delay in case onload already fired
+      // Wait for content and fonts to load, then trigger print dialog
       setTimeout(() => {
         try {
           printWindow.print();
         } catch {
           // Window may have been closed
         }
-      }, 2000);
+      }, 1500);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred."
@@ -90,29 +83,6 @@ export default function DownloadPanel() {
         Opens a print preview — choose &quot;Save as PDF&quot; to download your print-ready invitation suite.
       </p>
 
-      <div className="pt-2">
-        <p className="mb-2 text-xs font-medium text-stone-400">
-          Individual pieces
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {["Invitation", "RSVP", "Details", "Menu", "Thank You"].map(
-            (piece) => (
-              <Button
-                key={piece}
-                variant="ghost"
-                size="sm"
-                disabled
-                className="text-xs"
-              >
-                {piece}
-              </Button>
-            )
-          )}
-        </div>
-        <p className="mt-1 text-xs text-stone-400">
-          Individual downloads coming soon.
-        </p>
-      </div>
     </div>
   );
 }

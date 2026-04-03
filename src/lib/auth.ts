@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
 function getJwtSecret() {
   return process.env.JWT_SECRET!;
@@ -45,7 +45,9 @@ export function verifyToken(token: string): TokenPayload {
     .update(payloadB64)
     .digest("base64url");
 
-  if (signature !== expectedSignature) {
+  const sigBuf = Buffer.from(signature, "base64url");
+  const expectedBuf = Buffer.from(expectedSignature, "base64url");
+  if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
     throw new Error("Invalid token signature");
   }
 

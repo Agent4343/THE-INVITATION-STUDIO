@@ -112,9 +112,10 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
           margin: `0 0 ${baseSpacing * 2}px 0`,
           letterSpacing: "1px",
           textAlign: "center",
+          ...(!content.rsvpDeadline ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.rsvpDeadline}
+        {content.rsvpDeadline || "Date"}
       </p>
 
       <div
