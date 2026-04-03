@@ -12,7 +12,7 @@ const buckets = new Map<string, Bucket>();
 
 function cleanupExpiredBuckets(now: number) {
   if (buckets.size < 5000) return;
-  for (const [key, bucket] of buckets) {
+  for (const [key, bucket] of Array.from(buckets.entries())) {
     if (bucket.resetAt <= now) {
       buckets.delete(key);
     }
