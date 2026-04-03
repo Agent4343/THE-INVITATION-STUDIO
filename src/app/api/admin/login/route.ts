@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import { createAdminToken } from "@/lib/adminAuth";
 
+export async function GET() {
+  return NextResponse.json({
+    status: "ok",
+    hasAdminEmail: !!process.env.ADMIN_EMAIL,
+    hasAdminPassword: !!process.env.ADMIN_PASSWORD,
+    hasJwtSecret: !!process.env.JWT_SECRET,
+  });
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.text();
