@@ -1,6 +1,8 @@
 import { createHmac } from "node:crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+function getJwtSecret() {
+  return process.env.JWT_SECRET!;
+}
 
 export interface AdminTokenPayload {
   role: "admin";
@@ -20,7 +22,7 @@ export function createAdminToken(email: string): string {
 
   const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
 
-  const signature = createHmac("sha256", JWT_SECRET)
+  const signature = createHmac("sha256", getJwtSecret())
     .update(payloadB64)
     .digest("base64url");
 
@@ -37,7 +39,7 @@ export function verifyAdminToken(token: string): AdminTokenPayload | null {
 
     if (!payloadB64 || !signature) return null;
 
-    const expectedSignature = createHmac("sha256", JWT_SECRET)
+    const expectedSignature = createHmac("sha256", getJwtSecret())
       .update(payloadB64)
       .digest("base64url");
 

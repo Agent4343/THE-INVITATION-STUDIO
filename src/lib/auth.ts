@@ -1,6 +1,8 @@
 import { createHmac } from "node:crypto";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+function getJwtSecret() {
+  return process.env.JWT_SECRET!;
+}
 
 interface TokenPayload {
   designId: string;
@@ -21,7 +23,7 @@ export function createToken(payload: { designId: string; codeId: string }): stri
   const payloadB64 = Buffer.from(JSON.stringify(tokenPayload))
     .toString("base64url");
 
-  const signature = createHmac("sha256", JWT_SECRET)
+  const signature = createHmac("sha256", getJwtSecret())
     .update(payloadB64)
     .digest("base64url");
 
@@ -39,7 +41,7 @@ export function verifyToken(token: string): TokenPayload {
     throw new Error("Malformed token");
   }
 
-  const expectedSignature = createHmac("sha256", JWT_SECRET)
+  const expectedSignature = createHmac("sha256", getJwtSecret())
     .update(payloadB64)
     .digest("base64url");
 
