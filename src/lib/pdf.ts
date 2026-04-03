@@ -1,5 +1,74 @@
 import type { Design, Template, Palette, Font, SuitePiece } from "@/types";
 
+function normalizeEventType(value: unknown): string {
+  return String(value || "celebration")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .trim();
+}
+
+function detailsSectionsForEvent(eventType: string): Array<{
+  label: string;
+  detail: unknown;
+  placeholder: string;
+}> {
+  const normalized = normalizeEventType(eventType);
+
+  if (normalized === "birthday") {
+    return [
+      { label: "Party", detail: undefined, placeholder: "Party starts at 4:30 PM\nwith games and cake to follow." },
+      { label: "Schedule", detail: undefined, placeholder: "Cake cutting at 6:00 PM\nand celebration photos after." },
+      { label: "Attire", detail: undefined, placeholder: "Festive Casual" },
+    ];
+  }
+
+  if (normalized === "anniversary" || normalized === "vow-renewal") {
+    return [
+      { label: "Ceremony", detail: undefined, placeholder: "Vow renewal begins at 4:30 PM\nin the garden." },
+      { label: "Celebration", detail: undefined, placeholder: "Dinner and celebration to follow\nin the main hall." },
+      { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
+    ];
+  }
+
+  if (normalized === "baby-shower" || normalized === "bridal-shower") {
+    return [
+      { label: "Shower", detail: undefined, placeholder: "Shower starts at 1:00 PM\nwith refreshments and activities." },
+      { label: "Activities", detail: undefined, placeholder: "Games, gift opening, and photos\nafter the welcome toast." },
+      { label: "Attire", detail: undefined, placeholder: "Smart Casual" },
+    ];
+  }
+
+  if (normalized === "graduation") {
+    return [
+      { label: "Ceremony", detail: undefined, placeholder: "Graduation ceremony begins at 3:00 PM\nat the auditorium." },
+      { label: "Celebration", detail: undefined, placeholder: "Family celebration to follow\nat Celebration Hall." },
+      { label: "Attire", detail: undefined, placeholder: "Semi-Formal" },
+    ];
+  }
+
+  if (normalized === "retirement") {
+    return [
+      { label: "Program", detail: undefined, placeholder: "Retirement celebration starts at 6:00 PM\nwith speeches and dinner." },
+      { label: "Reception", detail: undefined, placeholder: "Reception and memories to follow\nwith music and toasts." },
+      { label: "Attire", detail: undefined, placeholder: "Business Casual" },
+    ];
+  }
+
+  if (normalized === "engagement") {
+    return [
+      { label: "Celebration", detail: undefined, placeholder: "Engagement celebration starts at 5:00 PM\nwith cocktails and light bites." },
+      { label: "Reception", detail: undefined, placeholder: "Dinner and dancing to follow\nin the grand room." },
+      { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
+    ];
+  }
+
+  return [
+    { label: "Ceremony", detail: undefined, placeholder: "Main event begins at 4:30 PM\nin the main hall." },
+    { label: "Celebration", detail: undefined, placeholder: "Celebration to follow\nwith dinner and music." },
+    { label: "Attire", detail: undefined, placeholder: "Event Attire" },
+  ];
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -26,6 +95,7 @@ export function renderPieceHtml(
         ? fallback
         : String(value),
     );
+  const normalizedEventType = normalizeEventType(c.eventType);
   const defaultInviteLine = "invite you to celebrate with us";
   const defaultHostLine = "Hosted by their loved ones";
   const defaultWelcomeMessage = "Welcome to the Celebration of";
@@ -166,7 +236,11 @@ export function renderPieceHtml(
       `;
       break;
 
-    case "details":
+    case "details": {
+      const detailsSections = detailsSectionsForEvent(normalizedEventType);
+      const firstDetail = c.ceremonyDetails || detailsSections[0].placeholder;
+      const secondDetail = c.receptionDetails || detailsSections[1].placeholder;
+      const attireDetail = c.dressCode || detailsSections[2].placeholder;
       body += `
         <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.4}px; opacity:0.8;">
           ${e(c.eventType, "Event Day")}
@@ -176,15 +250,16 @@ export function renderPieceHtml(
         </h2>
         ${ornamentHtml}
         <div style="margin: ${spacing}px 0; line-height: 1.7; font-size: 12px; max-width:300px;">
-          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Ceremony</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${e(c.ceremonyDetails)}</p>
-          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Reception</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${e(c.receptionDetails)}</p>
-          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dress Code</p>
-          <p style="color: ${palette.text}; margin: 0;">${e(c.dressCode)}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(detailsSections[0].label)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${e(firstDetail)}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(detailsSections[1].label)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${e(secondDetail)}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(detailsSections[2].label)}</p>
+          <p style="color: ${palette.text}; margin: 0;">${e(attireDetail)}</p>
         </div>
       `;
       break;
+    }
 
     case "menu":
       body += `
