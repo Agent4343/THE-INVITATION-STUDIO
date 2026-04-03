@@ -28,6 +28,21 @@ export interface Font {
 }
 
 export interface DesignContent {
+  eventType: string;
+  wordingTone: string;
+  hostingStyle: string;
+  eventFormality: string;
+  guestCountBand: string;
+  weddingRole: string;
+  languages: string;
+  specialRequests: string;
+  relationshipLabel1: string;
+  relationshipLabel2: string;
+  hostLine: string;
+  invitationLine: string;
+  menuHeading: string;
+  rsvpPrompt: string;
+  guestPrompt: string;
   name1: string;
   name2: string;
   preHeading: string;

@@ -11,6 +11,25 @@ interface PreviewProps {
   content: DesignContent;
 }
 
+function invitationLineForEvent(content: DesignContent): string {
+  if (content.invitationLine?.trim()) return content.invitationLine.trim();
+
+  const eventType = (content.eventType || "wedding").toLowerCase();
+  if (eventType === "wedding" || eventType === "elopement") {
+    return "invite you to celebrate their marriage";
+  }
+  return "invite you to celebrate with us";
+}
+
+function preHeadingForEvent(content: DesignContent): string {
+  if (content.preHeading?.trim()) return content.preHeading.trim();
+  const eventType = (content.eventType || "wedding").toLowerCase();
+  if (eventType === "wedding" || eventType === "elopement") {
+    return "Together with their families";
+  }
+  return "Together";
+}
+
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
   switch (borderStyle) {
     case "thin":
@@ -217,6 +236,8 @@ export default function InvitationPreview({ template, palette, font, content }: 
   const baseSpacing = 16 * template.spacingRatio;
   const textAlign = template.layout === "left" ? "left" as const : "center" as const;
   const ornStyle = template.ornamentStyle || "classic";
+  const invitationLine = invitationLineForEvent(content);
+  const preHeading = preHeadingForEvent(content);
 
   const containerStyle: React.CSSProperties = {
     width: "100%",
@@ -259,7 +280,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               margin: `0 0 ${baseSpacing}px 0`,
             }}
           >
-            <span style={!content.preHeading ? { opacity: 0.4 } : undefined}>{content.preHeading || "Together with their families"}</span>
+            <span style={!content.preHeading ? { opacity: 0.4 } : undefined}>{preHeading}</span>
           </p>
           <h1
             style={{
@@ -384,7 +405,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           zIndex: 1,
         }}
       >
-        <span style={!content.preHeading ? { opacity: 0.4 } : undefined}>{content.preHeading || "Together with their families"}</span>
+        <span style={!content.preHeading ? { opacity: 0.4 } : undefined}>{preHeading}</span>
       </p>
 
       {/* Spacer */}
@@ -447,7 +468,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
         </div>
       )}
 
-      {/* "invite you to celebrate their marriage" text */}
+      {/* Invitation line */}
       <p
         style={{
           fontSize: "9px",
@@ -460,7 +481,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           opacity: 0.7,
         }}
       >
-        invite you to celebrate their marriage
+        {invitationLine}
       </p>
 
       {/* Date - hero element */}

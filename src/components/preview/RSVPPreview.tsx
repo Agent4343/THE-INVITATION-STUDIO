@@ -70,7 +70,7 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
           opacity: 0.8,
         }}
       >
-        Kindly Respond
+        {content.rsvpPrompt || "Kindly Respond"}
       </p>
 
       <h2
@@ -101,7 +101,7 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
           textAlign: "center",
         }}
       >
-        Please respond by
+        {content.rsvpPrompt || "Please respond by"}
       </p>
 
       <p

@@ -22,6 +22,104 @@ interface Section {
 
 const sections: Section[] = [
   {
+    title: "Event Profile",
+    fields: [
+      {
+        key: "eventType",
+        label: "Event Type",
+        placeholder:
+          "wedding, elopement, civil-ceremony, anniversary, vow-renewal, engagement, bridal-shower, baby-shower, birthday, graduation, retirement, holiday",
+        maxLength: 40,
+      },
+      {
+        key: "invitationLine",
+        label: "Invitation Line",
+        placeholder:
+          "invite you to celebrate with us",
+        maxLength: 120,
+        aiField: true,
+      },
+      {
+        key: "hostLine",
+        label: "Host Line",
+        placeholder:
+          "Together with our families / Hosted by our loved ones / Hosted by",
+        maxLength: 120,
+        aiField: true,
+      },
+      {
+        key: "eventFormality",
+        label: "Formality",
+        placeholder: "Formal, Semi-Formal, Cocktail, Casual, Black Tie",
+        maxLength: 30,
+      },
+      {
+        key: "wordingTone",
+        label: "Tone",
+        placeholder: "Classic, Modern, Romantic, Minimal, Playful",
+        maxLength: 30,
+      },
+      {
+        key: "hostingStyle",
+        label: "Hosting Style",
+        placeholder: "Couple, Families, Parents, One Host",
+        maxLength: 30,
+      },
+      {
+        key: "guestCountBand",
+        label: "Guest Count Band",
+        placeholder: "Intimate (under 50), Medium, Large",
+        maxLength: 30,
+      },
+      {
+        key: "weddingRole",
+        label: "Planner Profile",
+        placeholder: "Couple, Planner, Parent, Friend",
+        maxLength: 30,
+      },
+      {
+        key: "languages",
+        label: "Language Preferences",
+        placeholder: "English, Spanish-English, French-English",
+        maxLength: 60,
+      },
+      {
+        key: "specialRequests",
+        label: "Special Requests",
+        placeholder:
+          "Bilingual wording, accessibility notes, cultural traditions, faith wording",
+        multiline: true,
+        maxLength: 250,
+      },
+      {
+        key: "rsvpPrompt",
+        label: "RSVP Prompt",
+        placeholder: "Please respond by",
+        maxLength: 80,
+        aiField: true,
+      },
+      {
+        key: "guestPrompt",
+        label: "Guest Name Prompt",
+        placeholder: "Guest Name",
+        maxLength: 50,
+        aiField: true,
+      },
+      {
+        key: "relationshipLabel1",
+        label: "Name 1 Label",
+        placeholder: "Partner One / Parent / Honoree",
+        maxLength: 30,
+      },
+      {
+        key: "relationshipLabel2",
+        label: "Name 2 Label",
+        placeholder: "Partner Two / Co-Host / Honoree",
+        maxLength: 30,
+      },
+    ],
+  },
+  {
     title: "Names",
     fields: [
       { key: "name1", label: "First Name", placeholder: "Emma", maxLength: 30 },
@@ -35,7 +133,7 @@ const sections: Section[] = [
       {
         key: "preHeading",
         label: "Pre-heading",
-        placeholder: "Together with their families",
+        placeholder: "Together with our families",
         maxLength: 60,
         aiField: true,
       },
@@ -161,6 +259,7 @@ const sections: Section[] = [
 ];
 
 const sectionToPiece: Record<string, SuitePiece> = {
+  "Event Profile": "invitation",
   Names: "invitation",
   "Event Details": "invitation",
   RSVP: "rsvp",

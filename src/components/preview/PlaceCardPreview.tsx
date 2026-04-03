@@ -61,7 +61,7 @@ export default function PlaceCardPreview({ template, palette, font, content }: P
           ...(!content.guestName ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.guestName || "Guest Name"}
+        {content.guestName || content.guestPrompt || "Guest Name"}
       </h1>
 
       {template.ornament && (

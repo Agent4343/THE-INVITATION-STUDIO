@@ -15,6 +15,7 @@ import DownloadPanel from "@/components/builder/DownloadPanel";
 import SuitePieces from "@/components/builder/SuitePieces";
 import LivePreview from "@/components/builder/LivePreview";
 import StepNavigator from "@/components/builder/StepNavigator";
+import EtsyCheckoutPanel from "@/components/builder/EtsyCheckoutPanel";
 
 function PrintOffer() {
   return (
@@ -282,6 +283,7 @@ function DesignPageInner() {
     preview: (
       <>
         <DownloadPanel />
+        <EtsyCheckoutPanel />
         <PrintOffer />
       </>
     ),

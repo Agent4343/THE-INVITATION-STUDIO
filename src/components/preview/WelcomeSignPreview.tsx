@@ -26,6 +26,11 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 export default function WelcomeSignPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
   const textAlign = template.layout === "left" ? "left" as const : "center" as const;
+  const welcomeFallback =
+    content.eventType &&
+    !["wedding", "elopement"].includes(content.eventType.toLowerCase())
+      ? "Welcome to our Celebration"
+      : "Welcome to our Event";
 
   const containerStyle: React.CSSProperties = {
     width: "100%",
@@ -66,7 +71,7 @@ export default function WelcomeSignPreview({ template, palette, font, content }:
               ...(!content.welcomeMessage ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.welcomeMessage || "Welcome to our Wedding"}
+            {content.welcomeMessage || welcomeFallback}
           </p>
           <h1
             style={{
@@ -175,7 +180,7 @@ export default function WelcomeSignPreview({ template, palette, font, content }:
           ...(!content.welcomeMessage ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.welcomeMessage || "Welcome to our Wedding"}
+        {content.welcomeMessage || welcomeFallback}
       </p>
 
       {template.ornament && <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />}

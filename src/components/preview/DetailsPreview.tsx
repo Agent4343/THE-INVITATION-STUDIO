@@ -32,6 +32,10 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
     { label: "Reception", icon: "\u2737", detail: content.receptionDetails, placeholder: "Dinner and dancing to follow\nin the Grand Ballroom" },
     { label: "Dress Code", icon: "\u2726", detail: content.dressCode, placeholder: "Black Tie Optional" },
   ];
+  const dayLabel =
+    content.eventType && content.eventType.toLowerCase() !== "wedding"
+      ? "Event Day"
+      : "Wedding Day";
 
   return (
     <div
@@ -77,7 +81,7 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
           zIndex: 1,
         }}
       >
-        Wedding Day
+        {dayLabel}
       </p>
 
       <h2

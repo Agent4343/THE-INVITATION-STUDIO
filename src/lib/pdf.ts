@@ -26,6 +26,15 @@ export function renderPieceHtml(
         ? fallback
         : String(value),
     );
+  const eventType = String(c.eventType || "wedding").toLowerCase();
+  const defaultInviteLine =
+    eventType === "wedding"
+      ? "invite you to celebrate their marriage"
+      : "invite you to celebrate with them";
+  const defaultHostLine =
+    eventType === "wedding" ? "Together with their families" : "Together";
+  const defaultWelcomeMessage =
+    eventType === "wedding" ? "Welcome to the Wedding of" : "Welcome to the Celebration of";
   const googleFontUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font.googleFontsFamily)}&display=swap`;
 
   const textAlign =
@@ -108,7 +117,7 @@ export function renderPieceHtml(
     case "invitation":
       body += `
         <p style="font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.5}px; z-index:1;">
-          ${e(c.preHeading, "Together with their families")}
+          ${e(c.preHeading, defaultHostLine)}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
           ${e(c.name1, "Emma Rose")}
@@ -121,7 +130,7 @@ export function renderPieceHtml(
         </h1>
         ${ornamentHtml}
         <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
-          invite you to celebrate their marriage
+          ${e(c.invitationLine, defaultInviteLine)}
         </p>
         <p style="font-size: 14px; letter-spacing: 0.15em; margin: 0 0 4px; color: ${palette.text}; font-weight:500; z-index:1;">
           ${e(c.date, "Saturday, October Eighteenth")}
@@ -148,7 +157,7 @@ export function renderPieceHtml(
         </h2>
         ${ornamentHtml}
         <p style="font-size: 10px; color: ${palette.muted}; margin: ${spacing * 0.3}px 0 ${spacing * 0.3}px; letter-spacing:2px; text-transform:uppercase;">
-          Please respond by
+          ${e(c.rsvpPrompt, "Please respond by")}
         </p>
         <p style="font-size: 14px; color: ${palette.text}; font-weight:500; margin: 0 0 ${spacing}px; letter-spacing:1px;">
           ${e(c.rsvpDeadline, "September 1, 2026")}
@@ -166,7 +175,7 @@ export function renderPieceHtml(
     case "details":
       body += `
         <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.4}px; opacity:0.8;">
-          Wedding Day
+          ${e(c.eventType, "Event Day")}
         </p>
         <h2 style="font-size: 20px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing * 0.3}px; letter-spacing:4px; text-transform:uppercase;">
           Details
@@ -264,7 +273,7 @@ export function renderPieceHtml(
     case "placecard":
       body += `
         <p style="font-size: 20px; font-weight: 400; color: ${palette.primary}; margin: 0; letter-spacing: 1px;">
-          ${e(c.guestName, "Guest Name")}
+          ${e(c.guestName, e(c.guestPrompt, "Guest Name"))}
         </p>
       `;
       break;
@@ -272,7 +281,7 @@ export function renderPieceHtml(
     case "welcomesign":
       body += `
         <p style="font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px; opacity:0.8;">
-          ${e(c.welcomeMessage, "Welcome to the Wedding of")}
+          ${e(c.welcomeMessage, defaultWelcomeMessage)}
         </p>
         ${ornamentHtml}
         <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">

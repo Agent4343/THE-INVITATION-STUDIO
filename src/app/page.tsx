@@ -176,7 +176,7 @@ function HomePageInner() {
       <main className="flex flex-1 flex-col items-center px-4">
         <section className="w-full max-w-4xl py-16 text-center">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.4em] text-stone-400">
-            Luxury Wedding Stationery, Made Simple
+            Event Stationery for Every Style
           </p>
           <h1
             className="mb-4 text-5xl font-light tracking-tight text-stone-800 sm:text-6xl"
@@ -186,15 +186,15 @@ function HomePageInner() {
           </h1>
           <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-stone-500">
             Create a cohesive 9-piece suite without hiring a designer.
-            Choose your template, personalize every detail, and download
-            polished print-ready files in minutes.
+            Weddings, elopements, anniversaries, showers, birthdays, and more
+            — personalized for your style and guests.
           </p>
           <p className="mb-12 text-sm text-stone-400">
             1,728 combinations &middot; AI wording help &middot; Instant PDF downloads
           </p>
 
           <div className="mx-auto mb-8 grid max-w-3xl grid-cols-1 gap-2 rounded-lg border border-stone-200 bg-white p-4 text-xs text-stone-500 sm:grid-cols-3">
-            <p>Secure checkout with Stripe</p>
+            <p>Etsy-compliant final checkout</p>
             <p>Access code delivered by email</p>
             <p>Friendly support: support@theinvitationstudio.com</p>
           </div>
@@ -209,7 +209,7 @@ function HomePageInner() {
                   : "text-stone-500 hover:text-stone-700"
               }`}
             >
-              Get Started
+              Buy Access
             </button>
             <button
               onClick={() => setTab("code")}
@@ -219,7 +219,7 @@ function HomePageInner() {
                   : "text-stone-500 hover:text-stone-700"
               }`}
             >
-              I Have a Code
+              Redeem Code
             </button>
           </div>
 
@@ -294,14 +294,16 @@ function HomePageInner() {
                   disabled={purchaseLoading}
                   className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {purchaseLoading ? "Redirecting to checkout..." : `Purchase — ${TIERS.find(t => t.id === selectedTier)?.price}`}
+                  {purchaseLoading ? "Redirecting..." : `Buy Access — ${TIERS.find(t => t.id === selectedTier)?.price}`}
                 </button>
 
                 <p className="text-xs text-stone-500">
-                  You&rsquo;ll pay securely on Stripe, then receive your access code by email.
+                  You&rsquo;ll receive your design access via email, then complete
+                  your final order and payment on Etsy.
                 </p>
                 <p className="text-xs text-stone-400">
-                  No subscription. One-time purchase. Start designing right away.
+                  Etsy checkout keeps payment compliant while your design details
+                  are transferred automatically.
                 </p>
               </form>
             </div>
@@ -339,7 +341,8 @@ function HomePageInner() {
               </button>
 
               <p className="text-xs text-stone-400">
-                Access code format: XXXX-XXXX-XXXX. Delivered by email after purchase (or via Etsy).
+                Access code format: XXXX-XXXX-XXXX. Delivered by email after
+                purchase.
               </p>
             </form>
           )}
@@ -354,7 +357,7 @@ function HomePageInner() {
             Complete 9-Piece Suite
           </h2>
           <p className="mb-10 text-center text-sm text-stone-400">
-            Everything you need for a cohesive, beautiful wedding
+            Everything you need for a cohesive, beautiful event
           </p>
 
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9">
@@ -396,7 +399,7 @@ function HomePageInner() {
               },
               {
                 title: "12 Color Palettes",
-                desc: "Sage & Gold, Dusty Rose, Midnight & Pearl, Terracotta Sunset — curated palettes for every wedding style.",
+                desc: "Sage & Gold, Dusty Rose, Midnight & Pearl, Terracotta Sunset — curated palettes for every event style.",
               },
               {
                 title: "12 Premium Fonts",
@@ -441,7 +444,7 @@ function HomePageInner() {
               {
                 step: "01",
                 title: "Pick Your Template",
-                desc: "Choose from designer-made styles curated for modern, romantic, and classic weddings.",
+                desc: "Choose from designer-made styles curated for modern, romantic, and classic events.",
               },
               {
                 step: "02",
@@ -491,7 +494,7 @@ function HomePageInner() {
           </a>
         </p>
         <p className="mt-2 text-[11px] text-stone-400">
-          Secure checkout by Stripe &middot; Access code sent to your email after purchase
+          Etsy-compliant final checkout &middot; Access code sent to your email after purchase
         </p>
       </footer>
     </div>
