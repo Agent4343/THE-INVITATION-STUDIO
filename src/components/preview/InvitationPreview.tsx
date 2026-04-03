@@ -42,6 +42,85 @@ function preHeadingForEvent(content: DesignContent): string {
   return "Hosted by friends and family";
 }
 
+function sampleInvitationDefaults(content: DesignContent): {
+  name1: string;
+  name2: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+} {
+  const eventType = normalizeEventType(content.eventType);
+  if (eventType.includes("birthday")) {
+    return {
+      name1: "Alex",
+      name2: "Jordan",
+      date: "Saturday, October 18, 2026",
+      time: "6:00 PM",
+      venue: "Celebration Hall",
+      address: "123 Celebration Lane, Your City, ST",
+    };
+  }
+  if (eventType.includes("anniversary") || eventType.includes("vow-renewal")) {
+    return {
+      name1: "Alex",
+      name2: "Jordan",
+      date: "Saturday, October 18, 2026",
+      time: "5:00 PM",
+      venue: "Anniversary House",
+      address: "456 Memory Lane, Your City, ST",
+    };
+  }
+  if (eventType.includes("baby-shower")) {
+    return {
+      name1: "Taylor",
+      name2: "Morgan",
+      date: "Sunday, October 19, 2026",
+      time: "11:00 AM",
+      venue: "Garden Room",
+      address: "789 Blossom Street, Your City, ST",
+    };
+  }
+  if (eventType.includes("bridal-shower")) {
+    return {
+      name1: "Taylor",
+      name2: "Riley",
+      date: "Saturday, October 18, 2026",
+      time: "1:00 PM",
+      venue: "Rosewood Lounge",
+      address: "321 Rose Avenue, Your City, ST",
+    };
+  }
+  if (eventType.includes("graduation")) {
+    return {
+      name1: "Jordan",
+      name2: "Family & Friends",
+      date: "Saturday, June 12, 2027",
+      time: "2:00 PM",
+      venue: "Main Auditorium",
+      address: "200 University Way, Your City, ST",
+    };
+  }
+  if (eventType.includes("retirement")) {
+    return {
+      name1: "Alex",
+      name2: "Colleagues & Friends",
+      date: "Friday, September 10, 2027",
+      time: "6:30 PM",
+      venue: "Banquet Hall",
+      address: "100 Heritage Drive, Your City, ST",
+    };
+  }
+  return {
+    name1: "Alex",
+    name2: "Jordan",
+    date: "Saturday, October 18, 2026",
+    time: "4:30 PM",
+    venue: "Celebration Hall",
+    address: "123 Celebration Lane, Your City, ST",
+  };
+}
+
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
   switch (borderStyle) {
     case "thin":
@@ -250,6 +329,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
   const ornStyle = template.ornamentStyle || "classic";
   const invitationLine = invitationLineForEvent(content);
   const preHeading = preHeadingForEvent(content);
+  const defaults = sampleInvitationDefaults(content);
 
   const containerStyle: React.CSSProperties = {
     width: "100%",
@@ -305,7 +385,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.name1 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name1 || "Host Name"}
+            {content.name1 || defaults.name1}
           </h1>
           <span
             style={{
@@ -329,7 +409,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.name2 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name2 || "Co-Host Name"}
+            {content.name2 || defaults.name2}
           </h1>
         </div>
         <div
@@ -353,7 +433,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               fontWeight: 500,
             }}
           >
-            <span style={!content.date ? { opacity: 0.4 } : undefined}>{content.date || "Your Event Date"}</span>
+            <span style={!content.date ? { opacity: 0.4 } : undefined}>{content.date || defaults.date}</span>
           </p>
           <p
             style={{
@@ -363,7 +443,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.time ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.time || "Your Event Time"}
+            {content.time || defaults.time}
           </p>
           {template.ornament && <OrnamentalDivider style={ornStyle} color={palette.accent} size="sm" />}
           <p
@@ -375,7 +455,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.venue ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.venue || "Your Event Venue"}
+            {content.venue || defaults.venue}
           </p>
           <p
             style={{
@@ -386,7 +466,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.address ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.address || "Your Event Address"}
+            {content.address || defaults.address}
           </p>
         </div>
       </div>
@@ -437,7 +517,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.name1 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name1 || "Host Name"}
+        {content.name1 || defaults.name1}
       </h1>
 
       {/* Conjunction */}
@@ -470,7 +550,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.name2 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name2 || "Co-Host Name"}
+        {content.name2 || defaults.name2}
       </h1>
 
       {/* Ornamental divider */}
@@ -509,7 +589,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.date ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.date || "Your Event Date"}
+        {content.date || defaults.date}
       </p>
 
       {/* Time */}
@@ -523,7 +603,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.time ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.time || "Your Event Time"}
+        {content.time || defaults.time}
       </p>
 
       {/* Venue */}
@@ -539,7 +619,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.venue ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.venue || "Your Event Venue"}
+        {content.venue || defaults.venue}
       </p>
 
       {/* Address */}
@@ -554,7 +634,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.address ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.address || "Your Event Address"}
+        {content.address || defaults.address}
       </p>
     </div>
   );

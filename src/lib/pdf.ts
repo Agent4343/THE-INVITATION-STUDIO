@@ -69,6 +69,85 @@ function detailsSectionsForEvent(eventType: string): Array<{
   ];
 }
 
+function invitationSamplesForEvent(eventType: string): {
+  name1: string;
+  name2: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+} {
+  const normalized = normalizeEventType(eventType);
+  if (normalized === "birthday") {
+    return {
+      name1: "Alex",
+      name2: "Jordan",
+      date: "Saturday, October 18, 2026",
+      time: "6:00 PM",
+      venue: "Celebration Hall",
+      address: "123 Celebration Lane, Your City, ST",
+    };
+  }
+  if (normalized === "anniversary" || normalized === "vow-renewal") {
+    return {
+      name1: "Alex",
+      name2: "Jordan",
+      date: "Saturday, October 18, 2026",
+      time: "5:00 PM",
+      venue: "Anniversary House",
+      address: "456 Memory Lane, Your City, ST",
+    };
+  }
+  if (normalized === "baby-shower") {
+    return {
+      name1: "Taylor",
+      name2: "Morgan",
+      date: "Sunday, October 19, 2026",
+      time: "11:00 AM",
+      venue: "Garden Room",
+      address: "789 Blossom Street, Your City, ST",
+    };
+  }
+  if (normalized === "bridal-shower") {
+    return {
+      name1: "Taylor",
+      name2: "Riley",
+      date: "Saturday, October 18, 2026",
+      time: "1:00 PM",
+      venue: "Rosewood Lounge",
+      address: "321 Rose Avenue, Your City, ST",
+    };
+  }
+  if (normalized === "graduation") {
+    return {
+      name1: "Jordan",
+      name2: "Family & Friends",
+      date: "Saturday, June 12, 2027",
+      time: "2:00 PM",
+      venue: "Main Auditorium",
+      address: "200 University Way, Your City, ST",
+    };
+  }
+  if (normalized === "retirement") {
+    return {
+      name1: "Alex",
+      name2: "Colleagues & Friends",
+      date: "Friday, September 10, 2027",
+      time: "6:30 PM",
+      venue: "Banquet Hall",
+      address: "100 Heritage Drive, Your City, ST",
+    };
+  }
+  return {
+    name1: "Alex",
+    name2: "Jordan",
+    date: "Saturday, October 18, 2026",
+    time: "4:30 PM",
+    venue: "Celebration Hall",
+    address: "123 Celebration Lane, Your City, ST",
+  };
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -96,6 +175,7 @@ export function renderPieceHtml(
         : String(value),
     );
   const normalizedEventType = normalizeEventType(c.eventType);
+  const invitationSamples = invitationSamplesForEvent(normalizedEventType);
   const defaultInviteLine =
     normalizedEventType.includes("birthday")
       ? "invite you to a birthday celebration"
@@ -219,29 +299,29 @@ export function renderPieceHtml(
           ${e(c.preHeading, defaultHostLine)}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
-          ${e(c.name1, "Host Name")}
+          ${e(c.name1, invitationSamples.name1)}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0; z-index:1;">
           ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 2px 0 0; line-height: 1.15; z-index:1;">
-          ${e(c.name2, "Co-Host Name")}
+          ${e(c.name2, invitationSamples.name2)}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
           ${e(c.invitationLine, defaultInviteLine)}
         </p>
         <p style="font-size: 14px; letter-spacing: 0.15em; margin: 0 0 4px; color: ${palette.text}; font-weight:500; z-index:1;">
-          ${e(c.date, "Your Event Date")}
+          ${e(c.date, invitationSamples.date)}
         </p>
         <p style="font-size: 11px; color: ${palette.muted}; margin: 0 0 ${spacing}px; z-index:1;">
-          ${e(c.time, "Your Event Time")}
+          ${e(c.time, invitationSamples.time)}
         </p>
         <p style="font-size: 13px; color: ${palette.primary}; margin: 0 0 2px; font-weight:500; z-index:1;">
-          ${e(c.venue, "Your Event Venue")}
+          ${e(c.venue, invitationSamples.venue)}
         </p>
         <p style="font-size: 10px; color: ${palette.muted}; margin: 0; z-index:1;">
-          ${e(c.address, "Your Event Address")}
+          ${e(c.address, invitationSamples.address)}
         </p>
       `;
       break;

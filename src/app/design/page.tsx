@@ -28,6 +28,18 @@ const EVENT_PRESETS = [
   { value: "wedding", label: "Wedding" },
 ] as const;
 
+interface EventStarterCopy {
+  preHeading: string;
+  invitationLine: string;
+  welcomeMessage: string;
+  name1: string;
+  name2: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+}
+
 function normalizeEventPreset(value?: string): string {
   const v = (value || "").trim().toLowerCase();
   if (v.includes("birthday")) return "birthday";
@@ -45,55 +57,103 @@ function shouldReplaceField(current: unknown, allowList: string[]): boolean {
   return value === "" || allowList.includes(value);
 }
 
-function starterCopyForPreset(eventType: string) {
+function starterCopyForPreset(eventType: string): EventStarterCopy {
   switch (eventType) {
     case "birthday":
       return {
         preHeading: "Join us for a birthday celebration",
         invitationLine: "invite you to celebrate this birthday with us",
         welcomeMessage: "Welcome to the Birthday Celebration",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "6:00 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
       };
     case "anniversary":
       return {
         preHeading: "Together with our loved ones",
         invitationLine: "invite you to celebrate our anniversary",
         welcomeMessage: "Welcome to Our Anniversary Celebration",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "5:00 PM",
+        venue: "Anniversary House",
+        address: "456 Memory Lane, Your City, ST",
       };
     case "baby-shower":
       return {
         preHeading: "With joy in our hearts",
         invitationLine: "invite you to celebrate our growing family",
         welcomeMessage: "Welcome to the Baby Shower",
+        name1: "Taylor",
+        name2: "Morgan",
+        date: "Sunday, October 19, 2026",
+        time: "11:00 AM",
+        venue: "Garden Room",
+        address: "789 Blossom Street, Your City, ST",
       };
     case "bridal-shower":
       return {
         preHeading: "Hosted with love",
         invitationLine: "invite you to join the bridal shower celebration",
         welcomeMessage: "Welcome to the Bridal Shower",
+        name1: "Taylor",
+        name2: "Riley",
+        date: "Saturday, October 18, 2026",
+        time: "1:00 PM",
+        venue: "Rosewood Lounge",
+        address: "321 Rose Avenue, Your City, ST",
       };
     case "graduation":
       return {
         preHeading: "Please join us",
         invitationLine: "invite you to celebrate this graduation milestone",
         welcomeMessage: "Welcome to the Graduation Celebration",
+        name1: "Jordan",
+        name2: "Family & Friends",
+        date: "Saturday, June 12, 2027",
+        time: "2:00 PM",
+        venue: "Main Auditorium",
+        address: "200 University Way, Your City, ST",
       };
     case "retirement":
       return {
         preHeading: "Please join us",
         invitationLine: "invite you to celebrate a remarkable retirement",
         welcomeMessage: "Welcome to the Retirement Celebration",
+        name1: "Alex",
+        name2: "Colleagues & Friends",
+        date: "Friday, September 10, 2027",
+        time: "6:30 PM",
+        venue: "Banquet Hall",
+        address: "100 Heritage Drive, Your City, ST",
       };
     case "wedding":
       return {
         preHeading: "Hosted by friends and family",
         invitationLine: "invite you to celebrate with us",
         welcomeMessage: "Welcome to Our Celebration",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "4:30 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
       };
     default:
       return {
         preHeading: "Hosted by friends and family",
         invitationLine: "invite you to celebrate with us",
         welcomeMessage: "Welcome to Our Celebration",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "4:30 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
       };
   }
 }
@@ -124,6 +184,8 @@ function normalizeLegacyEventCopy(content: Record<string, unknown>) {
   if (name2 === "james william") normalized.name2 = "";
   if (name1 === "name one") normalized.name1 = "";
   if (name2 === "name two") normalized.name2 = "";
+  if (name1 === "host name") normalized.name1 = "";
+  if (name2 === "co-host name") normalized.name2 = "";
 
   const venue = typeof normalized.venue === "string" ? normalized.venue.trim().toLowerCase() : "";
   if (venue === "the grand estate") normalized.venue = "";
@@ -191,6 +253,7 @@ function DesignPageInner() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedContentRef = useRef<string>("");
+  const seededPresetRef = useRef(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [designLoaded, setDesignLoaded] = useState(false);
@@ -225,9 +288,34 @@ function DesignPageInner() {
         "welcome to our celebration",
         "welcome to the celebration of",
         "welcome to our wedding",
+        "welcome to the birthday celebration",
+        "welcome to our anniversary celebration",
+        "welcome to the baby shower",
+        "welcome to the bridal shower",
+        "welcome to the graduation celebration",
+        "welcome to the retirement celebration",
       ])
     ) {
       update.welcomeMessage = starter.welcomeMessage;
+    }
+
+    if (shouldReplaceField(content.name1, ["name one", "alex", "taylor", "jordan"])) {
+      update.name1 = starter.name1;
+    }
+    if (shouldReplaceField(content.name2, ["name two", "jordan", "riley", "family & friends", "colleagues & friends"])) {
+      update.name2 = starter.name2;
+    }
+    if (shouldReplaceField(content.date, ["your event date", "saturday, october 18, 2026", "saturday, june 12, 2027", "friday, september 10, 2027", "sunday, october 19, 2026"])) {
+      update.date = starter.date;
+    }
+    if (shouldReplaceField(content.time, ["your event time", "4:30 pm", "5:00 pm", "6:00 pm", "1:00 pm", "2:00 pm", "6:30 pm", "11:00 am"])) {
+      update.time = starter.time;
+    }
+    if (shouldReplaceField(content.venue, ["your event venue", "celebration hall", "anniversary house", "garden room", "rosewood lounge", "main auditorium", "banquet hall"])) {
+      update.venue = starter.venue;
+    }
+    if (shouldReplaceField(content.address, ["your event location", "your event address", "123 celebration lane, your city, st", "456 memory lane, your city, st", "789 blossom street, your city, st", "321 rose avenue, your city, st", "200 university way, your city, st", "100 heritage drive, your city, st"])) {
+      update.address = starter.address;
     }
 
     setContent(update);
@@ -288,6 +376,14 @@ function DesignPageInner() {
       setAuthChecked(true);
     }
   }, [token, designId]);
+
+  // Seed visible event-specific starter copy once after load.
+  useEffect(() => {
+    if (!designLoaded || seededPresetRef.current) return;
+    seededPresetRef.current = true;
+    applyEventPreset(normalizeEventPreset(content.eventType));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [designLoaded]);
 
   // Load saved design from server on mount
   useEffect(() => {
