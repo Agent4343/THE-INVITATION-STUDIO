@@ -78,7 +78,7 @@ export default function EtsyCheckoutPanel() {
 
   async function requestEtsyCheckout() {
     if (!designId || !token) {
-      setError("Please finish loading your design first.");
+      setError("Please finish loading your event stationery first.");
       return;
     }
 

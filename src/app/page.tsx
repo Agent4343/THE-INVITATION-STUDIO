@@ -110,9 +110,9 @@ function HomePageInner() {
             The Invitation Studio
           </h1>
           <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-stone-500">
-            Create cohesive event stationery across 9 matching pieces without
-            hiring a designer. Built for weddings, anniversaries, birthdays,
-            showers, and more — personalized for your style and guests.
+            Build complete event stationery across 9 matching pieces in minutes.
+            Made for weddings, anniversaries, birthdays, showers, and more —
+            personalized for your style and guests.
           </p>
           <p className="mb-12 text-sm text-stone-400">
             1,728 combinations &middot; AI wording help &middot; Instant event
@@ -120,7 +120,7 @@ function HomePageInner() {
           </p>
 
           <div className="mx-auto mb-8 grid max-w-3xl grid-cols-1 gap-2 rounded-lg border border-stone-200 bg-white p-4 text-xs text-stone-500 sm:grid-cols-3">
-            <p>Etsy-compliant final checkout</p>
+            <p>Etsy checkout for event stationery</p>
             <p>Access code delivered by email</p>
             <p>Friendly support: support@theinvitationstudio.com</p>
           </div>
@@ -158,7 +158,7 @@ function HomePageInner() {
                   onClick={handlePurchase}
                   className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Buy on Etsy
+                  Buy Event Stationery Access on Etsy
                 </button>
 
                 <p className="text-xs text-stone-500">
@@ -201,7 +201,7 @@ function HomePageInner() {
                 disabled={loading}
                 className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {loading ? "Validating..." : "Open Event Stationery Builder"}
+                {loading ? "Validating..." : "Start Event Stationery Builder"}
               </button>
 
               <p className="text-xs text-stone-400">
@@ -218,7 +218,7 @@ function HomePageInner() {
             className="mb-3 text-center text-2xl font-light text-stone-800"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Complete 9-Piece Event Stationery Set
+            Complete 9-Piece Event Stationery Collection
           </h2>
           <p className="mb-10 text-center text-sm text-stone-400">
             Everything you need for cohesive, beautiful event stationery
@@ -252,13 +252,13 @@ function HomePageInner() {
             className="mb-10 text-center text-2xl font-light text-stone-800"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Designed to Delight
+            Event Stationery, Simplified
           </h2>
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                title: "12 Event Stationery Templates",
+                title: "12 Event Stationery Styles",
                 desc: "From Classic Elegance to Art Deco Luxe, Botanical Bliss to Coastal Breeze. Each with unique decorative elements.",
               },
               {
@@ -278,8 +278,8 @@ function HomePageInner() {
                 desc: "See your changes in real-time. Every edit updates the preview instantly — what you see is what you print.",
               },
               {
-                title: "Print-Ready Downloads",
-                desc: "High-resolution PDF output with proper margins, bleed, and color accuracy for professional printing.",
+                title: "Print-Ready Event Files",
+                desc: "High-resolution event stationery PDFs with proper margins, bleed, and color accuracy for professional printing.",
               },
             ].map((feature) => (
               <div key={feature.title} className="text-center">
@@ -317,7 +317,7 @@ function HomePageInner() {
               },
               {
                 step: "03",
-                title: "Download Event Files",
+                title: "Export Event Stationery Files",
                 desc: "Export print-ready event stationery PDFs instantly or order professionally printed sets.",
               },
             ].map((item) => (

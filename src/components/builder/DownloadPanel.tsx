@@ -11,7 +11,7 @@ export default function DownloadPanel() {
 
   const handleDownload = async () => {
     if (!designId) {
-      setError("Please save your design before downloading.");
+      setError("Please save your event stationery before downloading.");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function DownloadPanel() {
       const html = await res.text();
       const printWindow = window.open("", "_blank");
       if (!printWindow) {
-        throw new Error("Please allow popups to download your suite.");
+        throw new Error("Please allow popups to download your event stationery.");
       }
 
       printWindow.document.write(html);
@@ -83,7 +83,7 @@ export default function DownloadPanel() {
 
       <p className="text-xs text-stone-400 text-center">
         Opens a print preview — choose &quot;Save as PDF&quot; to download your
-        print-ready event stationery suite.
+        print-ready event stationery files.
       </p>
 
     </div>
