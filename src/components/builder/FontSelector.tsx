@@ -31,7 +31,7 @@ export default function FontSelector() {
                 fontWeight: f.previewWeight,
               }}
             >
-              Emma &amp; James
+              Alex &amp; Jordan
             </p>
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium text-stone-700">{f.name}</p>

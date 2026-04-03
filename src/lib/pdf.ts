@@ -114,29 +114,29 @@ export function renderPieceHtml(
           ${e(c.preHeading, defaultHostLine)}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
-          ${e(c.name1, "Emma Rose")}
+          ${e(c.name1, "Name One")}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0; z-index:1;">
           ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 2px 0 0; line-height: 1.15; z-index:1;">
-          ${e(c.name2, "James William")}
+          ${e(c.name2, "Name Two")}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
           ${e(c.invitationLine, defaultInviteLine)}
         </p>
         <p style="font-size: 14px; letter-spacing: 0.15em; margin: 0 0 4px; color: ${palette.text}; font-weight:500; z-index:1;">
-          ${e(c.date, "Saturday, October Eighteenth")}
+          ${e(c.date, "Your Event Date")}
         </p>
         <p style="font-size: 11px; color: ${palette.muted}; margin: 0 0 ${spacing}px; z-index:1;">
-          ${e(c.time, "Half past four in the afternoon")}
+          ${e(c.time, "Your Event Time")}
         </p>
         <p style="font-size: 13px; color: ${palette.primary}; margin: 0 0 2px; font-weight:500; z-index:1;">
-          ${e(c.venue, "The Grand Estate")}
+          ${e(c.venue, "Your Event Venue")}
         </p>
         <p style="font-size: 10px; color: ${palette.muted}; margin: 0; z-index:1;">
-          ${e(c.address, "123 Garden Lane, Napa Valley")}
+          ${e(c.address, "Venue Address")}
         </p>
       `;
       break;
@@ -231,19 +231,19 @@ export function renderPieceHtml(
         </p>
         ${ornamentHtml}
         <h1 style="font-size: 30px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">
-          ${e(c.name1, "Emma")}
+          ${e(c.name1, "Alex")}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0;">
           ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 30px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.15;">
-          ${e(c.name2, "James")}
+          ${e(c.name2, "Jordan")}
         </h1>
         <p style="font-size: 22px; font-weight: 500; color: ${palette.primary}; margin: ${spacing * 1.5}px 0 ${spacing * 0.5}px; letter-spacing:2px;">
-          ${e(c.date, "October 18, 2026")}
+          ${e(c.date, "Saturday, October 18, 2026")}
         </p>
         <p style="font-size: 13px; color: ${palette.muted}; margin: 0;">
-          ${e(c.venue, "The Grand Estate")} &bull; ${e(c.address, "Napa Valley, CA")}
+          ${e(c.venue, "Celebration Hall")} &bull; ${e(c.address, "Your City, ST")}
         </p>
         <p style="font-size: 10px; letter-spacing:2px; text-transform:uppercase; color: ${palette.muted}; margin: ${spacing * 1.5}px 0 0; opacity:0.7;">
           Formal invitation to follow
@@ -279,20 +279,20 @@ export function renderPieceHtml(
         </p>
         ${ornamentHtml}
         <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">
-          ${e(c.name1, "Emma")}
+          ${e(c.name1, "Alex")}
         </h1>
         <p style="font-size: 18px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 2}px 0;">
           ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.15;">
-          ${e(c.name2, "James")}
+          ${e(c.name2, "Jordan")}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 16px; color: ${palette.text}; margin: ${spacing}px 0 ${spacing * 0.5}px; letter-spacing:2px;">
-          ${e(c.date, "October 18, 2026")}
+          ${e(c.date, "Saturday, October 18, 2026")}
         </p>
         <p style="font-size: 13px; color: ${palette.muted}; margin: 0 0 ${spacing * 2}px;">
-          ${e(c.venue, "The Grand Estate")}
+          ${e(c.venue, "Celebration Hall")}
         </p>
         <p style="font-size: 12px; color: ${palette.muted}; margin: 0; letter-spacing:1px; font-style:italic;">
           ${e(c.welcomeSubtext, "Please find your seat and enjoy the celebration")}

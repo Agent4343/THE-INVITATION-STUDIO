@@ -153,7 +153,7 @@ export default function ThankYouPreview({ template, palette, font, content }: Pr
             zIndex: 1,
           }}
         >
-          Emma &amp; James
+          Your Event Hosts
         </p>
       )}
     </div>

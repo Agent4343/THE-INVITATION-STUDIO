@@ -122,8 +122,8 @@ const sections: Section[] = [
   {
     title: "Names",
     fields: [
-      { key: "name1", label: "First Name", placeholder: "Emma", maxLength: 30 },
-      { key: "name2", label: "Second Name", placeholder: "James", maxLength: 30 },
+      { key: "name1", label: "First Name", placeholder: "Alex", maxLength: 30 },
+      { key: "name2", label: "Second Name", placeholder: "Jordan", maxLength: 30 },
       { key: "conjunction", label: "Conjunction", placeholder: "&", maxLength: 10 },
     ],
   },
@@ -133,17 +133,17 @@ const sections: Section[] = [
       {
         key: "preHeading",
         label: "Pre-heading",
-        placeholder: "Hosted by our loved ones",
+        placeholder: "Hosted by friends and family",
         maxLength: 60,
         aiField: true,
       },
       { key: "date", label: "Date", placeholder: "Saturday, October 18, 2026", maxLength: 40 },
-      { key: "time", label: "Time", placeholder: "Half past four in the afternoon", maxLength: 50 },
-      { key: "venue", label: "Venue", placeholder: "The Grand Estate", maxLength: 50 },
+      { key: "time", label: "Time", placeholder: "4:30 PM", maxLength: 50 },
+      { key: "venue", label: "Venue", placeholder: "Celebration Hall", maxLength: 50 },
       {
         key: "address",
         label: "Address",
-        placeholder: "123 Garden Lane, Napa Valley, CA",
+        placeholder: "123 Celebration Lane, Your City, ST",
         maxLength: 80,
       },
     ],

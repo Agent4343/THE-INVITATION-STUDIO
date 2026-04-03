@@ -284,7 +284,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.name1 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name1 || "Emma"}
+            {content.name1 || "Name One"}
           </h1>
           <span
             style={{
@@ -308,7 +308,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.name2 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name2 || "James"}
+            {content.name2 || "Name Two"}
           </h1>
         </div>
         <div
@@ -321,7 +321,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
             zIndex: 1,
           }}
         >
-          <InvitationSubtext text="request the pleasure of your company" palette={palette} font={font} />
+          <InvitationSubtext text="invite you to celebrate" palette={palette} font={font} />
           <div style={{ height: baseSpacing * 0.8 }} />
           <p
             style={{
@@ -332,7 +332,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               fontWeight: 500,
             }}
           >
-            <span style={!content.date ? { opacity: 0.4 } : undefined}>{content.date || "October 18, 2026"}</span>
+            <span style={!content.date ? { opacity: 0.4 } : undefined}>{content.date || "Your Event Date"}</span>
           </p>
           <p
             style={{
@@ -342,7 +342,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.time ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.time || "Half past four"}
+            {content.time || "Your Event Time"}
           </p>
           {template.ornament && <OrnamentalDivider style={ornStyle} color={palette.accent} size="sm" />}
           <p
@@ -354,7 +354,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.venue ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.venue || "The Grand Estate"}
+            {content.venue || "Your Event Venue"}
           </p>
           <p
             style={{
@@ -365,7 +365,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.address ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.address || "123 Garden Lane"}
+            {content.address || "Your Event Location"}
           </p>
         </div>
       </div>
@@ -416,7 +416,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.name1 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name1 || "Emma Rose"}
+        {content.name1 || "Name One"}
       </h1>
 
       {/* Conjunction */}
@@ -449,7 +449,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.name2 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name2 || "James William"}
+        {content.name2 || "Name Two"}
       </h1>
 
       {/* Ornamental divider */}
@@ -488,7 +488,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.date ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.date || "Saturday, October Eighteenth"}
+        {content.date || "Your Event Date"}
       </p>
 
       {/* Time */}
@@ -502,7 +502,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.time ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.time || "Half past four in the afternoon"}
+        {content.time || "Your Event Time"}
       </p>
 
       {/* Venue */}
@@ -518,7 +518,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.venue ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.venue || "The Grand Estate"}
+        {content.venue || "Your Event Venue"}
       </p>
 
       {/* Address */}
@@ -533,7 +533,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.address ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.address || "123 Garden Lane, Napa Valley, California"}
+        {content.address || "Your Event Location"}
       </p>
     </div>
   );

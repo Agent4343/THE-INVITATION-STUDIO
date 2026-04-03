@@ -34,6 +34,20 @@ function normalizeLegacyEventCopy(content: Record<string, unknown>) {
     normalized.invitationLine = "invite you to celebrate with us";
   }
 
+  const name1 = typeof normalized.name1 === "string" ? normalized.name1.trim().toLowerCase() : "";
+  const name2 = typeof normalized.name2 === "string" ? normalized.name2.trim().toLowerCase() : "";
+  if (name1 === "emma rose") normalized.name1 = "";
+  if (name2 === "james william") normalized.name2 = "";
+
+  const venue = typeof normalized.venue === "string" ? normalized.venue.trim().toLowerCase() : "";
+  if (venue === "the grand estate") normalized.venue = "";
+
+  const address = typeof normalized.address === "string" ? normalized.address.trim().toLowerCase() : "";
+  if (address === "123 garden lane, napa valley, california") normalized.address = "";
+
+  const time = typeof normalized.time === "string" ? normalized.time.trim().toLowerCase() : "";
+  if (time === "half past four in the afternoon") normalized.time = "";
+
   return normalized;
 }
 
