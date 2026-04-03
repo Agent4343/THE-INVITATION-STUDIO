@@ -19,6 +19,9 @@ const SUITE_PIECES = [
 ];
 
 function HomePageInner() {
+  const ETSY_SHOP_URL =
+    process.env.NEXT_PUBLIC_ETSY_SHOP_URL ||
+    "https://www.etsy.com/shop/theinvitationstudio";
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setDesignId, setToken } = useDesignStore();
@@ -27,10 +30,6 @@ function HomePageInner() {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const [email, setEmail] = useState("");
-  const [purchaseLoading, setPurchaseLoading] = useState(false);
-  const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
   const formatCode = (value: string) => {
     const digits = value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12);
@@ -92,36 +91,8 @@ function HomePageInner() {
     }
   };
 
-  const handlePurchase = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) {
-      setPurchaseError("Please enter a valid email address.");
-      return;
-    }
-
-    setPurchaseLoading(true);
-    setPurchaseError(null);
-
-    try {
-      const res = await fetch("/api/purchase/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, tier: "standard" }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setPurchaseError(data.error || "Something went wrong. Please try again.");
-        return;
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch {
-      setPurchaseError("Something went wrong. Please try again.");
-    } finally {
-      setPurchaseLoading(false);
-    }
+  const handlePurchase = () => {
+    window.open(ETSY_SHOP_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -180,43 +151,24 @@ function HomePageInner() {
           {/* Purchase Tab */}
           {tab === "purchase" && (
             <div className="mx-auto max-w-xl">
-              <form onSubmit={handlePurchase} className="mx-auto max-w-md space-y-4">
-                <div>
-                  <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-600">
-                    Email for Delivery
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setPurchaseError(null); }}
-                    placeholder="you@example.com"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-4 py-3 text-center text-stone-800 placeholder-stone-300 transition-colors focus:border-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                    required
-                  />
-                </div>
-
-                {purchaseError && (
-                  <p className="text-sm text-red-500">{purchaseError}</p>
-                )}
-
+              <div className="mx-auto max-w-md space-y-4">
                 <button
-                  type="submit"
-                  disabled={purchaseLoading}
+                  type="button"
+                  onClick={handlePurchase}
                   className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {purchaseLoading ? "Redirecting..." : "Buy Access"}
+                  Buy on Etsy
                 </button>
 
                 <p className="text-xs text-stone-500">
-                  You&rsquo;ll receive your design access via email, then complete
-                  your final order and payment on Etsy.
+                  All payments are completed on Etsy. This app does not process
+                  payments directly.
                 </p>
                 <p className="text-xs text-stone-400">
-                  Etsy checkout keeps payment compliant while your design details
-                  are transferred automatically.
+                  After Etsy checkout, you receive an access code by email to
+                  redeem here and start designing.
                 </p>
-              </form>
+              </div>
             </div>
           )}
 
