@@ -5,6 +5,12 @@ import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
 import { templates } from "@/data/templates";
 import { buildEtsyDraftPayload, toEtsyPersonalizationNote } from "@/lib/etsy";
+import {
+  normalizeRouteKey,
+  pickBestRoute,
+  routeCandidates,
+  type EtsyListingRoute,
+} from "@/lib/etsyRoutes";
 
 function getEnv(name: string): string {
   const value = process.env[name];
@@ -47,10 +53,13 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       designId?: string;
       etsyPath?: "listing" | "message";
+      packageTier?: string;
     };
     if (!body.designId || body.designId !== payload.designId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const packageTier = normalizeRouteKey(body.packageTier, "standard");
 
     const supabase = createServerSupabase();
     const { data: design, error } = await supabase
@@ -72,16 +81,40 @@ export async function POST(request: Request) {
       templateName: template?.name || "Template",
       paletteName: palette?.name || "Palette",
       fontName: font?.name || "Font",
+      packageTier,
     });
 
     const personalizationText = toEtsyPersonalizationNote(draftPayload);
-    const checkoutUrl =
-      body.etsyPath === "message" ? getMessageSellerUrl() : getPrimaryListingUrl();
+    let selectedRoute: EtsyListingRoute | null = null;
+    let checkoutUrl: string;
+
+    if (body.etsyPath === "message") {
+      checkoutUrl = getMessageSellerUrl();
+    } else {
+      const eventCandidates = routeCandidates(draftPayload.eventType);
+      const tierCandidates = routeCandidates(packageTier);
+      const { data: routeRows } = await supabase
+        .from("etsy_listing_routes")
+        .select("*")
+        .eq("is_active", true)
+        .in("event_type", eventCandidates)
+        .in("package_tier", tierCandidates)
+        .order("updated_at", { ascending: false });
+
+      selectedRoute = pickBestRoute(
+        (routeRows ?? []) as EtsyListingRoute[],
+        normalizeRouteKey(draftPayload.eventType, "default"),
+        packageTier,
+      );
+
+      checkoutUrl = selectedRoute?.listing_url || getPrimaryListingUrl();
+    }
 
     return NextResponse.json({
       checkoutUrl,
       personalizationText,
       draftPayload,
+      selectedRoute,
     });
   } catch (error) {
     console.error("Failed to prepare Etsy handoff:", error);

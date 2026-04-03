@@ -4,6 +4,7 @@ interface EtsyLineItem {
 }
 
 interface EtsyDraftOrderPayload {
+  packageTier: string;
   eventType: string;
   eventFormality: string;
   guestCountBand: string;
@@ -66,8 +67,10 @@ export function buildEtsyDraftPayload(input: {
   templateName: string;
   paletteName: string;
   fontName: string;
+  packageTier: string;
 }): EtsyDraftOrderPayload {
   const c = input.content;
+  const packageTier = normalizeText(input.packageTier, "standard", 24).toLowerCase();
   const eventType = normalizeText(c.eventType, "wedding", 32).toLowerCase();
   const eventFormality = normalizeText(c.eventFormality, "classic", 32).toLowerCase();
   const guestCountBand = normalizeText(c.guestCountBand, "medium", 32).toLowerCase();
@@ -90,6 +93,7 @@ export function buildEtsyDraftPayload(input: {
   ];
 
   return {
+    packageTier,
     eventType,
     eventFormality,
     guestCountBand,
@@ -134,6 +138,7 @@ export function toEtsyPersonalizationNote(
 ): string {
   const lines = [
     "INVITATION STUDIO ORDER",
+    `Package Tier: ${payload.packageTier}`,
     `Event Type: ${payload.eventType}`,
     `Event Formality: ${payload.eventFormality}`,
     `Guest Count Band: ${payload.guestCountBand}`,

@@ -21,13 +21,40 @@ const etsyPathOptions = [
 
 type EtsyPath = (typeof etsyPathOptions)[number]["id"];
 
+const packageTierOptions = [
+  {
+    id: "standard",
+    title: "Standard",
+    description: "Best for digital DIY printing and quick turnaround.",
+  },
+  {
+    id: "premium",
+    title: "Premium",
+    description: "Best for elevated paper and enhanced finishes.",
+  },
+  {
+    id: "complete",
+    title: "Complete",
+    description: "Best for full-suite production and premium support.",
+  },
+  {
+    id: "custom",
+    title: "Custom",
+    description: "For unusual quantities, event formats, or special requests.",
+  },
+] as const;
+
+type PackageTier = (typeof packageTierOptions)[number]["id"];
+
 export default function EtsyCheckoutPanel() {
   const { designId, token, template, palette, font, content } = useDesignStore();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [etsyPath, setEtsyPath] = useState<EtsyPath>("listing");
+  const [packageTier, setPackageTier] = useState<PackageTier>("premium");
   const [noteCopied, setNoteCopied] = useState(false);
   const [previewNote, setPreviewNote] = useState<string>("");
+  const [selectedRouteLabel, setSelectedRouteLabel] = useState<string>("");
 
   const headline = useMemo(() => {
     const eventType = (content.eventType || "wedding").toLowerCase();
@@ -53,6 +80,7 @@ export default function EtsyCheckoutPanel() {
     setLoading(true);
     setError(null);
     setNoteCopied(false);
+    setSelectedRouteLabel("");
 
     try {
       const res = await fetch("/api/etsy/checkout", {
@@ -64,6 +92,7 @@ export default function EtsyCheckoutPanel() {
         body: JSON.stringify({
           designId,
           etsyPath,
+          packageTier,
         }),
       });
 
@@ -73,6 +102,7 @@ export default function EtsyCheckoutPanel() {
       }
 
       setPreviewNote(data.personalizationText || "");
+      setSelectedRouteLabel(data.selectedRoute?.listing_label || "Primary Etsy listing");
       if (data.checkoutUrl) {
         window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
       }
@@ -109,6 +139,41 @@ export default function EtsyCheckoutPanel() {
       </div>
 
       <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+          Select package tier for Etsy routing
+        </p>
+        {packageTierOptions.map((option) => (
+          <label
+            key={option.id}
+            className={`block cursor-pointer rounded-md border p-3 transition-colors ${
+              packageTier === option.id
+                ? "border-stone-700 bg-stone-50"
+                : "border-stone-200 bg-white hover:border-stone-300"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <input
+                type="radio"
+                name="packageTier"
+                checked={packageTier === option.id}
+                onChange={() => setPackageTier(option.id)}
+                className="mt-1"
+              />
+              <div>
+                <p className="text-sm font-medium text-stone-800">{option.title}</p>
+                <p className="mt-1 text-xs leading-relaxed text-stone-500">
+                  {option.description}
+                </p>
+              </div>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+          Etsy handoff mode
+        </p>
         {etsyPathOptions.map((option) => (
           <label
             key={option.id}
@@ -150,6 +215,11 @@ export default function EtsyCheckoutPanel() {
         Payment and order confirmation are handled on Etsy. Keep this tab open
         until your Etsy checkout is complete.
       </p>
+      {selectedRouteLabel && (
+        <p className="text-center text-xs text-stone-500">
+          Routed to: <span className="font-medium text-stone-700">{selectedRouteLabel}</span>
+        </p>
+      )}
 
       {previewNote && (
         <div className="rounded-md border border-stone-200 bg-stone-50 p-3">
