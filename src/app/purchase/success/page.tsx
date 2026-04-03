@@ -93,24 +93,35 @@ function PurchaseSuccessContent() {
         <p className="mb-2 text-3xl text-[#e0d6c8]">&mdash; &#10047; &mdash;</p>
 
         <h1 className="font-serif text-3xl tracking-wide text-[#3d3427]">
-          Thank you for your purchase!
+          You are all set!
         </h1>
 
         <p className="mt-4 text-[#6b5e4f]">
-          Your access code has been created and sent to the email address you
-          used at checkout.
+          Your access code is on its way to the email address you used at
+          checkout.
         </p>
 
-        <p className="mt-6 text-sm text-[#9a8e7f]">
-          Open your email to get your code, then use it on the homepage to
-          start designing.
+        <div className="mt-6 rounded-lg border border-[#e0d6c8] bg-[#f5f0e8] px-5 py-4 text-left">
+          <p className="text-xs uppercase tracking-wider text-[#9a8e7f]">
+            Next steps
+          </p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-[#6b5e4f]">
+            <li>Open your inbox and find your access code email.</li>
+            <li>Return to the homepage and click "I Have a Code".</li>
+            <li>Paste your code to start customizing your suite.</li>
+          </ol>
+        </div>
+
+        <p className="mt-4 text-xs text-[#9a8e7f]">
+          Tip: Check spam/promotions if the email has not arrived in 2-3
+          minutes.
         </p>
 
         <Link
           href="/"
           className="mt-8 inline-block rounded bg-[#3d3427] px-10 py-3 font-serif text-sm tracking-wide text-white transition-colors hover:bg-[#2a241b]"
         >
-          Go to Homepage
+          Return to Homepage
         </Link>
 
         <p className="mt-10 text-xs text-[#9a8e7f]">

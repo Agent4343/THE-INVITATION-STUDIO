@@ -11,7 +11,7 @@ const TIERS = [
     id: "standard" as const,
     name: "Standard",
     price: "$24.99",
-    description: "Everything you need for your big day",
+    description: "Great for couples who want a beautiful suite fast",
     features: [
       "9-piece invitation suite",
       "12 designer templates",
@@ -20,12 +20,13 @@ const TIERS = [
       "AI-powered wording assistant",
       "Unlimited downloads",
     ],
+    bestFor: "Best for: elegant essentials on a budget",
   },
   {
     id: "premium" as const,
     name: "Premium",
     price: "$34.99",
-    description: "Our most popular choice",
+    description: "Most popular for flexibility and long-term value",
     features: [
       "Everything in Standard",
       "All current & future templates",
@@ -33,18 +34,20 @@ const TIERS = [
       "Extended access (1 year)",
     ],
     popular: true,
+    bestFor: "Best for: most couples planning over several months",
   },
   {
     id: "complete" as const,
     name: "Complete",
     price: "$49.99",
-    description: "The ultimate wedding suite",
+    description: "Everything unlocked, forever access",
     features: [
       "Everything in Premium",
       "Lifetime access",
       "Print fulfillment discount",
       "Early access to new designs",
     ],
+    bestFor: "Best for: planners and keepsake-focused couples",
   },
 ];
 
@@ -173,7 +176,7 @@ function HomePageInner() {
       <main className="flex flex-1 flex-col items-center px-4">
         <section className="w-full max-w-4xl py-16 text-center">
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.4em] text-stone-400">
-            Design Your Dream Wedding Stationery
+            Luxury Wedding Stationery, Made Simple
           </p>
           <h1
             className="mb-4 text-5xl font-light tracking-tight text-stone-800 sm:text-6xl"
@@ -182,13 +185,19 @@ function HomePageInner() {
             The Invitation Studio
           </h1>
           <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-stone-500">
-            Create a stunning 9-piece wedding invitation suite in minutes.
-            Choose from 12 designer templates, customize every detail, and download
-            print-ready files instantly.
+            Create a cohesive 9-piece suite without hiring a designer.
+            Choose your template, personalize every detail, and download
+            polished print-ready files in minutes.
           </p>
           <p className="mb-12 text-sm text-stone-400">
-            1,728 unique design combinations &middot; AI-powered wording &middot; Instant download
+            1,728 combinations &middot; AI wording help &middot; Instant PDF downloads
           </p>
+
+          <div className="mx-auto mb-8 grid max-w-3xl grid-cols-1 gap-2 rounded-lg border border-stone-200 bg-white p-4 text-xs text-stone-500 sm:grid-cols-3">
+            <p>Secure checkout with Stripe</p>
+            <p>Access code delivered by email</p>
+            <p>Friendly support: support@theinvitationstudio.com</p>
+          </div>
 
           {/* Tab Switcher */}
           <div className="mx-auto mb-8 flex max-w-md rounded-lg border border-stone-200 bg-white p-1">
@@ -243,6 +252,9 @@ function HomePageInner() {
                       {tier.price}
                     </p>
                     <p className="mt-1 text-xs text-stone-400">{tier.description}</p>
+                    <p className="mt-1 text-[11px] font-medium text-stone-500">
+                      {tier.bestFor}
+                    </p>
                     <ul className="mt-4 space-y-1.5">
                       {tier.features.map((f) => (
                         <li key={f} className="flex items-start text-xs text-stone-500">
@@ -260,7 +272,7 @@ function HomePageInner() {
               <form onSubmit={handlePurchase} className="mx-auto max-w-md space-y-4">
                 <div>
                   <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-600">
-                    Your Email Address
+                    Email for Delivery
                   </label>
                   <input
                     id="email"
@@ -285,8 +297,11 @@ function HomePageInner() {
                   {purchaseLoading ? "Redirecting to checkout..." : `Purchase — ${TIERS.find(t => t.id === selectedTier)?.price}`}
                 </button>
 
+                <p className="text-xs text-stone-500">
+                  You&rsquo;ll pay securely on Stripe, then receive your access code by email.
+                </p>
                 <p className="text-xs text-stone-400">
-                  Secure payment via Stripe. Access code delivered instantly after purchase.
+                  No subscription. One-time purchase. Start designing right away.
                 </p>
               </form>
             </div>
@@ -324,7 +339,7 @@ function HomePageInner() {
               </button>
 
               <p className="text-xs text-stone-400">
-                Access codes are delivered via email after purchase or through Etsy.
+                Access code format: XXXX-XXXX-XXXX. Delivered by email after purchase (or via Etsy).
               </p>
             </form>
           )}
@@ -425,18 +440,18 @@ function HomePageInner() {
             {[
               {
                 step: "01",
-                title: "Choose Your Style",
-                desc: "Browse 12 designer templates and find the perfect match for your wedding aesthetic.",
+                title: "Pick Your Template",
+                desc: "Choose from designer-made styles curated for modern, romantic, and classic weddings.",
               },
               {
                 step: "02",
-                title: "Personalize Everything",
-                desc: "Add your details, pick colors and fonts, use AI to craft the perfect wording.",
+                title: "Personalize in Minutes",
+                desc: "Add your details, tune fonts and palettes, and use AI for polished wording.",
               },
               {
                 step: "03",
-                title: "Download & Print",
-                desc: "Get your complete 9-piece suite as print-ready PDFs. Print at home or professionally.",
+                title: "Download or Print",
+                desc: "Export print-ready PDFs instantly or order professionally printed sets.",
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
@@ -474,6 +489,9 @@ function HomePageInner() {
           >
             support@theinvitationstudio.com
           </a>
+        </p>
+        <p className="mt-2 text-[11px] text-stone-400">
+          Secure checkout by Stripe &middot; Access code sent to your email after purchase
         </p>
       </footer>
     </div>
