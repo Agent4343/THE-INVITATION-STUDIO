@@ -11,14 +11,35 @@ interface PreviewProps {
   content: DesignContent;
 }
 
+function normalizeEventType(value?: string): string {
+  return (value || "celebration").trim().toLowerCase();
+}
+
 function invitationLineForEvent(content: DesignContent): string {
   if (content.invitationLine?.trim()) return content.invitationLine.trim();
+  const eventType = normalizeEventType(content.eventType);
+  if (eventType.includes("birthday")) return "invite you to a birthday celebration";
+  if (eventType.includes("anniversary") || eventType.includes("vow-renewal")) {
+    return "invite you to celebrate an anniversary";
+  }
+  if (eventType.includes("baby-shower")) return "invite you to a baby shower celebration";
+  if (eventType.includes("bridal-shower")) return "invite you to a bridal shower celebration";
+  if (eventType.includes("graduation")) return "invite you to celebrate this graduation";
+  if (eventType.includes("retirement")) return "invite you to celebrate a retirement";
   return "invite you to celebrate with us";
 }
 
 function preHeadingForEvent(content: DesignContent): string {
   if (content.preHeading?.trim()) return content.preHeading.trim();
-  return "Hosted by their loved ones";
+  const eventType = normalizeEventType(content.eventType);
+  if (eventType.includes("birthday")) return "Join us for a birthday celebration";
+  if (eventType.includes("anniversary") || eventType.includes("vow-renewal")) {
+    return "Together with our loved ones";
+  }
+  if (eventType.includes("baby-shower") || eventType.includes("bridal-shower")) {
+    return "Hosted with love";
+  }
+  return "Hosted by friends and family";
 }
 
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
@@ -284,7 +305,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.name1 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name1 || "Name One"}
+            {content.name1 || "Host Name"}
           </h1>
           <span
             style={{
@@ -308,7 +329,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.name2 ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.name2 || "Name Two"}
+            {content.name2 || "Co-Host Name"}
           </h1>
         </div>
         <div
@@ -365,7 +386,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
               ...(!content.address ? { opacity: 0.4 } : {}),
             }}
           >
-            {content.address || "Your Event Location"}
+            {content.address || "Your Event Address"}
           </p>
         </div>
       </div>
@@ -416,7 +437,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.name1 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name1 || "Name One"}
+        {content.name1 || "Host Name"}
       </h1>
 
       {/* Conjunction */}
@@ -449,7 +470,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.name2 ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.name2 || "Name Two"}
+        {content.name2 || "Co-Host Name"}
       </h1>
 
       {/* Ornamental divider */}
@@ -533,7 +554,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           ...(!content.address ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.address || "Your Event Location"}
+        {content.address || "Your Event Address"}
       </p>
     </div>
   );

@@ -96,9 +96,44 @@ export function renderPieceHtml(
         : String(value),
     );
   const normalizedEventType = normalizeEventType(c.eventType);
-  const defaultInviteLine = "invite you to celebrate with us";
-  const defaultHostLine = "Hosted by their loved ones";
-  const defaultWelcomeMessage = "Welcome to the Celebration of";
+  const defaultInviteLine =
+    normalizedEventType.includes("birthday")
+      ? "invite you to a birthday celebration"
+      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
+        ? "invite you to celebrate an anniversary"
+        : normalizedEventType.includes("baby-shower")
+          ? "invite you to a baby shower celebration"
+          : normalizedEventType.includes("bridal-shower")
+            ? "invite you to a bridal shower celebration"
+            : normalizedEventType.includes("graduation")
+              ? "invite you to celebrate this graduation"
+              : normalizedEventType.includes("retirement")
+                ? "invite you to celebrate a retirement"
+                : "invite you to celebrate with us";
+
+  const defaultHostLine =
+    normalizedEventType.includes("birthday")
+      ? "Join us for a birthday celebration"
+      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
+        ? "Together with our loved ones"
+        : normalizedEventType.includes("baby-shower") || normalizedEventType.includes("bridal-shower")
+          ? "Hosted with love"
+          : "Hosted by friends and family";
+
+  const defaultWelcomeMessage =
+    normalizedEventType.includes("birthday")
+      ? "Welcome to the Birthday Celebration of"
+      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
+        ? "Welcome to the Anniversary Celebration of"
+        : normalizedEventType.includes("baby-shower")
+          ? "Welcome to the Baby Shower of"
+          : normalizedEventType.includes("bridal-shower")
+            ? "Welcome to the Bridal Shower of"
+            : normalizedEventType.includes("graduation")
+              ? "Welcome to the Graduation Celebration of"
+              : normalizedEventType.includes("retirement")
+                ? "Welcome to the Retirement Celebration of"
+                : "Welcome to the Celebration of";
   const googleFontUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font.googleFontsFamily)}&display=swap`;
 
   const textAlign =
@@ -184,13 +219,13 @@ export function renderPieceHtml(
           ${e(c.preHeading, defaultHostLine)}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
-          ${e(c.name1, "Name One")}
+          ${e(c.name1, "Host Name")}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0; z-index:1;">
           ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 2px 0 0; line-height: 1.15; z-index:1;">
-          ${e(c.name2, "Name Two")}
+          ${e(c.name2, "Co-Host Name")}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
@@ -206,7 +241,7 @@ export function renderPieceHtml(
           ${e(c.venue, "Your Event Venue")}
         </p>
         <p style="font-size: 10px; color: ${palette.muted}; margin: 0; z-index:1;">
-          ${e(c.address, "Venue Address")}
+          ${e(c.address, "Your Event Address")}
         </p>
       `;
       break;

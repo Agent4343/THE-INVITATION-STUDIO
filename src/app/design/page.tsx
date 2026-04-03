@@ -17,6 +17,87 @@ import LivePreview from "@/components/builder/LivePreview";
 import StepNavigator from "@/components/builder/StepNavigator";
 import EtsyCheckoutPanel from "@/components/builder/EtsyCheckoutPanel";
 
+const EVENT_PRESETS = [
+  { value: "celebration", label: "General" },
+  { value: "birthday", label: "Birthday" },
+  { value: "anniversary", label: "Anniversary" },
+  { value: "baby-shower", label: "Baby Shower" },
+  { value: "bridal-shower", label: "Bridal Shower" },
+  { value: "graduation", label: "Graduation" },
+  { value: "retirement", label: "Retirement" },
+  { value: "wedding", label: "Wedding" },
+] as const;
+
+function normalizeEventPreset(value?: string): string {
+  const v = (value || "").trim().toLowerCase();
+  if (v.includes("birthday")) return "birthday";
+  if (v.includes("anniversary") || v.includes("vow-renewal")) return "anniversary";
+  if (v.includes("baby-shower")) return "baby-shower";
+  if (v.includes("bridal-shower")) return "bridal-shower";
+  if (v.includes("graduation")) return "graduation";
+  if (v.includes("retirement")) return "retirement";
+  if (v.includes("wedding") || v.includes("elopement") || v.includes("civil-ceremony")) return "wedding";
+  return "celebration";
+}
+
+function shouldReplaceField(current: unknown, allowList: string[]): boolean {
+  const value = String(current || "").trim().toLowerCase();
+  return value === "" || allowList.includes(value);
+}
+
+function starterCopyForPreset(eventType: string) {
+  switch (eventType) {
+    case "birthday":
+      return {
+        preHeading: "Join us for a birthday celebration",
+        invitationLine: "invite you to celebrate this birthday with us",
+        welcomeMessage: "Welcome to the Birthday Celebration",
+      };
+    case "anniversary":
+      return {
+        preHeading: "Together with our loved ones",
+        invitationLine: "invite you to celebrate our anniversary",
+        welcomeMessage: "Welcome to Our Anniversary Celebration",
+      };
+    case "baby-shower":
+      return {
+        preHeading: "With joy in our hearts",
+        invitationLine: "invite you to celebrate our growing family",
+        welcomeMessage: "Welcome to the Baby Shower",
+      };
+    case "bridal-shower":
+      return {
+        preHeading: "Hosted with love",
+        invitationLine: "invite you to join the bridal shower celebration",
+        welcomeMessage: "Welcome to the Bridal Shower",
+      };
+    case "graduation":
+      return {
+        preHeading: "Please join us",
+        invitationLine: "invite you to celebrate this graduation milestone",
+        welcomeMessage: "Welcome to the Graduation Celebration",
+      };
+    case "retirement":
+      return {
+        preHeading: "Please join us",
+        invitationLine: "invite you to celebrate a remarkable retirement",
+        welcomeMessage: "Welcome to the Retirement Celebration",
+      };
+    case "wedding":
+      return {
+        preHeading: "Hosted by friends and family",
+        invitationLine: "invite you to celebrate with us",
+        welcomeMessage: "Welcome to Our Celebration",
+      };
+    default:
+      return {
+        preHeading: "Hosted by friends and family",
+        invitationLine: "invite you to celebrate with us",
+        welcomeMessage: "Welcome to Our Celebration",
+      };
+  }
+}
+
 function normalizeLegacyEventCopy(content: Record<string, unknown>) {
   const normalized = { ...content };
 
@@ -24,7 +105,10 @@ function normalizeLegacyEventCopy(content: Record<string, unknown>) {
     ? normalized.preHeading.trim().toLowerCase()
     : "";
   if (preHeading === "together with their families") {
-    normalized.preHeading = "Hosted by their loved ones";
+    normalized.preHeading = "Hosted by friends and family";
+  }
+  if (preHeading === "hosted by their loved ones") {
+    normalized.preHeading = "Hosted by friends and family";
   }
 
   const invitationLine = typeof normalized.invitationLine === "string"
@@ -38,15 +122,25 @@ function normalizeLegacyEventCopy(content: Record<string, unknown>) {
   const name2 = typeof normalized.name2 === "string" ? normalized.name2.trim().toLowerCase() : "";
   if (name1 === "emma rose") normalized.name1 = "";
   if (name2 === "james william") normalized.name2 = "";
+  if (name1 === "name one") normalized.name1 = "";
+  if (name2 === "name two") normalized.name2 = "";
 
   const venue = typeof normalized.venue === "string" ? normalized.venue.trim().toLowerCase() : "";
   if (venue === "the grand estate") normalized.venue = "";
+  if (venue === "your event venue") normalized.venue = "";
 
   const address = typeof normalized.address === "string" ? normalized.address.trim().toLowerCase() : "";
   if (address === "123 garden lane, napa valley, california") normalized.address = "";
+  if (address === "your event location" || address === "your event address") {
+    normalized.address = "";
+  }
 
   const time = typeof normalized.time === "string" ? normalized.time.trim().toLowerCase() : "";
   if (time === "half past four in the afternoon") normalized.time = "";
+  if (time === "your event time") normalized.time = "";
+
+  const date = typeof normalized.date === "string" ? normalized.date.trim().toLowerCase() : "";
+  if (date === "your event date") normalized.date = "";
 
   return normalized;
 }
@@ -100,6 +194,44 @@ function DesignPageInner() {
   const [authChecked, setAuthChecked] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [designLoaded, setDesignLoaded] = useState(false);
+
+  const activePreset = normalizeEventPreset(content.eventType);
+
+  const applyEventPreset = (eventType: string) => {
+    const starter = starterCopyForPreset(eventType);
+    const update: Record<string, string> = { eventType };
+
+    if (
+      shouldReplaceField(content.preHeading, [
+        "hosted by their loved ones",
+        "hosted by friends and family",
+        "together with their families",
+      ])
+    ) {
+      update.preHeading = starter.preHeading;
+    }
+
+    if (
+      shouldReplaceField(content.invitationLine, [
+        "invite you to celebrate with us",
+        "invite you to celebrate their marriage",
+      ])
+    ) {
+      update.invitationLine = starter.invitationLine;
+    }
+
+    if (
+      shouldReplaceField(content.welcomeMessage, [
+        "welcome to our celebration",
+        "welcome to the celebration of",
+        "welcome to our wedding",
+      ])
+    ) {
+      update.welcomeMessage = starter.welcomeMessage;
+    }
+
+    setContent(update);
+  };
 
   // Handle ?code= query parameter: auto-validate and store auth
   useEffect(() => {
@@ -357,6 +489,28 @@ function DesignPageInner() {
       </header>
 
       {/* Main layout */}
+      <div className="border-b border-stone-200 bg-white px-6 py-3">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-500">
+          Event Type Preset
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {EVENT_PRESETS.map((preset) => (
+            <button
+              key={preset.value}
+              type="button"
+              onClick={() => applyEventPreset(preset.value)}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                activePreset === preset.value
+                  ? "bg-stone-800 text-white"
+                  : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex flex-1 flex-col lg:flex-row">
         {/* Left panel - Controls */}
         <div className="flex w-full flex-col border-b border-stone-200 lg:w-2/5 lg:border-b-0 lg:border-r">
