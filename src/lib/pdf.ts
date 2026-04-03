@@ -24,18 +24,19 @@ export function renderPieceHtml(
     template.borderStyle === "thin"
       ? `border: 1px solid ${palette.accent};`
       : template.borderStyle === "double"
-        ? `border: 4px double ${palette.accent};`
+        ? `border: 3px double ${palette.accent};`
         : "";
+
+  const ornStyle = template.ornamentStyle || "classic";
 
   const ornamentHtml = template.ornament
     ? (() => {
-        const s = template.ornamentStyle || "classic";
-        const c = palette.accent;
+        const col = palette.accent;
         const line = (w: string, extra = "") =>
-          `<span style="display:inline-block;width:${w};height:1px;background:${c};opacity:0.4;${extra}"></span>`;
+          `<span style="display:inline-block;width:${w};height:1px;background:${col};opacity:0.4;${extra}"></span>`;
         const wrap = (inner: string) =>
-          `<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:12px auto;color:${c};">${inner}</div>`;
-        switch (s) {
+          `<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:12px auto;color:${col};">${inner}</div>`;
+        switch (ornStyle) {
           case "botanical":
             return wrap(`${line("50px")}<span style="font-size:10px;letter-spacing:6px;opacity:0.7;">&#9753; &#10047; &#9753;</span>${line("50px")}`);
           case "geometric":
@@ -47,7 +48,7 @@ export function renderPieceHtml(
           case "flourish":
             return wrap(`<span style="font-size:16px;opacity:0.6;transform:scaleX(-1);display:inline-block;">&#10087;</span>${line("50px", "opacity:0.3;")}<span style="font-size:8px;letter-spacing:4px;">&#10022;</span>${line("50px", "opacity:0.3;")}<span style="font-size:16px;opacity:0.6;">&#10087;</span>`);
           case "vintage":
-            return wrap(`<span style="font-size:14px;opacity:0.5;">&#10048;</span>${line("50px", "border-top:1px dotted " + c + ";height:0;background:transparent;")}<span style="font-size:8px;letter-spacing:4px;">&#10047;</span>${line("50px", "border-top:1px dotted " + c + ";height:0;background:transparent;")}<span style="font-size:14px;opacity:0.5;">&#10048;</span>`);
+            return wrap(`<span style="font-size:14px;opacity:0.5;">&#10048;</span>${line("50px", "border-top:1px dotted " + col + ";height:0;background:transparent;")}<span style="font-size:8px;letter-spacing:4px;">&#10047;</span>${line("50px", "border-top:1px dotted " + col + ";height:0;background:transparent;")}<span style="font-size:14px;opacity:0.5;">&#10048;</span>`);
           case "romantic":
             return wrap(`${line("50px")}<span style="font-size:14px;opacity:0.6;">&#10084;</span>${line("50px")}`);
           case "classic":
@@ -57,13 +58,25 @@ export function renderPieceHtml(
       })()
     : "";
 
+  // Inner frame for non-minimal styles
+  const innerFrameHtml = ornStyle !== "minimal"
+    ? `<div style="position:absolute;inset:16px;border:1px solid ${palette.accent};opacity:0.12;pointer-events:none;"></div>`
+    : "";
+
   const spacing = Math.round(template.spacingRatio * 20);
+
+  // Determine page size based on piece type
+  const isSmall = piece === "rsvp" || piece === "thankyou" || piece === "placecard";
+  const isSquare = piece === "tablenumber";
+  const isSign = piece === "welcomesign";
+  const pageWidth = "5in";
+  const pageHeight = isSmall ? "3.5in" : isSquare ? "5in" : isSign ? "10in" : "7in";
 
   const wrapperStyle = [
     `font-family: '${font.name}', ${font.category};`,
     `background: ${palette.bg};`,
     `color: ${palette.text};`,
-    `width: 5in; height: 7in;`,
+    `width: ${pageWidth}; height: ${pageHeight};`,
     `box-sizing: border-box;`,
     `padding: ${spacing + 20}px ${spacing + 16}px;`,
     `display: flex; flex-direction: column; justify-content: center; align-items: ${template.layout === "left" ? "flex-start" : "center"};`,
@@ -71,117 +84,200 @@ export function renderPieceHtml(
     borderCss,
     `margin: 0;`,
     `overflow: hidden;`,
+    `position: relative;`,
   ].join(" ");
 
-  let body = "";
+  let body = innerFrameHtml;
 
   switch (piece) {
     case "invitation":
-      body = `
-        <p style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px;">
+      body += `
+        <p style="font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.5}px; z-index:1;">
           ${c.preHeading || "Together with their families"}
         </p>
-        <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.2;">
-          ${c.name1 || "Name"}
+        <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
+          ${c.name1 || "Emma Rose"}
         </h1>
-        <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 2}px 0;">
+        <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0; z-index:1;">
           ${c.conjunction || "&"}
         </p>
-        <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.2;">
-          ${c.name2 || "Name"}
+        <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 2px 0 0; line-height: 1.15; z-index:1;">
+          ${c.name2 || "James William"}
         </h1>
         ${ornamentHtml}
-        <p style="font-size: 14px; letter-spacing: 0.15em; margin: ${spacing}px 0 6px; color: ${palette.text};">
-          ${c.date || "Date"}
+        <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
+          invite you to celebrate their marriage
         </p>
-        <p style="font-size: 13px; color: ${palette.muted}; margin: 0 0 4px;">
-          ${c.time || "Time"}
+        <p style="font-size: 14px; letter-spacing: 0.15em; margin: 0 0 4px; color: ${palette.text}; font-weight:500; z-index:1;">
+          ${c.date || "Saturday, October Eighteenth"}
         </p>
-        <p style="font-size: 13px; color: ${palette.muted}; margin: ${spacing}px 0 2px;">
-          ${c.venue || "Venue"}
+        <p style="font-size: 11px; color: ${palette.muted}; margin: 0 0 ${spacing}px; z-index:1;">
+          ${c.time || "Half past four in the afternoon"}
         </p>
-        <p style="font-size: 12px; color: ${palette.muted}; margin: 0;">
-          ${c.address || "Address"}
+        <p style="font-size: 13px; color: ${palette.primary}; margin: 0 0 2px; font-weight:500; z-index:1;">
+          ${c.venue || "The Grand Estate"}
+        </p>
+        <p style="font-size: 10px; color: ${palette.muted}; margin: 0; z-index:1;">
+          ${c.address || "123 Garden Lane, Napa Valley"}
         </p>
       `;
       break;
 
     case "rsvp":
-      body = `
-        <p style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px;">
+      body += `
+        <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.4}px; opacity:0.8;">
           Kindly Respond
         </p>
-        <h2 style="font-size: 28px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing}px;">
+        <h2 style="font-size: 26px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing * 0.4}px; letter-spacing:5px;">
           RSVP
         </h2>
         ${ornamentHtml}
-        <p style="font-size: 13px; color: ${palette.text}; margin: ${spacing}px 0; line-height: 1.7;">
-          Please respond by ${c.rsvpDeadline || "Date"}
+        <p style="font-size: 10px; color: ${palette.muted}; margin: ${spacing * 0.3}px 0 ${spacing * 0.3}px; letter-spacing:2px; text-transform:uppercase;">
+          Please respond by
         </p>
-        <div style="margin-top: ${spacing}px; width: 80%; border-bottom: 1px solid ${palette.accent}; padding-bottom: 6px;">
-          <p style="font-size: 11px; color: ${palette.muted}; margin: 0; text-align: left;">Name(s)</p>
+        <p style="font-size: 14px; color: ${palette.text}; font-weight:500; margin: 0 0 ${spacing}px; letter-spacing:1px;">
+          ${c.rsvpDeadline || "September 1, 2026"}
+        </p>
+        <div style="width: 75%; border-bottom: 1px solid ${palette.muted}; padding-bottom: 3px; margin-bottom:${spacing}px;">
+          <p style="font-size: 11px; color: ${palette.muted}; margin: 0; text-align: left;">M</p>
         </div>
-        <div style="margin-top: ${spacing}px; display: flex; gap: 24px; font-size: 13px; color: ${palette.text};">
-          <span>\u25CB Joyfully Accepts</span>
-          <span>\u25CB Regretfully Declines</span>
+        <div style="width:75%; display: flex; flex-direction:column; gap:${spacing * 0.5}px; font-size: 11px; color: ${palette.text};">
+          <span>&#9633; Joyfully accepts</span>
+          <span>&#9633; Respectfully declines</span>
         </div>
       `;
       break;
 
     case "details":
-      body = `
-        <p style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px;">
+      body += `
+        <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.4}px; opacity:0.8;">
           Wedding Day
         </p>
-        <h2 style="font-size: 28px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing}px;">
+        <h2 style="font-size: 20px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing * 0.3}px; letter-spacing:4px; text-transform:uppercase;">
           Details
         </h2>
         ${ornamentHtml}
-        <div style="margin: ${spacing}px 0; line-height: 1.8; font-size: 13px;">
-          <p style="font-weight: 600; color: ${palette.primary}; margin: 0 0 4px;">Ceremony</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px;">${c.ceremonyDetails || ""}</p>
-          <p style="font-weight: 600; color: ${palette.primary}; margin: 0 0 4px;">Reception</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px;">${c.receptionDetails || ""}</p>
-          <p style="font-weight: 600; color: ${palette.primary}; margin: 0 0 4px;">Dress Code</p>
+        <div style="margin: ${spacing}px 0; line-height: 1.7; font-size: 12px; max-width:300px;">
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Ceremony</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${c.ceremonyDetails || ""}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Reception</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; white-space:pre-line;">${c.receptionDetails || ""}</p>
+          <p style="font-size:10px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dress Code</p>
           <p style="color: ${palette.text}; margin: 0;">${c.dressCode || ""}</p>
         </div>
       `;
       break;
 
     case "menu":
-      body = `
-        <p style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px;">
+      body += `
+        <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.3}px; opacity:0.8;">
           Dinner
         </p>
-        <h2 style="font-size: 28px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing}px;">
+        <h2 style="font-size: 22px; font-weight: 300; color: ${palette.primary}; margin: 0; letter-spacing:5px; text-transform:uppercase;">
           Menu
         </h2>
         ${ornamentHtml}
-        <div style="margin: ${spacing}px 0; line-height: 1.8; font-size: 13px;">
-          <p style="font-weight: 600; color: ${palette.primary}; margin: 0 0 2px;">Appetizer</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px;">${c.appetizer || ""}</p>
-          <p style="font-weight: 600; color: ${palette.primary}; margin: 0 0 2px;">Entr\u00e9e</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px;">${c.entree || ""}</p>
-          <p style="font-weight: 600; color: ${palette.primary}; margin: 0 0 2px;">Dessert</p>
-          <p style="color: ${palette.text}; margin: 0;">${c.dessert || ""}</p>
+        <div style="margin: ${spacing * 1.5}px 0; line-height: 1.6; font-size: 13px;">
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">First Course</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${c.appetizer || ""}</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Main Course</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${c.entree || ""}</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dessert</p>
+          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${c.dessert || ""}</p>
         </div>
       `;
       break;
 
     case "thankyou":
-      body = `
-        <p style="font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px;">
+      body += `
+        <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.3}px; opacity:0.8;">
           With Gratitude
         </p>
-        <h2 style="font-size: 28px; font-weight: 300; color: ${palette.primary}; margin: 0 0 ${spacing}px;">
+        <h2 style="font-size: 28px; font-weight: 300; color: ${palette.primary}; margin: 0; letter-spacing:1px;">
           Thank You
         </h2>
         ${ornamentHtml}
-        <p style="font-size: 14px; color: ${palette.text}; line-height: 1.8; margin: ${spacing}px 0; max-width: 360px;">
+        <p style="font-size: 12px; color: ${palette.text}; line-height: 1.8; margin: ${spacing}px 0; max-width: 360px; white-space:pre-line;">
           ${c.thankYouMessage || ""}
         </p>
-        <p style="font-size: 15px; font-style: italic; color: ${palette.primary}; margin: ${spacing}px 0 0;">
-          ${c.name1 || ""} & ${c.name2 || ""}
+        <p style="font-size: 13px; color: ${palette.primary}; font-weight:500; margin: ${spacing * 0.5}px 0 0; letter-spacing:1px;">
+          ${c.name1 || ""} &amp; ${c.name2 || ""}
+        </p>
+      `;
+      break;
+
+    case "savethedate":
+      body += `
+        <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px; opacity:0.8;">
+          ${c.saveTheDateMessage || "Save the Date"}
+        </p>
+        ${ornamentHtml}
+        <h1 style="font-size: 30px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">
+          ${c.name1 || "Emma"}
+        </h1>
+        <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0;">
+          ${c.conjunction || "&"}
+        </p>
+        <h1 style="font-size: 30px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.15;">
+          ${c.name2 || "James"}
+        </h1>
+        <p style="font-size: 22px; font-weight: 500; color: ${palette.primary}; margin: ${spacing * 1.5}px 0 ${spacing * 0.5}px; letter-spacing:2px;">
+          ${c.date || "October 18, 2026"}
+        </p>
+        <p style="font-size: 13px; color: ${palette.muted}; margin: 0;">
+          ${c.venue || "The Grand Estate"} &bull; ${c.address || "Napa Valley, CA"}
+        </p>
+        <p style="font-size: 10px; letter-spacing:2px; text-transform:uppercase; color: ${palette.muted}; margin: ${spacing * 1.5}px 0 0; opacity:0.7;">
+          Formal invitation to follow
+        </p>
+      `;
+      break;
+
+    case "tablenumber":
+      body += `
+        <p style="font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.5}px;">
+          Table
+        </p>
+        ${ornamentHtml}
+        <p style="font-size: 64px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1;">
+          ${c.tableNumber || "1"}
+        </p>
+        ${ornamentHtml}
+      `;
+      break;
+
+    case "placecard":
+      body += `
+        <p style="font-size: 20px; font-weight: 400; color: ${palette.primary}; margin: 0; letter-spacing: 1px;">
+          ${c.guestName || "Guest Name"}
+        </p>
+      `;
+      break;
+
+    case "welcomesign":
+      body += `
+        <p style="font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing}px; opacity:0.8;">
+          ${c.welcomeMessage || "Welcome to the Wedding of"}
+        </p>
+        ${ornamentHtml}
+        <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0 0 4px; line-height: 1.15;">
+          ${c.name1 || "Emma"}
+        </h1>
+        <p style="font-size: 18px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 2}px 0;">
+          ${c.conjunction || "&"}
+        </p>
+        <h1 style="font-size: 36px; font-weight: 300; color: ${palette.primary}; margin: 0; line-height: 1.15;">
+          ${c.name2 || "James"}
+        </h1>
+        ${ornamentHtml}
+        <p style="font-size: 16px; color: ${palette.text}; margin: ${spacing}px 0 ${spacing * 0.5}px; letter-spacing:2px;">
+          ${c.date || "October 18, 2026"}
+        </p>
+        <p style="font-size: 13px; color: ${palette.muted}; margin: 0 0 ${spacing * 2}px;">
+          ${c.venue || "The Grand Estate"}
+        </p>
+        <p style="font-size: 12px; color: ${palette.muted}; margin: 0; letter-spacing:1px; font-style:italic;">
+          ${c.welcomeSubtext || "Please find your seat and enjoy the celebration"}
         </p>
       `;
       break;
@@ -195,7 +291,7 @@ export function renderPieceHtml(
     @import url('${googleFontUrl}');
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
-    @page { size: 5in 7in; margin: 0; }
+    @page { size: ${pageWidth} ${pageHeight}; margin: 0; }
   </style>
 </head>
 <body>
@@ -207,7 +303,7 @@ export function renderPieceHtml(
 }
 
 /**
- * Generate full suite HTML — all 5 pieces as separate pages.
+ * Generate full suite HTML — all 9 pieces as separate pages.
  */
 export function generateSuiteHtml(
   design: Design,
@@ -215,12 +311,14 @@ export function generateSuiteHtml(
   palette: Palette,
   font: Font,
 ): string {
-  const pieces: SuitePiece[] = ["invitation", "rsvp", "details", "menu", "thankyou"];
+  const pieces: SuitePiece[] = [
+    "invitation", "rsvp", "details", "menu", "thankyou",
+    "savethedate", "tablenumber", "placecard", "welcomesign",
+  ];
   const googleFontUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font.googleFontsFamily)}&display=swap`;
 
   const pagesHtml = pieces.map((piece) => {
     const singleHtml = renderPieceHtml(piece, design, template, palette, font);
-    // Extract body content only
     const bodyMatch = singleHtml.match(/<body>([\s\S]*)<\/body>/);
     return bodyMatch ? bodyMatch[1] : "";
   }).join('<div style="page-break-after: always;"></div>');

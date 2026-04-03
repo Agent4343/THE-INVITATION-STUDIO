@@ -28,6 +28,11 @@ const defaultContent: DesignContent = {
   entree: "",
   dessert: "",
   thankYouMessage: "",
+  saveTheDateMessage: "",
+  tableNumber: "",
+  guestName: "",
+  welcomeMessage: "",
+  welcomeSubtext: "",
 };
 
 interface DesignState {

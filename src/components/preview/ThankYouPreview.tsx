@@ -16,7 +16,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
     case "thin":
       return { border: `1px solid ${color}` };
     case "double":
-      return { border: `4px double ${color}` };
+      return { border: `3px double ${color}` };
     case "none":
     default:
       return {};
@@ -25,6 +25,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 
 export default function ThankYouPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
+  const ornStyle = template.ornamentStyle || "classic";
 
   return (
     <div
@@ -34,7 +35,7 @@ export default function ThankYouPreview({ template, palette, font, content }: Pr
         backgroundColor: palette.bg,
         fontFamily: `"${font.name}", ${font.category}`,
         color: palette.text,
-        padding: `${baseSpacing * 2.5}px ${baseSpacing * 2.5}px`,
+        padding: `${baseSpacing * 2}px ${baseSpacing * 2.5}px`,
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
@@ -45,50 +46,81 @@ export default function ThankYouPreview({ template, palette, font, content }: Pr
         ...getBorderStyle(template.borderStyle, palette.muted),
       }}
     >
+      {/* Inner frame */}
+      {ornStyle !== "minimal" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: `${baseSpacing * 0.6}px`,
+            border: `1px solid ${palette.accent}`,
+            opacity: 0.12,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      <p
+        style={{
+          fontSize: "9px",
+          letterSpacing: "3px",
+          textTransform: "uppercase",
+          color: palette.muted,
+          margin: `0 0 ${baseSpacing * 0.3}px 0`,
+          textAlign: "center",
+          opacity: 0.8,
+          zIndex: 1,
+        }}
+      >
+        With Gratitude
+      </p>
+
       <h2
         style={{
-          fontSize: "34px",
+          fontSize: "30px",
           fontWeight: font.previewWeight,
           color: palette.primary,
           margin: 0,
           textAlign: "center",
           lineHeight: 1.2,
           letterSpacing: "1px",
+          zIndex: 1,
         }}
       >
         Thank You
       </h2>
 
       {template.ornament && (
-        <div style={{ margin: `${baseSpacing}px 0` }}>
-          <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />
+        <div style={{ margin: `${baseSpacing * 0.5}px 0`, zIndex: 1 }}>
+          <OrnamentalDivider style={ornStyle} color={palette.accent} size="sm" />
         </div>
       )}
 
       <p
         style={{
-          fontSize: "13px",
+          fontSize: "12px",
           color: palette.text,
-          margin: `${template.ornament ? 0 : baseSpacing * 1.5}px 0 0 0`,
+          margin: `${template.ornament ? 0 : baseSpacing}px 0 0 0`,
           textAlign: "center",
           lineHeight: 1.8,
-          maxWidth: "380px",
+          maxWidth: "360px",
           whiteSpace: "pre-line",
+          zIndex: 1,
           ...(!content.thankYouMessage ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.thankYouMessage || "Your message here"}
+        {content.thankYouMessage || "Thank you for sharing in our joy\nand celebrating this special day with us."}
       </p>
 
       {(content.name1 || content.name2) ? (
         <p
           style={{
-            fontSize: "14px",
+            fontSize: "13px",
             color: palette.primary,
             fontWeight: 500,
-            margin: `${baseSpacing * 1.5}px 0 0 0`,
+            margin: `${baseSpacing}px 0 0 0`,
             textAlign: "center",
             letterSpacing: "1px",
+            zIndex: 1,
           }}
         >
           {content.name1}
@@ -96,11 +128,11 @@ export default function ThankYouPreview({ template, palette, font, content }: Pr
             <span
               style={{
                 display: "inline-block",
-                margin: "0 10px",
+                margin: "0 8px",
                 color: palette.accent,
                 fontStyle: "italic",
                 fontWeight: 400,
-                fontSize: "12px",
+                fontSize: "11px",
               }}
             >
               &amp;
@@ -111,16 +143,17 @@ export default function ThankYouPreview({ template, palette, font, content }: Pr
       ) : (
         <p
           style={{
-            fontSize: "14px",
+            fontSize: "13px",
             color: palette.primary,
             fontWeight: 500,
-            margin: `${baseSpacing * 1.5}px 0 0 0`,
+            margin: `${baseSpacing}px 0 0 0`,
             textAlign: "center",
             letterSpacing: "1px",
             opacity: 0.4,
+            zIndex: 1,
           }}
         >
-          Your Names
+          Emma &amp; James
         </p>
       )}
     </div>

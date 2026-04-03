@@ -44,9 +44,22 @@ export interface DesignContent {
   entree: string;
   dessert: string;
   thankYouMessage: string;
+
+  // Save the Date
+  saveTheDateMessage: string;  // e.g. "Save the Date" or "Mark Your Calendar"
+
+  // Table Number
+  tableNumber: string;  // e.g. "1", "2", etc.
+
+  // Place Card
+  guestName: string;  // placeholder name for preview
+
+  // Welcome Sign
+  welcomeMessage: string;  // e.g. "Welcome to our wedding"
+  welcomeSubtext: string;  // e.g. "Please find your seat"
 }
 
-export type SuitePiece = "invitation" | "rsvp" | "details" | "menu" | "thankyou";
+export type SuitePiece = "invitation" | "rsvp" | "details" | "menu" | "thankyou" | "savethedate" | "tablenumber" | "placecard" | "welcomesign";
 
 export type BuilderStep = "template" | "palette" | "font" | "content" | "preview";
 

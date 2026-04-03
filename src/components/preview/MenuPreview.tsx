@@ -16,7 +16,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
     case "thin":
       return { border: `1px solid ${color}` };
     case "double":
-      return { border: `4px double ${color}` };
+      return { border: `3px double ${color}` };
     case "none":
     default:
       return {};
@@ -25,17 +25,12 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 
 export default function MenuPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
-
-  const placeholders: Record<string, string> = {
-    "First Course": "Your appetizer",
-    "Main Course": "Your entree",
-    Dessert: "Your dessert",
-  };
+  const ornStyle = template.ornamentStyle || "classic";
 
   const courses = [
-    { label: "First Course", item: content.appetizer },
-    { label: "Main Course", item: content.entree },
-    { label: "Dessert", item: content.dessert },
+    { label: "First Course", item: content.appetizer, placeholder: "Seared Scallops with citrus beurre blanc" },
+    { label: "Main Course", item: content.entree, placeholder: "Herb-Crusted Lamb with rosemary jus" },
+    { label: "Dessert", item: content.dessert, placeholder: "Vanilla Bean Cr\u00e8me Br\u00fbl\u00e9e" },
   ];
 
   return (
@@ -57,47 +52,77 @@ export default function MenuPreview({ template, palette, font, content }: Previe
         ...getBorderStyle(template.borderStyle, palette.muted),
       }}
     >
+      {/* Inner frame */}
+      {ornStyle !== "minimal" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: `${baseSpacing * 0.9}px`,
+            border: `1px solid ${palette.accent}`,
+            opacity: 0.12,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      <p
+        style={{
+          fontSize: "9px",
+          letterSpacing: "3px",
+          textTransform: "uppercase",
+          color: palette.muted,
+          margin: `0 0 ${baseSpacing * 0.3}px 0`,
+          textAlign: "center",
+          opacity: 0.8,
+          zIndex: 1,
+        }}
+      >
+        Dinner
+      </p>
+
       <h2
         style={{
-          fontSize: "24px",
+          fontSize: "22px",
           fontWeight: font.previewWeight,
           color: palette.primary,
           letterSpacing: "5px",
           textTransform: "uppercase",
           margin: 0,
           textAlign: "center",
+          zIndex: 1,
         }}
       >
-        Dinner Menu
+        Menu
       </h2>
 
       {template.ornament && (
-        <div style={{ margin: `${baseSpacing}px 0 0 0` }}>
-          <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />
+        <div style={{ margin: `${baseSpacing * 0.5}px 0 0 0`, zIndex: 1 }}>
+          <OrnamentalDivider style={ornStyle} color={palette.accent} />
         </div>
       )}
 
       <div
         style={{
-          marginTop: `${baseSpacing * 2}px`,
+          marginTop: `${baseSpacing * 1.5}px`,
           width: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          zIndex: 1,
         }}
       >
         {courses.map((course, index) => (
           <div key={course.label} style={{ width: "100%", textAlign: "center" }}>
-            {index > 0 && <CourseDivider style={template.ornamentStyle || "classic"} color={palette.accent} />}
+            {index > 0 && <CourseDivider style={ornStyle} color={palette.accent} />}
 
             <p
               style={{
-                fontSize: "10px",
+                fontSize: "9px",
                 fontWeight: 600,
                 color: palette.accent,
                 letterSpacing: "3px",
                 textTransform: "uppercase",
-                margin: `0 0 ${baseSpacing * 0.4}px 0`,
+                margin: `0 0 ${baseSpacing * 0.3}px 0`,
               }}
             >
               {course.label}
@@ -105,7 +130,7 @@ export default function MenuPreview({ template, palette, font, content }: Previe
 
             <p
               style={{
-                fontSize: "15px",
+                fontSize: "14px",
                 color: palette.text,
                 margin: 0,
                 lineHeight: 1.6,
@@ -113,7 +138,7 @@ export default function MenuPreview({ template, palette, font, content }: Previe
                 ...(!course.item ? { opacity: 0.4 } : {}),
               }}
             >
-              {course.item || placeholders[course.label]}
+              {course.item || course.placeholder}
             </p>
           </div>
         ))}

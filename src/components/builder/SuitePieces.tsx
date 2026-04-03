@@ -10,19 +10,23 @@ const pieces: { id: SuitePiece; label: string }[] = [
   { id: "details", label: "Details" },
   { id: "menu", label: "Menu" },
   { id: "thankyou", label: "Thank You" },
+  { id: "savethedate", label: "Save the Date" },
+  { id: "tablenumber", label: "Table No." },
+  { id: "placecard", label: "Place Card" },
+  { id: "welcomesign", label: "Welcome Sign" },
 ];
 
 export default function SuitePieces() {
   const { activePiece, setActivePiece } = useDesignStore();
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex gap-2 overflow-x-auto pb-2">
       {pieces.map((piece) => (
         <button
           key={piece.id}
           onClick={() => setActivePiece(piece.id)}
           className={`
-            rounded-full px-4 py-1.5 text-sm font-medium
+            whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium
             transition-colors duration-200
             ${
               activePiece === piece.id

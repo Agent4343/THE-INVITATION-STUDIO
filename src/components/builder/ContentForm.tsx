@@ -110,6 +110,54 @@ const sections: Section[] = [
       },
     ],
   },
+  {
+    title: "Save the Date",
+    fields: [
+      {
+        key: "saveTheDateMessage",
+        label: "Save the Date Message",
+        placeholder: "Save the Date",
+        maxLength: 60,
+        aiField: true,
+      },
+    ],
+  },
+  {
+    title: "Table & Seating",
+    fields: [
+      {
+        key: "tableNumber",
+        label: "Table Number",
+        placeholder: "1",
+        maxLength: 10,
+      },
+      {
+        key: "guestName",
+        label: "Guest Name",
+        placeholder: "Jane Smith",
+        maxLength: 40,
+      },
+    ],
+  },
+  {
+    title: "Welcome Sign",
+    fields: [
+      {
+        key: "welcomeMessage",
+        label: "Welcome Message",
+        placeholder: "Welcome to our Wedding",
+        maxLength: 80,
+        aiField: true,
+      },
+      {
+        key: "welcomeSubtext",
+        label: "Welcome Subtext",
+        placeholder: "Please find your seat",
+        maxLength: 100,
+        aiField: true,
+      },
+    ],
+  },
 ];
 
 const sectionToPiece: Record<string, SuitePiece> = {
@@ -119,6 +167,9 @@ const sectionToPiece: Record<string, SuitePiece> = {
   "Details Card": "details",
   Menu: "menu",
   "Thank You": "thankyou",
+  "Save the Date": "savethedate",
+  "Table & Seating": "tablenumber",
+  "Welcome Sign": "welcomesign",
 };
 
 export default function ContentForm() {

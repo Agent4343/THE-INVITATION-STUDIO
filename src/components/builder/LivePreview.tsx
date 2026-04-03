@@ -7,6 +7,10 @@ import RSVPPreview from "@/components/preview/RSVPPreview";
 import DetailsPreview from "@/components/preview/DetailsPreview";
 import MenuPreview from "@/components/preview/MenuPreview";
 import ThankYouPreview from "@/components/preview/ThankYouPreview";
+import SaveTheDatePreview from "@/components/preview/SaveTheDatePreview";
+import TableNumberPreview from "@/components/preview/TableNumberPreview";
+import PlaceCardPreview from "@/components/preview/PlaceCardPreview";
+import WelcomeSignPreview from "@/components/preview/WelcomeSignPreview";
 
 export default function LivePreview() {
   const { activePiece, palette, font, template, content } = useDesignStore();
@@ -19,6 +23,10 @@ export default function LivePreview() {
     details: <DetailsPreview {...previewProps} />,
     menu: <MenuPreview {...previewProps} />,
     thankyou: <ThankYouPreview {...previewProps} />,
+    savethedate: <SaveTheDatePreview {...previewProps} />,
+    tablenumber: <TableNumberPreview {...previewProps} />,
+    placecard: <PlaceCardPreview {...previewProps} />,
+    welcomesign: <WelcomeSignPreview {...previewProps} />,
   };
 
   return (

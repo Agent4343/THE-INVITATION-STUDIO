@@ -16,7 +16,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
     case "thin":
       return { border: `1px solid ${color}` };
     case "double":
-      return { border: `4px double ${color}` };
+      return { border: `3px double ${color}` };
     case "none":
     default:
       return {};
@@ -25,6 +25,7 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 
 export default function RSVPPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
+  const ornStyle = template.ornamentStyle || "classic";
 
   return (
     <div
@@ -34,7 +35,7 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
         backgroundColor: palette.bg,
         fontFamily: `"${font.name}", ${font.category}`,
         color: palette.text,
-        padding: `${baseSpacing * 2.5}px ${baseSpacing * 2}px`,
+        padding: `${baseSpacing * 2}px ${baseSpacing * 2}px`,
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
@@ -45,14 +46,41 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
         ...getBorderStyle(template.borderStyle, palette.muted),
       }}
     >
+      {/* Subtle inner frame */}
+      {ornStyle !== "minimal" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: `${baseSpacing * 0.6}px`,
+            border: `1px solid ${palette.accent}`,
+            opacity: 0.12,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      <p
+        style={{
+          fontSize: "9px",
+          letterSpacing: "3px",
+          textTransform: "uppercase",
+          color: palette.muted,
+          margin: `0 0 ${baseSpacing * 0.4}px 0`,
+          textAlign: "center",
+          opacity: 0.8,
+        }}
+      >
+        Kindly Respond
+      </p>
+
       <h2
         style={{
-          fontSize: "28px",
+          fontSize: "26px",
           fontWeight: font.previewWeight,
           color: palette.primary,
-          letterSpacing: "6px",
+          letterSpacing: "5px",
           textTransform: "uppercase",
-          margin: `0 0 ${baseSpacing}px 0`,
+          margin: `0 0 ${baseSpacing * 0.4}px 0`,
           textAlign: "center",
         }}
       >
@@ -60,112 +88,91 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
       </h2>
 
       {template.ornament && (
-        <div style={{ margin: `0 0 ${baseSpacing * 1.5}px 0` }}>
-          <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} size="sm" />
-        </div>
+        <OrnamentalDivider style={ornStyle} color={palette.accent} size="sm" />
       )}
 
       <p
         style={{
-          fontSize: "12px",
+          fontSize: "10px",
           color: palette.muted,
           letterSpacing: "2px",
           textTransform: "uppercase",
-          margin: `0 0 ${baseSpacing * 0.5}px 0`,
+          margin: `${baseSpacing * 0.3}px 0 ${baseSpacing * 0.3}px 0`,
           textAlign: "center",
         }}
       >
-        Kindly respond by
+        Please respond by
       </p>
 
       <p
         style={{
-          fontSize: "15px",
+          fontSize: "14px",
           color: palette.text,
           fontWeight: 500,
-          margin: `0 0 ${baseSpacing * 2}px 0`,
+          margin: `0 0 ${baseSpacing * 1.5}px 0`,
           letterSpacing: "1px",
           textAlign: "center",
           ...(!content.rsvpDeadline ? { opacity: 0.4 } : {}),
         }}
       >
-        {content.rsvpDeadline || "Date"}
+        {content.rsvpDeadline || "September 1, 2026"}
       </p>
 
-      <div
-        style={{
-          width: "80%",
-          margin: `0 0 ${baseSpacing * 1.5}px 0`,
-          textAlign: "left",
-        }}
-      >
+      {/* Name line */}
+      <div style={{ width: "75%", margin: `0 0 ${baseSpacing}px 0` }}>
         <p
           style={{
-            fontSize: "14px",
+            fontSize: "12px",
             color: palette.text,
             margin: 0,
-            paddingBottom: "4px",
+            paddingBottom: "3px",
             borderBottom: `1px solid ${palette.muted}`,
+            opacity: 0.7,
           }}
         >
           M{" "}
-          <span style={{ color: "transparent", userSelect: "none" }}>
+          <span style={{ color: "transparent", userSelect: "none", fontSize: "10px" }}>
             ______________________________
           </span>
         </p>
       </div>
 
+      {/* Response options */}
       <div
         style={{
-          width: "80%",
+          width: "75%",
           display: "flex",
           flexDirection: "column",
-          gap: `${baseSpacing * 0.75}px`,
+          gap: `${baseSpacing * 0.5}px`,
         }}
       >
-        <label
-          style={{
-            fontSize: "13px",
-            color: palette.text,
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            cursor: "default",
-          }}
-        >
-          <span
+        {["Joyfully accepts", "Respectfully declines"].map((text) => (
+          <label
+            key={text}
             style={{
-              display: "inline-block",
-              width: "14px",
-              height: "14px",
-              border: `1px solid ${palette.muted}`,
-              flexShrink: 0,
+              fontSize: "11px",
+              color: palette.text,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: "default",
+              letterSpacing: "0.5px",
             }}
-          />
-          Accepts with pleasure
-        </label>
-
-        <label
-          style={{
-            fontSize: "13px",
-            color: palette.text,
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            cursor: "default",
-          }}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              width: "14px",
-              height: "14px",
-              border: `1px solid ${palette.muted}`,
-              flexShrink: 0,
-            }}
-          />
-          Declines with regret
-        </label>
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: "12px",
+                height: "12px",
+                border: `1px solid ${palette.muted}`,
+                borderRadius: ornStyle === "romantic" || ornStyle === "botanical" ? "50%" : "1px",
+                flexShrink: 0,
+                opacity: 0.6,
+              }}
+            />
+            {text}
+          </label>
+        ))}
       </div>
     </div>
   );
