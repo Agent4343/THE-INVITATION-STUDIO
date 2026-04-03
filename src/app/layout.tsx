@@ -33,7 +33,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Lora:wght@400;500;600;700&family=Great+Vibes&family=Josefin+Sans:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Italiana&family=Tangerine:wght@400;700&family=Raleway:wght@300;400;500;600;700&family=EB+Garamond:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>

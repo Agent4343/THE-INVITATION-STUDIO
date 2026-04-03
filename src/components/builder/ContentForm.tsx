@@ -4,6 +4,7 @@ import React from "react";
 import { useDesignStore } from "@/store/designStore";
 import { SuitePiece } from "@/types";
 import Input from "@/components/ui/Input";
+import AISuggestButton from "@/components/builder/AISuggestButton";
 
 interface FieldDef {
   key: string;
@@ -11,6 +12,7 @@ interface FieldDef {
   placeholder: string;
   multiline?: boolean;
   maxLength?: number;
+  aiField?: boolean;
 }
 
 interface Section {
@@ -35,6 +37,7 @@ const sections: Section[] = [
         label: "Pre-heading",
         placeholder: "Together with their families",
         maxLength: 60,
+        aiField: true,
       },
       { key: "date", label: "Date", placeholder: "Saturday, October 18, 2026", maxLength: 40 },
       { key: "time", label: "Time", placeholder: "Half past four in the afternoon", maxLength: 50 },
@@ -67,6 +70,7 @@ const sections: Section[] = [
         placeholder: "Ceremony begins at 4:30 PM in the garden.",
         multiline: true,
         maxLength: 200,
+        aiField: true,
       },
       {
         key: "receptionDetails",
@@ -74,21 +78,23 @@ const sections: Section[] = [
         placeholder: "Reception to follow in the grand ballroom.",
         multiline: true,
         maxLength: 200,
+        aiField: true,
       },
       {
         key: "dressCode",
         label: "Dress Code",
         placeholder: "Black Tie Optional",
         maxLength: 40,
+        aiField: true,
       },
     ],
   },
   {
     title: "Menu",
     fields: [
-      { key: "appetizer", label: "Appetizer", placeholder: "Burrata & Heirloom Tomato", maxLength: 50 },
-      { key: "entree", label: "Entree", placeholder: "Herb-Crusted Lamb", maxLength: 50 },
-      { key: "dessert", label: "Dessert", placeholder: "Vanilla Bean Panna Cotta", maxLength: 50 },
+      { key: "appetizer", label: "Appetizer", placeholder: "Burrata & Heirloom Tomato", maxLength: 50, aiField: true },
+      { key: "entree", label: "Entree", placeholder: "Herb-Crusted Lamb", maxLength: 50, aiField: true },
+      { key: "dessert", label: "Dessert", placeholder: "Vanilla Bean Panna Cotta", maxLength: 50, aiField: true },
     ],
   },
   {
@@ -100,6 +106,7 @@ const sections: Section[] = [
         placeholder: "Thank you for sharing in our special day.",
         multiline: true,
         maxLength: 200,
+        aiField: true,
       },
     ],
   },
@@ -133,15 +140,25 @@ export default function ContentForm() {
           </h3>
           <div className="space-y-4">
             {section.fields.map((field) => (
-              <Input
-                key={field.key}
-                label={field.label}
-                placeholder={field.placeholder}
-                value={(content as unknown as Record<string, string>)[field.key] ?? ""}
-                multiline={field.multiline}
-                maxLength={field.maxLength}
-                onChange={(e) => setContent({ [field.key]: e.target.value })}
-              />
+              <div key={field.key}>
+                <div className="mb-1 flex items-center">
+                  <span className="text-xs font-medium text-stone-600">{field.label}</span>
+                  {field.aiField && (
+                    <AISuggestButton
+                      field={field.key}
+                      onSelect={(value) => setContent({ [field.key]: value })}
+                    />
+                  )}
+                </div>
+                <Input
+                  label=""
+                  placeholder={field.placeholder}
+                  value={(content as unknown as Record<string, string>)[field.key] ?? ""}
+                  multiline={field.multiline}
+                  maxLength={field.maxLength}
+                  onChange={(e) => setContent({ [field.key]: e.target.value })}
+                />
+              </div>
             ))}
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Template, Palette, Font, DesignContent } from "@/types";
+import { OrnamentalDivider } from "./Ornaments";
 
 interface PreviewProps {
   template: Template;
@@ -20,41 +21,6 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
     default:
       return {};
   }
-}
-
-function OrnamentalDivider({ color }: { color: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "12px",
-        margin: "20px 0",
-        color,
-      }}
-    >
-      <span
-        style={{
-          display: "inline-block",
-          width: "60px",
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.5,
-        }}
-      />
-      <span style={{ fontSize: "10px", letterSpacing: "4px" }}>&#10022;</span>
-      <span
-        style={{
-          display: "inline-block",
-          width: "60px",
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.5,
-        }}
-      />
-    </div>
-  );
 }
 
 export default function InvitationPreview({ template, palette, font, content }: PreviewProps) {
@@ -167,7 +133,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
           >
             {content.time || "Your Time"}
           </p>
-          {template.ornament && <OrnamentalDivider color={palette.accent} />}
+          {template.ornament && <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />}
           <p
             style={{
               fontSize: "14px",
@@ -261,7 +227,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
         {content.name2 || "Partner's Name"}
       </h1>
 
-      {template.ornament && <OrnamentalDivider color={palette.accent} />}
+      {template.ornament && <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />}
 
       <p
         style={{

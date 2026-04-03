@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Template, Palette, Font, DesignContent } from "@/types";
+import { OrnamentalDivider } from "./Ornaments";
 
 interface PreviewProps {
   template: Template;
@@ -59,35 +60,8 @@ export default function RSVPPreview({ template, palette, font, content }: Previe
       </h2>
 
       {template.ornament && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            margin: `0 0 ${baseSpacing * 1.5}px 0`,
-            color: palette.accent,
-          }}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              width: "40px",
-              height: "1px",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
-          <span style={{ fontSize: "8px", letterSpacing: "4px" }}>&#10022;</span>
-          <span
-            style={{
-              display: "inline-block",
-              width: "40px",
-              height: "1px",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
+        <div style={{ margin: `0 0 ${baseSpacing * 1.5}px 0` }}>
+          <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} size="sm" />
         </div>
       )}
 

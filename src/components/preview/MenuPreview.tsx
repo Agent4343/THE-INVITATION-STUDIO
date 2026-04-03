@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Template, Palette, Font, DesignContent } from "@/types";
+import { OrnamentalDivider, CourseDivider } from "./Ornaments";
 
 interface PreviewProps {
   template: Template;
@@ -20,39 +21,6 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
     default:
       return {};
   }
-}
-
-function CourseDivider({ color }: { color: string }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "8px",
-        margin: "20px auto",
-        width: "60%",
-      }}
-    >
-      <span
-        style={{
-          flex: 1,
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.25,
-        }}
-      />
-      <span style={{ color, fontSize: "6px", opacity: 0.5 }}>&#9830;</span>
-      <span
-        style={{
-          flex: 1,
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.25,
-        }}
-      />
-    </div>
-  );
 }
 
 export default function MenuPreview({ template, palette, font, content }: PreviewProps) {
@@ -104,35 +72,8 @@ export default function MenuPreview({ template, palette, font, content }: Previe
       </h2>
 
       {template.ornament && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            margin: `${baseSpacing}px 0 0 0`,
-            color: palette.accent,
-          }}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              width: "50px",
-              height: "1px",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
-          <span style={{ fontSize: "10px", letterSpacing: "4px" }}>&#10022;</span>
-          <span
-            style={{
-              display: "inline-block",
-              width: "50px",
-              height: "1px",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
+        <div style={{ margin: `${baseSpacing}px 0 0 0` }}>
+          <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />
         </div>
       )}
 
@@ -147,7 +88,7 @@ export default function MenuPreview({ template, palette, font, content }: Previe
       >
         {courses.map((course, index) => (
           <div key={course.label} style={{ width: "100%", textAlign: "center" }}>
-            {index > 0 && <CourseDivider color={palette.accent} />}
+            {index > 0 && <CourseDivider style={template.ornamentStyle || "classic"} color={palette.accent} />}
 
             <p
               style={{

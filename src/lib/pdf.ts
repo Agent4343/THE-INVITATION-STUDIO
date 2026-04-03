@@ -28,7 +28,33 @@ export function renderPieceHtml(
         : "";
 
   const ornamentHtml = template.ornament
-    ? `<div style="margin: 12px auto; color: ${palette.accent}; font-size: 14px; letter-spacing: 0.3em;">&#10047;</div>`
+    ? (() => {
+        const s = template.ornamentStyle || "classic";
+        const c = palette.accent;
+        const line = (w: string, extra = "") =>
+          `<span style="display:inline-block;width:${w};height:1px;background:${c};opacity:0.4;${extra}"></span>`;
+        const wrap = (inner: string) =>
+          `<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:12px auto;color:${c};">${inner}</div>`;
+        switch (s) {
+          case "botanical":
+            return wrap(`${line("50px")}<span style="font-size:10px;letter-spacing:6px;opacity:0.7;">&#9753; &#10047; &#9753;</span>${line("50px")}`);
+          case "geometric":
+            return wrap(`${line("50px", "height:2px;opacity:0.3;")}<span style="font-size:10px;letter-spacing:4px;">&#9670; &#9671; &#9670;</span>${line("50px", "height:2px;opacity:0.3;")}`);
+          case "art-deco":
+            return wrap(`${line("40px")}<span style="font-size:14px;letter-spacing:3px;">&#9001; &#9674; &#9002;</span>${line("40px")}`);
+          case "minimal":
+            return wrap(`${line("80px", "opacity:0.25;")}`);
+          case "flourish":
+            return wrap(`<span style="font-size:16px;opacity:0.6;transform:scaleX(-1);display:inline-block;">&#10087;</span>${line("50px", "opacity:0.3;")}<span style="font-size:8px;letter-spacing:4px;">&#10022;</span>${line("50px", "opacity:0.3;")}<span style="font-size:16px;opacity:0.6;">&#10087;</span>`);
+          case "vintage":
+            return wrap(`<span style="font-size:14px;opacity:0.5;">&#10048;</span>${line("50px", "border-top:1px dotted " + c + ";height:0;background:transparent;")}<span style="font-size:8px;letter-spacing:4px;">&#10047;</span>${line("50px", "border-top:1px dotted " + c + ";height:0;background:transparent;")}<span style="font-size:14px;opacity:0.5;">&#10048;</span>`);
+          case "romantic":
+            return wrap(`${line("50px")}<span style="font-size:14px;opacity:0.6;">&#10084;</span>${line("50px")}`);
+          case "classic":
+          default:
+            return wrap(`${line("50px")}<span style="font-size:10px;letter-spacing:4px;">&#10022;</span>${line("50px")}`);
+        }
+      })()
     : "";
 
   const spacing = Math.round(template.spacingRatio * 20);

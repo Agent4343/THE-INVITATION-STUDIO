@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Template, Palette, Font, DesignContent } from "@/types";
+import { OrnamentalDivider, SectionDivider } from "./Ornaments";
 
 interface PreviewProps {
   template: Template;
@@ -20,54 +21,6 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
     default:
       return {};
   }
-}
-
-function SectionDivider({ color, ornament }: { color: string; ornament: boolean }) {
-  if (!ornament) {
-    return (
-      <div
-        style={{
-          width: "40px",
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.3,
-          margin: "16px auto",
-        }}
-      />
-    );
-  }
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "10px",
-        margin: "16px auto",
-        color,
-      }}
-    >
-      <span
-        style={{
-          display: "inline-block",
-          width: "30px",
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.4,
-        }}
-      />
-      <span style={{ fontSize: "8px", opacity: 0.6 }}>&#10022;</span>
-      <span
-        style={{
-          display: "inline-block",
-          width: "30px",
-          height: "1px",
-          backgroundColor: color,
-          opacity: 0.4,
-        }}
-      />
-    </div>
-  );
 }
 
 export default function DetailsPreview({ template, palette, font, content }: PreviewProps) {
@@ -119,35 +72,8 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
       </h2>
 
       {template.ornament && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            margin: `0 0 ${baseSpacing * 1.5}px 0`,
-            color: palette.accent,
-          }}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              width: "50px",
-              height: "1px",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
-          <span style={{ fontSize: "8px", letterSpacing: "4px" }}>&#10022;</span>
-          <span
-            style={{
-              display: "inline-block",
-              width: "50px",
-              height: "1px",
-              backgroundColor: palette.accent,
-              opacity: 0.5,
-            }}
-          />
+        <div style={{ margin: `0 0 ${baseSpacing * 1.5}px 0` }}>
+          <OrnamentalDivider style={template.ornamentStyle || "classic"} color={palette.accent} />
         </div>
       )}
 
@@ -162,7 +88,7 @@ export default function DetailsPreview({ template, palette, font, content }: Pre
       >
         {sections.map((section, index) => (
           <div key={section.label} style={{ width: "100%", textAlign: "center" }}>
-            {index > 0 && <SectionDivider color={palette.accent} ornament={template.ornament} />}
+            {index > 0 && template.ornament && <SectionDivider style={template.ornamentStyle || "classic"} color={palette.accent} />}
 
             <h3
               style={{

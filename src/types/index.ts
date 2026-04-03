@@ -6,6 +6,7 @@ export interface Template {
   borderStyle: "thin" | "double" | "none";
   spacingRatio: number;
   thumbnail: string;
+  ornamentStyle?: "classic" | "botanical" | "geometric" | "art-deco" | "minimal" | "flourish" | "vintage" | "romantic";
 }
 
 export interface Palette {
