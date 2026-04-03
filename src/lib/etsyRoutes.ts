@@ -1,7 +1,6 @@
 export interface EtsyListingRoute {
   id: string;
   event_type: string;
-  package_tier: string;
   listing_url: string;
   listing_label: string;
   is_active: boolean;
@@ -26,7 +25,6 @@ export function routeCandidates(value: string): string[] {
 function routeScore(
   route: EtsyListingRoute,
   eventType: string,
-  packageTier: string,
 ): number {
   const eventScore =
     route.event_type === eventType
@@ -36,23 +34,12 @@ function routeScore(
         : route.event_type === "all"
           ? 1
           : 0;
-
-  const tierScore =
-    route.package_tier === packageTier
-      ? 4
-      : route.package_tier === "default"
-        ? 2
-        : route.package_tier === "all"
-          ? 1
-          : 0;
-
-  return eventScore + tierScore;
+  return eventScore;
 }
 
 export function pickBestRoute(
   routes: EtsyListingRoute[],
   eventType: string,
-  packageTier: string,
 ): EtsyListingRoute | null {
   if (!routes.length) return null;
 
@@ -60,7 +47,7 @@ export function pickBestRoute(
   let bestScore = -1;
 
   for (const route of routes) {
-    const score = routeScore(route, eventType, packageTier);
+    const score = routeScore(route, eventType);
     if (score > bestScore) {
       best = route;
       bestScore = score;

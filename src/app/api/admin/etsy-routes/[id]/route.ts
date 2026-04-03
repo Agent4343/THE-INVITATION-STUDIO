@@ -25,7 +25,6 @@ export async function PATCH(
     const { id } = await params;
     const body = (await request.json()) as {
       eventType?: string;
-      packageTier?: string;
       listingUrl?: string;
       listingLabel?: string;
       isActive?: boolean;
@@ -36,9 +35,7 @@ export async function PATCH(
     if (body.eventType !== undefined) {
       updates.event_type = normalizeRouteKey(body.eventType, "default");
     }
-    if (body.packageTier !== undefined) {
-      updates.package_tier = normalizeRouteKey(body.packageTier, "default");
-    }
+    updates.package_tier = "default";
     if (body.listingUrl !== undefined) {
       const listingUrl = String(body.listingUrl).trim();
       if (!isValidUrl(listingUrl)) {
@@ -78,7 +75,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error: duplicate
-            ? "A route for this event type and package tier already exists."
+            ? "A route for this event type already exists."
             : "Failed to update Etsy route.",
         },
         { status: duplicate ? 409 : 500 },

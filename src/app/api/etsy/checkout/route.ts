@@ -4,7 +4,12 @@ import { createServerSupabase } from "@/lib/supabase";
 import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
 import { templates } from "@/data/templates";
-import { buildEtsyDraftPayload, toEtsyPersonalizationNote } from "@/lib/etsy";
+import {
+  buildEtsyDraftPayload,
+  deriveDealFromSelection,
+  normalizeSelectedItems,
+  toEtsyPersonalizationNote,
+} from "@/lib/etsy";
 import {
   normalizeRouteKey,
   pickBestRoute,
@@ -53,13 +58,11 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       designId?: string;
       etsyPath?: "listing" | "message";
-      packageTier?: string;
+      selectedItems?: unknown;
     };
     if (!body.designId || body.designId !== payload.designId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-
-    const packageTier = normalizeRouteKey(body.packageTier, "standard");
 
     const supabase = createServerSupabase();
     const { data: design, error } = await supabase
@@ -76,13 +79,20 @@ export async function POST(request: Request) {
     const palette = palettes.find((item) => item.id === design.palette_id);
     const font = fonts.find((item) => item.id === design.font_id);
 
+    const normalizedItems = normalizeSelectedItems(
+      Array.isArray(body.selectedItems)
+        ? (body.selectedItems as Array<{ id?: string; quantity?: number }>)
+        : undefined,
+    );
+
     const draftPayload = buildEtsyDraftPayload({
       content: (design.content ?? {}) as Record<string, unknown>,
       templateName: template?.name || "Template",
       paletteName: palette?.name || "Palette",
       fontName: font?.name || "Font",
-      packageTier,
+      selectedItems: normalizedItems,
     });
+    const deal = deriveDealFromSelection(draftPayload.lineItems);
 
     const personalizationText = toEtsyPersonalizationNote(draftPayload);
     let selectedRoute: EtsyListingRoute | null = null;
@@ -92,19 +102,16 @@ export async function POST(request: Request) {
       checkoutUrl = getMessageSellerUrl();
     } else {
       const eventCandidates = routeCandidates(draftPayload.eventType);
-      const tierCandidates = routeCandidates(packageTier);
       const { data: routeRows } = await supabase
         .from("etsy_listing_routes")
         .select("*")
         .eq("is_active", true)
         .in("event_type", eventCandidates)
-        .in("package_tier", tierCandidates)
         .order("updated_at", { ascending: false });
 
       selectedRoute = pickBestRoute(
         (routeRows ?? []) as EtsyListingRoute[],
         normalizeRouteKey(draftPayload.eventType, "default"),
-        packageTier,
       );
 
       checkoutUrl = selectedRoute?.listing_url || getPrimaryListingUrl();
@@ -114,6 +121,7 @@ export async function POST(request: Request) {
       checkoutUrl,
       personalizationText,
       draftPayload,
+      deal,
       selectedRoute,
     });
   } catch (error) {

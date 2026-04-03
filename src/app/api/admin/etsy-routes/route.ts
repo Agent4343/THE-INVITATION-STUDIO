@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     .from("etsy_listing_routes")
     .select("*")
     .order("event_type", { ascending: true })
-    .order("package_tier", { ascending: true });
+    .order("listing_label", { ascending: true });
 
   if (error) {
     console.error("Error loading Etsy listing routes:", error);
@@ -45,14 +45,12 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       eventType?: string;
-      packageTier?: string;
       listingUrl?: string;
       listingLabel?: string;
       isActive?: boolean;
     };
 
     const eventType = normalizeRouteKey(body.eventType, "default");
-    const packageTier = normalizeRouteKey(body.packageTier, "default");
     const listingUrl = (body.listingUrl || "").trim();
     const listingLabel = (body.listingLabel || "").trim() || "Etsy Listing";
     const isActive = body.isActive !== false;
@@ -69,7 +67,7 @@ export async function POST(request: Request) {
       .from("etsy_listing_routes")
       .insert({
         event_type: eventType,
-        package_tier: packageTier,
+        package_tier: "default",
         listing_url: listingUrl,
         listing_label: listingLabel.slice(0, 120),
         is_active: isActive,
@@ -84,7 +82,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: duplicate
-            ? "A route for this event type and package tier already exists."
+            ? "A route for this event type already exists."
             : "Failed to create Etsy route.",
         },
         { status: duplicate ? 409 : 500 },

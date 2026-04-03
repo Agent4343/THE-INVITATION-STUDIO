@@ -1,10 +1,10 @@
-interface EtsyLineItem {
+export interface EtsyLineItem {
+  id: string;
   title: string;
   quantity: number;
 }
 
 interface EtsyDraftOrderPayload {
-  packageTier: string;
   eventType: string;
   eventFormality: string;
   guestCountBand: string;
@@ -41,9 +41,30 @@ interface EtsyDraftOrderPayload {
   palette: string;
   font: string;
   lineItems: EtsyLineItem[];
+  bundleDealEligible: boolean;
+  bundleDealCode: string;
+  bundleDealMessage: string;
 }
 
 const MAX_NOTE_LENGTH = 1000;
+const BUNDLE_DEAL_CODE = "STUDIO4PLUS";
+
+export const ETSY_ITEM_CATALOG: Array<{ id: string; title: string }> = [
+  { id: "invitation", title: "Main Invitation" },
+  { id: "rsvp", title: "RSVP Card" },
+  { id: "details", title: "Details Card" },
+  { id: "menu", title: "Menu Card" },
+  { id: "thankyou", title: "Thank You Card" },
+  { id: "savethedate", title: "Save the Date" },
+  { id: "tablenumber", title: "Table Number" },
+  { id: "placecard", title: "Place Card" },
+  { id: "welcomesign", title: "Welcome Sign" },
+];
+
+export interface EtsySelectionInput {
+  id?: string;
+  quantity?: number;
+}
 
 function pickString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value.trim() : fallback;
@@ -67,10 +88,9 @@ export function buildEtsyDraftPayload(input: {
   templateName: string;
   paletteName: string;
   fontName: string;
-  packageTier: string;
+  selectedItems?: EtsySelectionInput[];
 }): EtsyDraftOrderPayload {
   const c = input.content;
-  const packageTier = normalizeText(input.packageTier, "standard", 24).toLowerCase();
   const eventType = normalizeText(c.eventType, "wedding", 32).toLowerCase();
   const eventFormality = normalizeText(c.eventFormality, "classic", 32).toLowerCase();
   const guestCountBand = normalizeText(c.guestCountBand, "medium", 32).toLowerCase();
@@ -80,20 +100,13 @@ export function buildEtsyDraftPayload(input: {
   const wordingTone = normalizeText(c.wordingTone, "classic", 32).toLowerCase();
   const hostingStyle = normalizeText(c.hostingStyle, "couple", 32).toLowerCase();
 
-  const lineItems: EtsyLineItem[] = [
-    { title: "Main Invitation", quantity: 1 },
-    { title: "RSVP Card", quantity: 1 },
-    { title: "Details Card", quantity: 1 },
-    { title: "Menu Card", quantity: 1 },
-    { title: "Thank You Card", quantity: 1 },
-    { title: "Save the Date", quantity: 1 },
-    { title: "Table Number", quantity: 1 },
-    { title: "Place Card", quantity: 1 },
-    { title: "Welcome Sign", quantity: 1 },
-  ];
+  const lineItems = normalizeSelectedItems(input.selectedItems);
+  const bundleDealEligible = lineItems.length > 3;
+  const bundleDealMessage = bundleDealEligible
+    ? `Mix & Match 4+ perk unlocked. Ask seller to apply ${BUNDLE_DEAL_CODE} for bundle savings and coordinated finishing recommendations.`
+    : `Add 4 or more different pieces to unlock the ${BUNDLE_DEAL_CODE} bundle perk on Etsy.`;
 
   return {
-    packageTier,
     eventType,
     eventFormality,
     guestCountBand,
@@ -130,6 +143,9 @@ export function buildEtsyDraftPayload(input: {
     palette: normalizeText(input.paletteName, "Sage & Gold", 60),
     font: normalizeText(input.fontName, "Playfair Display", 60),
     lineItems,
+    bundleDealEligible,
+    bundleDealCode: BUNDLE_DEAL_CODE,
+    bundleDealMessage,
   };
 }
 
@@ -138,7 +154,6 @@ export function toEtsyPersonalizationNote(
 ): string {
   const lines = [
     "INVITATION STUDIO ORDER",
-    `Package Tier: ${payload.packageTier}`,
     `Event Type: ${payload.eventType}`,
     `Event Formality: ${payload.eventFormality}`,
     `Guest Count Band: ${payload.guestCountBand}`,
@@ -172,9 +187,62 @@ export function toEtsyPersonalizationNote(
     `Welcome Message: ${payload.welcomeMessage || "-"}`,
     `Welcome Subtext: ${payload.welcomeSubtext || "-"}`,
     `Special Requests: ${payload.specialRequests || "-"}`,
-    `Suite Items: ${payload.lineItems.map((item) => `${item.title} x${item.quantity}`).join(", ")}`,
+    `Selected Items: ${payload.lineItems.map((item) => `${item.title} x${item.quantity}`).join(", ")}`,
+    `Bundle Deal Eligible: ${payload.bundleDealEligible ? "Yes" : "No"}`,
+    `Bundle Deal Code: ${payload.bundleDealCode}`,
+    `Bundle Deal Note: ${payload.bundleDealMessage}`,
   ];
 
   return lines.join("\n").slice(0, MAX_NOTE_LENGTH);
+}
+
+export function normalizeSelectedItems(input?: EtsySelectionInput[]): EtsyLineItem[] {
+  if (!Array.isArray(input) || input.length === 0) {
+    return [{ id: "invitation", title: "Main Invitation", quantity: 1 }];
+  }
+
+  const byId = new Map(ETSY_ITEM_CATALOG.map((item) => [item.id, item.title]));
+  const selected: EtsyLineItem[] = [];
+
+  for (const raw of input) {
+    const id = normalizeText(raw?.id, "", 40);
+    if (!id || !byId.has(id)) continue;
+    const quantityRaw = Number(raw?.quantity);
+    const quantity = Number.isInteger(quantityRaw)
+      ? Math.max(1, Math.min(500, quantityRaw))
+      : 1;
+    selected.push({ id, title: byId.get(id) || id, quantity });
+  }
+
+  if (selected.length === 0) {
+    return [{ id: "invitation", title: "Main Invitation", quantity: 1 }];
+  }
+
+  const merged = new Map<string, EtsyLineItem>();
+  for (const item of selected) {
+    const existing = merged.get(item.id);
+    if (existing) {
+      existing.quantity = Math.min(500, existing.quantity + item.quantity);
+    } else {
+      merged.set(item.id, { ...item });
+    }
+  }
+
+  return Array.from(merged.values()).slice(0, 9);
+}
+
+export function deriveDealFromSelection(
+  selectedItems: EtsyLineItem[],
+): { eligible: boolean; code: string; message: string } {
+  const eligible = selectedItems.length > 3;
+  const message = eligible
+    ? `Mix & Match 4+ perk unlocked. Ask seller to apply ${BUNDLE_DEAL_CODE} for bundle savings and coordinated finishing recommendations.`
+    : `Add 4 or more different pieces to unlock the ${BUNDLE_DEAL_CODE} bundle perk on Etsy.`;
+
+  return {
+    eligible,
+    code: BUNDLE_DEAL_CODE,
+    message,
+  };
 }
 

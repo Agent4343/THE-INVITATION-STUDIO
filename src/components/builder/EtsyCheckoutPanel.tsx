@@ -21,37 +21,30 @@ const etsyPathOptions = [
 
 type EtsyPath = (typeof etsyPathOptions)[number]["id"];
 
-const packageTierOptions = [
-  {
-    id: "standard",
-    title: "Standard",
-    description: "Best for digital DIY printing and quick turnaround.",
-  },
-  {
-    id: "premium",
-    title: "Premium",
-    description: "Best for elevated paper and enhanced finishes.",
-  },
-  {
-    id: "complete",
-    title: "Complete",
-    description: "Best for full-suite production and premium support.",
-  },
-  {
-    id: "custom",
-    title: "Custom",
-    description: "For unusual quantities, event formats, or special requests.",
-  },
+const itemOptions = [
+  "Main Invitation",
+  "RSVP Card",
+  "Details Card",
+  "Menu Card",
+  "Thank You Card",
+  "Save the Date",
+  "Table Number",
+  "Place Card",
+  "Welcome Sign",
 ] as const;
 
-type PackageTier = (typeof packageTierOptions)[number]["id"];
+type EtsyItemName = (typeof itemOptions)[number];
 
 export default function EtsyCheckoutPanel() {
   const { designId, token, template, palette, font, content } = useDesignStore();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [etsyPath, setEtsyPath] = useState<EtsyPath>("listing");
-  const [packageTier, setPackageTier] = useState<PackageTier>("premium");
+  const [selectedItems, setSelectedItems] = useState<EtsyItemName[]>([
+    "Main Invitation",
+    "RSVP Card",
+    "Details Card",
+  ]);
   const [noteCopied, setNoteCopied] = useState(false);
   const [previewNote, setPreviewNote] = useState<string>("");
   const [selectedRouteLabel, setSelectedRouteLabel] = useState<string>("");
@@ -70,6 +63,18 @@ export default function EtsyCheckoutPanel() {
     if (eventType === "corporate-event") return "Event stationery";
     return "Event stationery";
   }, [content.eventType]);
+
+  const hasBundleDeal = selectedItems.length >= 4;
+
+  function toggleItem(item: EtsyItemName) {
+    setSelectedItems((prev) => {
+      if (prev.includes(item)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((i) => i !== item);
+      }
+      return [...prev, item];
+    });
+  }
 
   async function requestEtsyCheckout() {
     if (!designId || !token) {
@@ -92,7 +97,8 @@ export default function EtsyCheckoutPanel() {
         body: JSON.stringify({
           designId,
           etsyPath,
-          packageTier,
+          selectedItems,
+          requestBundleDeal: hasBundleDeal,
         }),
       });
 
@@ -140,34 +146,43 @@ export default function EtsyCheckoutPanel() {
 
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-          Select package tier for Etsy routing
+          Choose what you want to purchase
         </p>
-        {packageTierOptions.map((option) => (
+        <p className="text-xs text-stone-500">
+          Select individual items instead of fixed packages.
+        </p>
+        {itemOptions.map((item) => (
           <label
-            key={option.id}
+            key={item}
             className={`block cursor-pointer rounded-md border p-3 transition-colors ${
-              packageTier === option.id
+              selectedItems.includes(item)
                 ? "border-stone-700 bg-stone-50"
                 : "border-stone-200 bg-white hover:border-stone-300"
             }`}
           >
             <div className="flex items-start gap-3">
               <input
-                type="radio"
-                name="packageTier"
-                checked={packageTier === option.id}
-                onChange={() => setPackageTier(option.id)}
+                type="checkbox"
+                name="etsyItems"
+                checked={selectedItems.includes(item)}
+                onChange={() => toggleItem(item)}
                 className="mt-1"
               />
               <div>
-                <p className="text-sm font-medium text-stone-800">{option.title}</p>
-                <p className="mt-1 text-xs leading-relaxed text-stone-500">
-                  {option.description}
-                </p>
+                <p className="text-sm font-medium text-stone-800">{item}</p>
               </div>
             </div>
           </label>
         ))}
+        <p className="text-xs text-stone-500">
+          Selected: {selectedItems.length} item{selectedItems.length === 1 ? "" : "s"}
+        </p>
+        {hasBundleDeal && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            Bundle Bonus unlocked: we include a deal request in your Etsy note
+            (ask seller for matching envelopes + priority proof review on 4+ items).
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">

@@ -6,7 +6,6 @@ export default function AdminSettingsPage() {
   interface EtsyRoute {
     id: string;
     event_type: string;
-    package_tier: string;
     listing_url: string;
     listing_label: string;
     is_active: boolean;
@@ -29,7 +28,6 @@ export default function AdminSettingsPage() {
   const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
   const [routeForm, setRouteForm] = useState({
     eventType: "default",
-    packageTier: "default",
     listingUrl: "",
     listingLabel: "",
     isActive: true,
@@ -69,7 +67,6 @@ export default function AdminSettingsPage() {
     setEditingRouteId(null);
     setRouteForm({
       eventType: "default",
-      packageTier: "default",
       listingUrl: "",
       listingLabel: "",
       isActive: true,
@@ -80,7 +77,6 @@ export default function AdminSettingsPage() {
     setEditingRouteId(route.id);
     setRouteForm({
       eventType: route.event_type,
-      packageTier: route.package_tier,
       listingUrl: route.listing_url,
       listingLabel: route.listing_label,
       isActive: route.is_active,
@@ -97,7 +93,6 @@ export default function AdminSettingsPage() {
       const token = localStorage.getItem("admin_token");
       const routeBody = {
         eventType: routeForm.eventType,
-        packageTier: routeForm.packageTier,
         listingUrl: routeForm.listingUrl,
         listingLabel: routeForm.listingLabel,
         isActive: routeForm.isActive,
@@ -451,12 +446,12 @@ export default function AdminSettingsPage() {
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 className="font-semibold text-slate-900">Etsy Listing Routes</h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Route buyers to different Etsy listings by event type and package tier.
+            Route buyers to different Etsy listings by event type.
           </p>
         </div>
 
         <div className="px-6 py-5 space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-700 mb-1">
                 Event Type
@@ -467,22 +462,6 @@ export default function AdminSettingsPage() {
                   setRouteForm((prev) => ({ ...prev, eventType: e.target.value }))
                 }
                 placeholder="wedding, anniversary, default"
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Package Tier
-              </label>
-              <input
-                value={routeForm.packageTier}
-                onChange={(e) =>
-                  setRouteForm((prev) => ({
-                    ...prev,
-                    packageTier: e.target.value,
-                  }))
-                }
-                placeholder="standard, premium, complete, default"
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
               />
             </div>
@@ -511,7 +490,7 @@ export default function AdminSettingsPage() {
                     listingLabel: e.target.value,
                   }))
                 }
-                placeholder="Wedding Premium Listing"
+                placeholder="Wedding Invitations Listing"
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
               />
             </div>
@@ -561,7 +540,6 @@ export default function AdminSettingsPage() {
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
                   <th className="text-left px-3 py-2">Event</th>
-                  <th className="text-left px-3 py-2">Tier</th>
                   <th className="text-left px-3 py-2">Label</th>
                   <th className="text-left px-3 py-2">URL</th>
                   <th className="text-left px-3 py-2">Status</th>
@@ -571,14 +549,14 @@ export default function AdminSettingsPage() {
               <tbody className="divide-y divide-slate-100">
                 {loadingEtsyRoutes && (
                   <tr>
-                    <td className="px-3 py-3 text-slate-500" colSpan={6}>
+                    <td className="px-3 py-3 text-slate-500" colSpan={5}>
                       Loading routes...
                     </td>
                   </tr>
                 )}
                 {!loadingEtsyRoutes && etsyRoutes.length === 0 && (
                   <tr>
-                    <td className="px-3 py-3 text-slate-500" colSpan={6}>
+                    <td className="px-3 py-3 text-slate-500" colSpan={5}>
                       No Etsy routes configured yet.
                     </td>
                   </tr>
@@ -587,9 +565,6 @@ export default function AdminSettingsPage() {
                   <tr key={route.id}>
                     <td className="px-3 py-2 font-medium text-slate-800">
                       {route.event_type}
-                    </td>
-                    <td className="px-3 py-2 text-slate-700">
-                      {route.package_tier}
                     </td>
                     <td className="px-3 py-2 text-slate-700">
                       {route.listing_label}
