@@ -3,7 +3,26 @@ import { createAdminToken } from "@/lib/adminAuth";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.text();
+
+    if (!body) {
+      return NextResponse.json(
+        { error: "Empty request body" },
+        { status: 400 },
+      );
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 },
+      );
+    }
+
+    const { email, password } = parsed;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -16,9 +35,8 @@ export async function POST(request: Request) {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (!adminEmail || !adminPassword) {
-      console.error("ADMIN_EMAIL or ADMIN_PASSWORD env vars not set");
       return NextResponse.json(
-        { error: "Server configuration error" },
+        { error: "Admin credentials not configured on server" },
         { status: 500 },
       );
     }
@@ -33,10 +51,10 @@ export async function POST(request: Request) {
     const token = createAdminToken(email);
 
     return NextResponse.json({ token, email });
-  } catch {
+  } catch (err) {
     return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 },
+      { error: `Server error: ${err instanceof Error ? err.message : "Unknown error"}` },
+      { status: 500 },
     );
   }
 }
