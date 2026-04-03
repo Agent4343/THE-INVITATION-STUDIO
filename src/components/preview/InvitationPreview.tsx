@@ -13,21 +13,12 @@ interface PreviewProps {
 
 function invitationLineForEvent(content: DesignContent): string {
   if (content.invitationLine?.trim()) return content.invitationLine.trim();
-
-  const eventType = (content.eventType || "wedding").toLowerCase();
-  if (eventType === "wedding" || eventType === "elopement") {
-    return "invite you to celebrate their marriage";
-  }
   return "invite you to celebrate with us";
 }
 
 function preHeadingForEvent(content: DesignContent): string {
   if (content.preHeading?.trim()) return content.preHeading.trim();
-  const eventType = (content.eventType || "wedding").toLowerCase();
-  if (eventType === "wedding" || eventType === "elopement") {
-    return "Together with their families";
-  }
-  return "Together";
+  return "Hosted by their loved ones";
 }
 
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {

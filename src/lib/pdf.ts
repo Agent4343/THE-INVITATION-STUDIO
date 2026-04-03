@@ -26,15 +26,9 @@ export function renderPieceHtml(
         ? fallback
         : String(value),
     );
-  const eventType = String(c.eventType || "event").toLowerCase();
-  const defaultInviteLine =
-    eventType === "wedding"
-      ? "invite you to celebrate their marriage"
-      : "invite you to celebrate with them";
-  const defaultHostLine =
-    eventType === "wedding" ? "Together with their families" : "Together";
-  const defaultWelcomeMessage =
-    eventType === "wedding" ? "Welcome to the Wedding of" : "Welcome to the Celebration of";
+  const defaultInviteLine = "invite you to celebrate with us";
+  const defaultHostLine = "Hosted by their loved ones";
+  const defaultWelcomeMessage = "Welcome to the Celebration of";
   const googleFontUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font.googleFontsFamily)}&display=swap`;
 
   const textAlign =

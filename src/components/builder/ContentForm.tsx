@@ -133,7 +133,7 @@ const sections: Section[] = [
       {
         key: "preHeading",
         label: "Pre-heading",
-        placeholder: "Together with our families",
+        placeholder: "Hosted by our loved ones",
         maxLength: 60,
         aiField: true,
       },
