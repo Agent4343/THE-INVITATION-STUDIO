@@ -6,51 +6,6 @@ import { useDesignStore } from "@/store/designStore";
 
 type Tab = "code" | "purchase";
 
-const TIERS = [
-  {
-    id: "standard" as const,
-    name: "Standard",
-    price: "$24.99",
-    description: "Great for couples who want a beautiful suite fast",
-    features: [
-      "9-piece invitation suite",
-      "12 designer templates",
-      "12 curated color palettes",
-      "12 premium font pairings",
-      "AI-powered wording assistant",
-      "Unlimited downloads",
-    ],
-    bestFor: "Best for: elegant essentials on a budget",
-  },
-  {
-    id: "premium" as const,
-    name: "Premium",
-    price: "$34.99",
-    description: "Most popular for flexibility and long-term value",
-    features: [
-      "Everything in Standard",
-      "All current & future templates",
-      "Priority email support",
-      "Extended access (1 year)",
-    ],
-    popular: true,
-    bestFor: "Best for: most couples planning over several months",
-  },
-  {
-    id: "complete" as const,
-    name: "Complete",
-    price: "$49.99",
-    description: "Everything unlocked, forever access",
-    features: [
-      "Everything in Premium",
-      "Lifetime access",
-      "Print fulfillment discount",
-      "Early access to new designs",
-    ],
-    bestFor: "Best for: planners and keepsake-focused couples",
-  },
-];
-
 const SUITE_PIECES = [
   "Wedding Invitation",
   "RSVP Card",
@@ -74,7 +29,6 @@ function HomePageInner() {
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
-  const [selectedTier, setSelectedTier] = useState<"standard" | "premium" | "complete">("premium");
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
@@ -152,7 +106,7 @@ function HomePageInner() {
       const res = await fetch("/api/purchase/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, tier: selectedTier }),
+        body: JSON.stringify({ email, tier: "standard" }),
       });
 
       const data = await res.json();
@@ -225,50 +179,7 @@ function HomePageInner() {
 
           {/* Purchase Tab */}
           {tab === "purchase" && (
-            <div className="mx-auto max-w-3xl">
-              <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {TIERS.map((tier) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => setSelectedTier(tier.id)}
-                    className={`relative rounded-xl border-2 p-5 text-left transition-all ${
-                      selectedTier === tier.id
-                        ? "border-stone-800 bg-white shadow-lg"
-                        : "border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm"
-                    }`}
-                  >
-                    {tier.popular && (
-                      <span className="absolute -top-2.5 right-4 rounded-full bg-stone-800 px-3 py-0.5 text-xs font-medium text-white">
-                        Popular
-                      </span>
-                    )}
-                    <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-600">
-                      {tier.name}
-                    </h3>
-                    <p
-                      className="mt-1 text-3xl font-semibold text-stone-800"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
-                    >
-                      {tier.price}
-                    </p>
-                    <p className="mt-1 text-xs text-stone-400">{tier.description}</p>
-                    <p className="mt-1 text-[11px] font-medium text-stone-500">
-                      {tier.bestFor}
-                    </p>
-                    <ul className="mt-4 space-y-1.5">
-                      {tier.features.map((f) => (
-                        <li key={f} className="flex items-start text-xs text-stone-500">
-                          <svg className="mr-1.5 mt-0.5 h-3 w-3 flex-shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </button>
-                ))}
-              </div>
-
+            <div className="mx-auto max-w-xl">
               <form onSubmit={handlePurchase} className="mx-auto max-w-md space-y-4">
                 <div>
                   <label htmlFor="email" className="mb-2 block text-sm font-medium text-stone-600">
@@ -294,7 +205,7 @@ function HomePageInner() {
                   disabled={purchaseLoading}
                   className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {purchaseLoading ? "Redirecting..." : `Buy Access — ${TIERS.find(t => t.id === selectedTier)?.price}`}
+                  {purchaseLoading ? "Redirecting..." : "Buy Access"}
                 </button>
 
                 <p className="text-xs text-stone-500">
