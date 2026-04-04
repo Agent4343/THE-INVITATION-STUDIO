@@ -10,7 +10,7 @@ const steps: { id: BuilderStep; label: string }[] = [
   { id: "palette", label: "Colors" },
   { id: "font", label: "Typography" },
   { id: "content", label: "Event Details" },
-  { id: "preview", label: "Review & Export" },
+  { id: "preview", label: "Review & Etsy Checkout" },
 ];
 
 export default function StepNavigator({
@@ -89,7 +89,7 @@ export default function StepNavigator({
           Previous
         </Button>
         <Button onClick={goNext}>
-          {isLast ? "Go to Event Exports" : "Continue Setup"}
+          {isLast ? "Go to Etsy Checkout" : "Continue Setup"}
         </Button>
       </div>
     </div>

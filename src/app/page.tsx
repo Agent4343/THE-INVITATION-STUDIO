@@ -138,14 +138,14 @@ function HomePageInner() {
               </div>
               <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
                 <p className="text-xs uppercase tracking-wider text-stone-400">Step 3</p>
-                <p className="mt-1 font-medium text-stone-700">Redeem and customize all files</p>
+                <p className="mt-1 font-medium text-stone-700">Redeem and prepare Etsy order details</p>
               </div>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2 text-xs text-stone-500">
               <span className="rounded-full bg-stone-100 px-3 py-1">Etsy-only checkout</span>
               <span className="rounded-full bg-stone-100 px-3 py-1">No in-app payment processing</span>
-              <span className="rounded-full bg-stone-100 px-3 py-1">Print-ready PDF exports</span>
+              <span className="rounded-full bg-stone-100 px-3 py-1">Files delivered by Etsy after purchase</span>
             </div>
           </div>
 
@@ -216,7 +216,8 @@ function HomePageInner() {
                   {loading ? "Validating..." : "Open Event Builder"}
                 </button>
                 <p className="text-xs text-stone-500">
-                  All event types are supported in the builder and exports.
+                  All event types are supported in the builder. Final files are
+                  purchased and delivered through Etsy.
                 </p>
               </form>
             )}

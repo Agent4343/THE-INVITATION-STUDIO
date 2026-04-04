@@ -230,6 +230,10 @@ export default function EtsyCheckoutPanel() {
         Payment and order confirmation are handled on Etsy. Keep this tab open
         until your Etsy checkout is complete.
       </p>
+      <p className="text-center text-xs text-stone-500">
+        Files are not downloaded directly in this app. Admin finalizes and
+        fulfills files through Etsy after purchase.
+      </p>
       {selectedRouteLabel && (
         <p className="text-center text-xs text-stone-500">
           Routed to: <span className="font-medium text-stone-700">{selectedRouteLabel}</span>

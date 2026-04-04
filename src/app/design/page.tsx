@@ -11,7 +11,6 @@ import TemplateGrid from "@/components/builder/TemplateGrid";
 import PaletteSelector from "@/components/builder/PaletteSelector";
 import FontSelector from "@/components/builder/FontSelector";
 import ContentForm from "@/components/builder/ContentForm";
-import DownloadPanel from "@/components/builder/DownloadPanel";
 import SuitePieces from "@/components/builder/SuitePieces";
 import LivePreview from "@/components/builder/LivePreview";
 import StepNavigator from "@/components/builder/StepNavigator";
@@ -211,17 +210,17 @@ function PrintOffer() {
   return (
     <div className="mt-6 rounded-lg border border-stone-200 bg-white p-5">
       <h3 className="mb-2 text-sm font-semibold uppercase tracking-widest text-stone-500">
-        Want event stationery printed?
+        Fulfillment policy
       </h3>
       <p className="mb-4 text-sm leading-relaxed text-stone-500">
-        Order professionally printed event stationery on premium paper,
-        delivered to your door.
+        Files are not delivered directly in-app. Final fulfillment is handled by
+        admin through Etsy after purchase.
       </p>
       <button
         disabled
         className="w-full rounded-lg bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-400"
       >
-        Print ordering coming soon
+        Managed through Etsy checkout
       </button>
     </div>
   );
@@ -548,7 +547,6 @@ function DesignPageInner() {
     content: <ContentForm />,
     preview: (
       <>
-        <DownloadPanel />
         <EtsyCheckoutPanel />
         <PrintOffer />
       </>
