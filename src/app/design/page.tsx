@@ -229,6 +229,7 @@ function PrintOffer() {
 function DesignPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const forcePreviewMode = searchParams.get("mode") === "preview";
   const {
     currentStep,
     designId,
@@ -247,17 +248,20 @@ function DesignPageInner() {
     setToken,
     setSaving,
     setLastSavedAt,
+    resetDesign,
   } = useDesignStore();
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedContentRef = useRef<string>("");
   const seededPresetRef = useRef(false);
+  const previewInitRef = useRef(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [designLoaded, setDesignLoaded] = useState(false);
 
   const activePreset = normalizeEventPreset(content.eventType);
+  const isPreviewMode = forcePreviewMode || !token || !designId;
 
   const applyEventPreset = (eventType: string) => {
     const starter = starterCopyForPreset(eventType);
@@ -322,6 +326,7 @@ function DesignPageInner() {
 
   // Handle ?code= query parameter: auto-validate and store auth
   useEffect(() => {
+    if (forcePreviewMode) return;
     const codeParam = searchParams.get("code");
     if (!codeParam) return;
 
@@ -349,25 +354,36 @@ function DesignPageInner() {
         router.push("/");
       }
     })();
-  }, [searchParams, router, setToken, setDesignId]);
+  }, [searchParams, router, setToken, setDesignId, forcePreviewMode]);
 
   // Restore auth from localStorage on mount
   useEffect(() => {
+    if (forcePreviewMode) {
+      if (!previewInitRef.current) {
+        resetDesign();
+        previewInitRef.current = true;
+      }
+      localStorage.removeItem("token");
+      localStorage.removeItem("designId");
+      setAuthChecked(true);
+      setDesignLoaded(true);
+      return;
+    }
+
     const storedToken = localStorage.getItem("token");
     const storedDesignId = localStorage.getItem("designId");
 
     if (!storedToken || !storedDesignId) {
-      // Only redirect if there's no ?code= param (handled above)
-      if (!searchParams.get("code")) {
-        router.push("/");
-      }
+      // Allow preview mode without purchase/auth to encourage design-first flow.
+      setAuthChecked(true);
+      setDesignLoaded(true);
       return;
     }
 
     if (!token) setToken(storedToken);
     if (!designId) setDesignId(storedDesignId);
     setAuthChecked(true);
-  }, [router, token, designId, setToken, setDesignId, searchParams]);
+  }, [token, designId, setToken, setDesignId, searchParams, forcePreviewMode, resetDesign]);
 
   // Mark auth as checked once token and designId are in the store
   useEffect(() => {
@@ -475,6 +491,7 @@ function DesignPageInner() {
 
   // Debounced auto-save (10s) with max delay (60s)
   useEffect(() => {
+    if (!token || !designId) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(saveDesign, 10_000);
 
@@ -489,7 +506,7 @@ function DesignPageInner() {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [content, template, palette, font, saveDesign]);
+  }, [content, template, palette, font, saveDesign, token, designId]);
 
   // Clear max delay timer when save completes
   useEffect(() => {
@@ -593,6 +610,12 @@ function DesignPageInner() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl px-4 pb-8 pt-5 sm:px-6">
+        {isPreviewMode && (
+          <section className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Preview mode is active. You can design everything before purchase.
+            File copies are locked until you complete Etsy checkout and admin fulfills the order.
+          </section>
+        )}
         <section className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">

@@ -36,7 +36,7 @@ function HomePageInner() {
     "https://www.etsy.com/shop/theinvitationstudio";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setDesignId, setToken } = useDesignStore();
+  const { setDesignId, setToken, resetDesign } = useDesignStore();
 
   const [tab, setTab] = useState<Tab>("purchase");
   const [code, setCode] = useState("");
@@ -105,6 +105,13 @@ function HomePageInner() {
 
   const handlePurchase = () => {
     window.open(ETSY_SHOP_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const handlePreviewBuilder = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("designId");
+    resetDesign();
+    router.push("/design?mode=preview");
   };
 
   return (
@@ -186,6 +193,13 @@ function HomePageInner() {
                   className="w-full rounded-lg bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700"
                 >
                   Continue to Etsy Checkout
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePreviewBuilder}
+                  className="w-full rounded-lg border border-stone-300 bg-white px-6 py-3.5 text-sm font-semibold text-stone-700 transition-all hover:bg-stone-50"
+                >
+                  Preview Builder First (No Purchase Yet)
                 </button>
               </div>
             )}
