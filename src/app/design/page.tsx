@@ -536,7 +536,7 @@ function DesignPageInner() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-stone-50">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-sm text-stone-500">Loading your design...</p>
+        <p className="mt-4 text-sm text-stone-500">Loading your event stationery...</p>
       </div>
     );
   }
@@ -556,80 +556,90 @@ function DesignPageInner() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-stone-200 px-6 py-3">
-        <h1
-          className="text-xl font-semibold text-stone-800"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          The Invitation Studio
-        </h1>
-        <div className="flex items-center gap-3">
-          {saveError && (
-            <span className="text-xs text-red-400">{saveError}</span>
-          )}
-          {isSaving && (
-            <span className="text-xs text-stone-400">Saving...</span>
-          )}
-          {!isSaving && !saveError && lastSavedAt && (
-            <span className="text-xs text-stone-400">
-              Saved{" "}
-              {new Date(lastSavedAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          )}
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-stone-50 to-white">
+      <header className="border-b border-stone-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          <div>
+            <h1
+              className="text-xl font-semibold text-stone-900"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              The Invitation Studio
+            </h1>
+            <p className="text-xs text-stone-500">
+              All-event stationery builder
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {saveError && (
+              <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs text-red-500">
+                {saveError}
+              </span>
+            )}
+            {isSaving && (
+              <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-500">
+                Saving...
+              </span>
+            )}
+            {!isSaving && !saveError && lastSavedAt && (
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700">
+                Saved{" "}
+                {new Date(lastSavedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Main layout */}
-      <div className="border-b border-stone-200 bg-white px-6 py-3">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-          Event Type Preset
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {EVENT_PRESETS.map((preset) => (
-            <button
-              key={preset.value}
-              type="button"
-              onClick={() => applyEventPreset(preset.value)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                activePreset === preset.value
-                  ? "bg-stone-800 text-white"
-                  : "bg-stone-100 text-stone-600 hover:bg-stone-200"
-              }`}
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <main className="mx-auto w-full max-w-7xl px-4 pb-8 pt-5 sm:px-6">
+        <section className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+              Event Preset
+            </p>
+            <p className="text-xs text-stone-500">
+              Choose the event type to auto-fill better starter content.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {EVENT_PRESETS.map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                onClick={() => applyEventPreset(preset.value)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  activePreset === preset.value
+                    ? "bg-stone-900 text-white"
+                    : "border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <div className="flex flex-1 flex-col lg:flex-row">
-        {/* Left panel - Controls */}
-        <div className="flex w-full flex-col border-b border-stone-200 lg:w-2/5 lg:border-b-0 lg:border-r">
-          <div className="flex-1 overflow-y-auto p-6">
-            {stepPanel[currentStep]}
+        <section className="grid gap-4 lg:grid-cols-[420px_1fr]">
+          <div className="flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
+            <div className="flex-1 overflow-y-auto p-5">{stepPanel[currentStep]}</div>
+            <div className="border-t border-stone-200 bg-stone-50 p-5">
+              <StepNavigator />
+            </div>
           </div>
 
-          <div className="border-t border-stone-200 p-6">
-            <StepNavigator />
+          <div className="flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
+            <div className="border-b border-stone-200 bg-stone-50 p-4">
+              <SuitePieces />
+            </div>
+            <div className="flex flex-1 items-start justify-center overflow-y-auto p-5 sm:p-7">
+              <LivePreview />
+            </div>
           </div>
-        </div>
-
-        {/* Right panel - Preview */}
-        <div className="flex w-full flex-1 flex-col lg:w-3/5">
-          <div className="border-b border-stone-200 p-4">
-            <SuitePieces />
-          </div>
-
-          <div className="flex flex-1 items-start justify-center overflow-y-auto p-6">
-            <LivePreview />
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

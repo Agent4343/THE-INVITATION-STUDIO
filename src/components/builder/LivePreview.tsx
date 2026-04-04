@@ -30,11 +30,15 @@ export default function LivePreview() {
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div
-        className="w-full max-w-md overflow-hidden rounded-lg bg-white shadow-xl"
-      >
-        {previewMap[activePiece]}
+    <div className="w-full">
+      <div className="mb-3 text-center text-xs font-medium uppercase tracking-[0.22em] text-stone-500">
+        Live Preview
+      </div>
+      <div className="relative mx-auto w-full max-w-md rounded-2xl border border-stone-200 bg-stone-100 p-3 shadow-sm">
+        <div className="absolute inset-x-0 top-0 h-24 rounded-t-2xl bg-gradient-to-b from-white/80 to-transparent" />
+        <div className="relative overflow-hidden rounded-xl bg-white shadow-xl">
+          {previewMap[activePiece]}
+        </div>
       </div>
     </div>
   );
