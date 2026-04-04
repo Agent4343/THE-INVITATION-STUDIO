@@ -5,6 +5,7 @@ import { generateSuiteHtml } from "@/lib/pdf";
 import { templates } from "@/data/templates";
 import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
+import { normalizeLegacyDesignContent } from "@/lib/designContent";
 
 export async function POST(request: Request) {
   try {
@@ -56,9 +57,23 @@ export async function POST(request: Request) {
       );
     }
 
+    const { content: normalizedContent, changed } = normalizeLegacyDesignContent(
+      design.content,
+    );
+
+    if (changed) {
+      await supabase
+        .from("designs")
+        .update({
+          content: normalizedContent,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", designId);
+    }
+
     // Generate HTML for the full suite
     const html = generateSuiteHtml(
-      { ...design, content: design.content },
+      { ...design, content: normalizedContent },
       template,
       palette,
       font,

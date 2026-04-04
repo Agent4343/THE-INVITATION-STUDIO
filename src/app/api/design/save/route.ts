@@ -4,6 +4,7 @@ import { verifyToken } from "@/lib/auth";
 import { templates } from "@/data/templates";
 import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
+import { normalizeLegacyDesignContent } from "@/lib/designContent";
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid content" }, { status: 400 });
     }
 
+    const { content: normalizedContent } = normalizeLegacyDesignContent(content);
+
     const supabase = createServerSupabase();
 
     const { error } = await supabase
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
         template_id: templateId,
         palette_id: paletteId,
         font_id: fontId,
-        content,
+        content: normalizedContent,
         updated_at: new Date().toISOString(),
       })
       .eq("id", designId);
