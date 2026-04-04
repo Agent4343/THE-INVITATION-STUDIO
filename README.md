@@ -6,9 +6,10 @@ Next.js app for event stationery design with Etsy checkout handoff, access-code 
 
 This repo is now Railway-ready with `railway.json`:
 
-- Build: `npm ci && npm run build`
+- Build: `npm run build` (Railway install phase handles `npm ci`)
 - Start: `npm run start -- -H 0.0.0.0 -p $PORT`
 - Health check: `/api/health`
+- Node runtime: `20` (set via `nixpacks.toml` and `package.json` engines)
 
 ### 1) Create Railway project
 
