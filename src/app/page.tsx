@@ -113,6 +113,9 @@ function HomePageInner() {
               Birthday, anniversary, shower, graduation, retirement, wedding, and
               more. Build your 9-piece set in minutes, then complete payment on Etsy.
             </p>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-stone-500">
+              All event stationery files are supported here - not wedding-only templates.
+            </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs text-stone-500">
               <span className="rounded-full bg-stone-100 px-3 py-1">No in-app payment processing</span>
               <span className="rounded-full bg-stone-100 px-3 py-1">Access code emailed after Etsy purchase</span>

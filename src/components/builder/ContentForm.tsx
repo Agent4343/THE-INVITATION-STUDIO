@@ -337,7 +337,7 @@ function getEventSpecificOverrides(eventType?: string): Partial<Record<string, F
       welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to the Retirement Celebration", maxLength: 80, aiField: true },
     },
     wedding: {
-      invitationLine: { key: "invitationLine", label: "Wedding Invitation Line", placeholder: "invite you to celebrate with us", maxLength: 120, aiField: true },
+      invitationLine: { key: "invitationLine", label: "Invitation Line", placeholder: "invite you to celebrate with us", maxLength: 120, aiField: true },
       ceremonyDetails: { key: "ceremonyDetails", label: "Ceremony Details", placeholder: "Ceremony begins at 4:30 PM in the garden.", multiline: true, maxLength: 200, aiField: true },
       receptionDetails: { key: "receptionDetails", label: "Reception Details", placeholder: "Reception to follow in the grand ballroom.", multiline: true, maxLength: 200, aiField: true },
     },
