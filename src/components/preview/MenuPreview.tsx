@@ -157,6 +157,37 @@ function menuDefaultsForKind(kind: MenuKind): {
   }
 }
 
+function courseLabelsForKind(kind: MenuKind): {
+  first: string;
+  main: string;
+  dessert: string;
+} {
+  switch (kind) {
+    case "birthday":
+      return { first: "Party Bites", main: "Main Station", dessert: "Cake & Sweets" };
+    case "baby-shower":
+    case "bridal-shower":
+      return { first: "Brunch Bites", main: "Mains", dessert: "Sweets" };
+    case "holiday-party":
+      return { first: "Seasonal Bites", main: "Main Spread", dessert: "Holiday Sweets" };
+    case "corporate-event":
+      return { first: "Canapes", main: "Dinner", dessert: "Dessert" };
+    case "graduation":
+      return { first: "Snacks", main: "Mains", dessert: "Sweets" };
+    case "retirement":
+      return { first: "Starters", main: "Entree", dessert: "Dessert" };
+    case "default":
+    case "anniversary":
+    case "engagement":
+    case "vow-renewal":
+    case "elopement":
+    case "civil-ceremony":
+    case "wedding":
+    default:
+      return { first: "First Course", main: "Main Course", dessert: "Dessert" };
+  }
+}
+
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
   switch (borderStyle) {
     case "thin":
@@ -172,12 +203,14 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 export default function MenuPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
   const ornStyle = template.ornamentStyle || "classic";
-  const defaults = menuDefaultsForKind(normalizeMenuKind(content.eventType));
+  const menuKind = normalizeMenuKind(content.eventType);
+  const defaults = menuDefaultsForKind(menuKind);
+  const labels = courseLabelsForKind(menuKind);
 
   const courses = [
-    { label: "First Course", item: content.appetizer, placeholder: defaults.appetizer },
-    { label: "Main Course", item: content.entree, placeholder: defaults.entree },
-    { label: "Dessert", item: content.dessert, placeholder: defaults.dessert },
+    { label: labels.first, item: content.appetizer, placeholder: defaults.appetizer },
+    { label: labels.main, item: content.entree, placeholder: defaults.entree },
+    { label: labels.dessert, item: content.dessert, placeholder: defaults.dessert },
   ];
   const menuHeading = content.menuHeading || defaults.heading;
 

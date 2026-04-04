@@ -372,6 +372,37 @@ function menuSamplesForEvent(eventType: string): {
   }
 }
 
+function menuCourseLabelsForEvent(eventType: string): {
+  first: string;
+  main: string;
+  dessert: string;
+} {
+  switch (normalizeEventKind(eventType)) {
+    case "birthday":
+      return { first: "Party Bites", main: "Main Station", dessert: "Cake & Sweets" };
+    case "baby-shower":
+    case "bridal-shower":
+      return { first: "Brunch Bites", main: "Mains", dessert: "Sweets" };
+    case "holiday-party":
+      return { first: "Seasonal Bites", main: "Main Spread", dessert: "Holiday Sweets" };
+    case "corporate-event":
+      return { first: "Canapes", main: "Dinner", dessert: "Dessert" };
+    case "graduation":
+      return { first: "Snacks", main: "Mains", dessert: "Sweets" };
+    case "retirement":
+      return { first: "Starters", main: "Entree", dessert: "Dessert" };
+    case "default":
+    case "anniversary":
+    case "engagement":
+    case "vow-renewal":
+    case "elopement":
+    case "civil-ceremony":
+    case "wedding":
+    default:
+      return { first: "First Course", main: "Main Course", dessert: "Dessert" };
+  }
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -402,6 +433,7 @@ export function renderPieceHtml(
   const eventKind = normalizeEventKind(c.eventType);
   const invitationSamples = invitationSamplesForEvent(normalizedEventType);
   const menuSamples = menuSamplesForEvent(normalizedEventType);
+  const menuCourseLabels = menuCourseLabelsForEvent(normalizedEventType);
   const defaultInviteLine = (() => {
     switch (eventKind) {
       case "birthday":
@@ -664,11 +696,11 @@ export function renderPieceHtml(
         </h2>
         ${ornamentHtml}
         <div style="margin: ${spacing * 1.5}px 0; line-height: 1.6; font-size: 13px;">
-          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">First Course</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(menuCourseLabels.first)}</p>
           <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.appetizer, menuSamples.appetizer)}</p>
-          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Main Course</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(menuCourseLabels.main)}</p>
           <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.entree, menuSamples.entree)}</p>
-          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dessert</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(menuCourseLabels.dessert)}</p>
           <p style="color: ${palette.text}; margin: 0; font-style:italic;">${e(c.dessert, menuSamples.dessert)}</p>
         </div>
       `;

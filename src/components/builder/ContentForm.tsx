@@ -507,7 +507,30 @@ function getEventSpecificOverrides(eventType?: string): Partial<Record<string, F
     },
   };
 
-  return { ...byKind[kind], ...menuByKind[kind] };
+  const menuFieldLabels: Record<EventKind, { appetizer: string; entree: string; dessert: string }> = {
+    birthday: { appetizer: "Party Bites", entree: "Main Station", dessert: "Cake & Sweets" },
+    "baby-shower": { appetizer: "Brunch Bites", entree: "Mains", dessert: "Sweets" },
+    "bridal-shower": { appetizer: "Brunch Bites", entree: "Mains", dessert: "Sweets" },
+    "holiday-party": { appetizer: "Seasonal Bites", entree: "Main Spread", dessert: "Holiday Sweets" },
+    "corporate-event": { appetizer: "Canapes", entree: "Dinner", dessert: "Dessert" },
+    graduation: { appetizer: "Snacks", entree: "Mains", dessert: "Sweets" },
+    retirement: { appetizer: "Starters", entree: "Entree", dessert: "Dessert" },
+    anniversary: { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+    engagement: { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+    "vow-renewal": { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+    elopement: { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+    "civil-ceremony": { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+    wedding: { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+    default: { appetizer: "First Course", entree: "Main Course", dessert: "Dessert" },
+  };
+
+  const merged = { ...byKind[kind], ...menuByKind[kind] };
+  const labels = menuFieldLabels[kind];
+  if (merged.appetizer) merged.appetizer = { ...merged.appetizer, label: labels.appetizer };
+  if (merged.entree) merged.entree = { ...merged.entree, label: labels.entree };
+  if (merged.dessert) merged.dessert = { ...merged.dessert, label: labels.dessert };
+
+  return merged;
 }
 
 const sectionToPiece: Record<string, SuitePiece> = {
