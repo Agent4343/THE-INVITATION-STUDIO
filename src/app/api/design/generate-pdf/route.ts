@@ -1,31 +1,28 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
-import { verifyToken } from "@/lib/auth";
 import { generateSuiteHtml } from "@/lib/pdf";
 import { templates } from "@/data/templates";
 import { palettes } from "@/data/palettes";
 import { fonts } from "@/data/fonts";
+import { normalizeLegacyDesignContent } from "@/lib/designContent";
+import { getAdminFromRequest } from "@/lib/adminAuth";
 
 export async function POST(request: Request) {
   try {
-    // Verify JWT
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.slice(7);
-    let payload;
-    try {
-      payload = verifyToken(token);
-    } catch {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const admin = getAdminFromRequest(request);
+    if (!admin) {
+      return NextResponse.json(
+        { error: "User downloads are disabled. Files are fulfilled via Etsy by admin only." },
+        { status: 403 },
+      );
     }
 
     const { designId } = await request.json();
-
-    if (designId !== payload.designId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!designId || typeof designId !== "string") {
+      return NextResponse.json(
+        { error: "Missing designId." },
+        { status: 400 },
+      );
     }
 
     const supabase = createServerSupabase();
@@ -56,9 +53,23 @@ export async function POST(request: Request) {
       );
     }
 
+    const { content: normalizedContent, changed } = normalizeLegacyDesignContent(
+      design.content,
+    );
+
+    if (changed) {
+      await supabase
+        .from("designs")
+        .update({
+          content: normalizedContent,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", designId);
+    }
+
     // Generate HTML for the full suite
     const html = generateSuiteHtml(
-      { ...design, content: design.content },
+      { ...design, content: normalizedContent },
       template,
       palette,
       font,

@@ -4,6 +4,14 @@ export interface EtsyLineItem {
   quantity: number;
 }
 
+export interface EtsyBundleConfig {
+  isActive: boolean;
+  minDistinctItems: number;
+  code: string;
+  unlockedMessage: string;
+  lockedMessage: string;
+}
+
 interface EtsyDraftOrderPayload {
   eventType: string;
   eventFormality: string;
@@ -41,13 +49,22 @@ interface EtsyDraftOrderPayload {
   palette: string;
   font: string;
   lineItems: EtsyLineItem[];
+  addonRequests: string[];
   bundleDealEligible: boolean;
   bundleDealCode: string;
   bundleDealMessage: string;
 }
 
 const MAX_NOTE_LENGTH = 1000;
-const BUNDLE_DEAL_CODE = "STUDIO4PLUS";
+const DEFAULT_BUNDLE_CONFIG: EtsyBundleConfig = {
+  isActive: true,
+  minDistinctItems: 4,
+  code: "STUDIO4PLUS",
+  unlockedMessage:
+    "Mix & Match 4+ perk unlocked. Ask seller to apply STUDIO4PLUS for bundle savings and coordinated finishing recommendations.",
+  lockedMessage:
+    "Add 4 or more different pieces to unlock the STUDIO4PLUS bundle perk on Etsy.",
+};
 
 export const ETSY_ITEM_CATALOG: Array<{ id: string; title: string }> = [
   { id: "invitation", title: "Main Invitation" },
@@ -61,10 +78,23 @@ export const ETSY_ITEM_CATALOG: Array<{ id: string; title: string }> = [
   { id: "welcomesign", title: "Welcome Sign" },
 ];
 
+export const ETSY_ADDON_CATALOG: Array<{ id: string; title: string }> = [
+  { id: "rush-proof", title: "Rush proof turnaround" },
+  { id: "extra-revision", title: "Extra revision round" },
+  { id: "matching-envelopes", title: "Matching envelopes recommendation" },
+  { id: "foil-upgrade", title: "Foil/metallic finish request" },
+];
+
 export interface EtsySelectionInput {
   id?: string;
   quantity?: number;
 }
+
+export interface EtsyAddonInput {
+  id?: string;
+}
+
+export type EtsyAddonSelection = string;
 
 function pickString(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value.trim() : fallback;
@@ -83,12 +113,43 @@ function normalizeMultiline(value: unknown, fallback = "", max = 280): string {
   return normalized.slice(0, max);
 }
 
+function normalizeBundleConfig(
+  config?: Partial<EtsyBundleConfig>,
+): EtsyBundleConfig {
+  const minDistinctItems = Number(config?.minDistinctItems);
+  const safeMin = Number.isInteger(minDistinctItems)
+    ? Math.max(1, Math.min(9, minDistinctItems))
+    : DEFAULT_BUNDLE_CONFIG.minDistinctItems;
+
+  const code = normalizeText(config?.code, DEFAULT_BUNDLE_CONFIG.code, 64);
+  const unlockedMessage = normalizeText(
+    config?.unlockedMessage,
+    DEFAULT_BUNDLE_CONFIG.unlockedMessage,
+    400,
+  );
+  const lockedMessage = normalizeText(
+    config?.lockedMessage,
+    DEFAULT_BUNDLE_CONFIG.lockedMessage,
+    400,
+  );
+
+  return {
+    isActive: config?.isActive !== false,
+    minDistinctItems: safeMin,
+    code: code || DEFAULT_BUNDLE_CONFIG.code,
+    unlockedMessage: unlockedMessage || DEFAULT_BUNDLE_CONFIG.unlockedMessage,
+    lockedMessage: lockedMessage || DEFAULT_BUNDLE_CONFIG.lockedMessage,
+  };
+}
+
 export function buildEtsyDraftPayload(input: {
   content: Record<string, unknown>;
   templateName: string;
   paletteName: string;
   fontName: string;
   selectedItems?: EtsySelectionInput[];
+  selectedAddons?: EtsyAddonInput[];
+  bundleConfig?: Partial<EtsyBundleConfig>;
 }): EtsyDraftOrderPayload {
   const c = input.content;
   const eventType = normalizeText(c.eventType, "event", 32).toLowerCase();
@@ -101,10 +162,13 @@ export function buildEtsyDraftPayload(input: {
   const hostingStyle = normalizeText(c.hostingStyle, "couple", 32).toLowerCase();
 
   const lineItems = normalizeSelectedItems(input.selectedItems);
-  const bundleDealEligible = lineItems.length > 3;
+  const addonRequests = normalizeSelectedAddons(input.selectedAddons);
+  const bundleConfig = normalizeBundleConfig(input.bundleConfig);
+  const bundleDealEligible =
+    bundleConfig.isActive && lineItems.length >= bundleConfig.minDistinctItems;
   const bundleDealMessage = bundleDealEligible
-    ? `Mix & Match 4+ perk unlocked. Ask seller to apply ${BUNDLE_DEAL_CODE} for bundle savings and coordinated finishing recommendations.`
-    : `Add 4 or more different pieces to unlock the ${BUNDLE_DEAL_CODE} bundle perk on Etsy.`;
+    ? bundleConfig.unlockedMessage
+    : bundleConfig.lockedMessage;
 
   return {
     eventType,
@@ -143,8 +207,9 @@ export function buildEtsyDraftPayload(input: {
     palette: normalizeText(input.paletteName, "Sage & Gold", 60),
     font: normalizeText(input.fontName, "Playfair Display", 60),
     lineItems,
+    addonRequests,
     bundleDealEligible,
-    bundleDealCode: BUNDLE_DEAL_CODE,
+    bundleDealCode: bundleConfig.code,
     bundleDealMessage,
   };
 }
@@ -188,6 +253,7 @@ export function toEtsyPersonalizationNote(
     `Welcome Subtext: ${payload.welcomeSubtext || "-"}`,
     `Special Requests: ${payload.specialRequests || "-"}`,
     `Selected Items: ${payload.lineItems.map((item) => `${item.title} x${item.quantity}`).join(", ")}`,
+    `Add-on Requests: ${payload.addonRequests.length > 0 ? payload.addonRequests.join(", ") : "-"}`,
     `Bundle Deal Eligible: ${payload.bundleDealEligible ? "Yes" : "No"}`,
     `Bundle Deal Code: ${payload.bundleDealCode}`,
     `Bundle Deal Note: ${payload.bundleDealMessage}`,
@@ -231,17 +297,33 @@ export function normalizeSelectedItems(input?: EtsySelectionInput[]): EtsyLineIt
   return Array.from(merged.values()).slice(0, 9);
 }
 
+export function normalizeSelectedAddons(input?: EtsyAddonInput[]): string[] {
+  if (!Array.isArray(input) || input.length === 0) return [];
+
+  const byId = new Map(ETSY_ADDON_CATALOG.map((item) => [item.id, item.title]));
+  const selected = new Set<string>();
+  for (const raw of input) {
+    const id = normalizeText(raw?.id, "", 40);
+    const label = byId.get(id);
+    if (label) {
+      selected.add(label);
+    }
+  }
+  return Array.from(selected).slice(0, 8);
+}
+
 export function deriveDealFromSelection(
   selectedItems: EtsyLineItem[],
+  bundleConfig?: Partial<EtsyBundleConfig>,
 ): { eligible: boolean; code: string; message: string } {
-  const eligible = selectedItems.length > 3;
-  const message = eligible
-    ? `Mix & Match 4+ perk unlocked. Ask seller to apply ${BUNDLE_DEAL_CODE} for bundle savings and coordinated finishing recommendations.`
-    : `Add 4 or more different pieces to unlock the ${BUNDLE_DEAL_CODE} bundle perk on Etsy.`;
+  const config = normalizeBundleConfig(bundleConfig);
+  const eligible =
+    config.isActive && selectedItems.length >= config.minDistinctItems;
+  const message = eligible ? config.unlockedMessage : config.lockedMessage;
 
   return {
     eligible,
-    code: BUNDLE_DEAL_CODE,
+    code: config.code,
     message,
   };
 }

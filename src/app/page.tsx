@@ -3,6 +3,7 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDesignStore } from "@/store/designStore";
+import { trackEvent } from "@/lib/clientAnalytics";
 
 type Tab = "code" | "purchase";
 
@@ -18,13 +19,30 @@ const SUITE_PIECES = [
   "Welcome Sign",
 ];
 
+const EVENT_TYPES = [
+  "Birthday",
+  "Anniversary",
+  "Wedding",
+  "Baby Shower",
+  "Bridal Shower",
+  "Graduation",
+  "Retirement",
+  "Holiday",
+  "Corporate Event",
+];
+
 function HomePageInner() {
   const ETSY_SHOP_URL =
     process.env.NEXT_PUBLIC_ETSY_SHOP_URL ||
     "https://www.etsy.com/shop/theinvitationstudio";
+  const ETSY_PRIMARY_LISTING_URL =
+    process.env.NEXT_PUBLIC_ETSY_PRIMARY_LISTING_URL || ETSY_SHOP_URL;
+  const purchaseCtaLabel = ETSY_PRIMARY_LISTING_URL.includes("/listing/")
+    ? "Continue to Etsy Checkout"
+    : "Browse Etsy Listings";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setDesignId, setToken } = useDesignStore();
+  const { setDesignId, setToken, resetDesign } = useDesignStore();
 
   const [tab, setTab] = useState<Tab>("purchase");
   const [code, setCode] = useState("");
@@ -75,7 +93,29 @@ function HomePageInner() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Invalid access code. Please try again.");
+        const retryAfter = res.headers.get("Retry-After");
+        void trackEvent("code_redeem_error", {
+          code: String(data.error || "UNKNOWN"),
+          status: res.status,
+        });
+        switch (data.error) {
+          case "RATE_LIMITED":
+            setError(
+              retryAfter
+                ? `Too many attempts. Please wait ${retryAfter} seconds and try again.`
+                : "Too many attempts. Please wait a moment and try again.",
+            );
+            break;
+          case "EXPIRED":
+            setError("This access code is expired. Please contact support for help.");
+            break;
+          case "INVALID_CODE":
+            setError("That code doesn't match our records. Check the code and try again.");
+            break;
+          default:
+            setError("We couldn't validate the code right now. Please try again.");
+            break;
+        }
         return;
       }
 
@@ -83,8 +123,10 @@ function HomePageInner() {
       localStorage.setItem("token", data.token);
       setDesignId(data.designId);
       setToken(data.token);
+      void trackEvent("code_redeem_success");
       router.push("/design");
     } catch {
+      void trackEvent("code_redeem_network_error");
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -92,273 +134,208 @@ function HomePageInner() {
   };
 
   const handlePurchase = () => {
-    window.open(ETSY_SHOP_URL, "_blank", "noopener,noreferrer");
+    void trackEvent("home_etsy_click", {
+      destination: ETSY_PRIMARY_LISTING_URL.includes("/listing/")
+        ? "listing"
+        : "shop",
+    });
+    window.open(ETSY_PRIMARY_LISTING_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const handlePreviewBuilder = () => {
+    const hasActiveSession =
+      Boolean(localStorage.getItem("token")) || Boolean(localStorage.getItem("designId"));
+    if (
+      hasActiveSession &&
+      !window.confirm(
+        "Starting preview mode will clear your current saved session on this browser. Continue?",
+      )
+    ) {
+      return;
+    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("designId");
+    resetDesign();
+    void trackEvent("home_preview_mode_click");
+    router.push("/design?mode=preview");
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
-      {/* Hero Section */}
-      <main className="flex flex-1 flex-col items-center px-4">
-        <section className="w-full max-w-4xl py-16 text-center">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.4em] text-stone-400">
-            Event Stationery for Every Style
-          </p>
-          <h1
-            className="mb-4 text-5xl font-light tracking-tight text-stone-800 sm:text-6xl"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            The Invitation Studio
-          </h1>
-          <p className="mx-auto mb-4 max-w-xl text-base leading-relaxed text-stone-500">
-            Build complete event stationery across 9 matching pieces in minutes.
-            Made for weddings, anniversaries, birthdays, showers, and more —
-            personalized for your style and guests.
-          </p>
-          <p className="mb-12 text-sm text-stone-400">
-            1,728 combinations &middot; AI wording help &middot; Instant event
-            stationery PDFs
-          </p>
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-stone-50 to-white">
+      <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-6">
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-3xl border border-stone-200 bg-white p-7 shadow-sm sm:p-10">
+            <p className="mb-4 inline-flex rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-600">
+              All-Events Studio
+            </p>
+            <h1
+              className="text-4xl font-light leading-tight tracking-tight text-stone-900 sm:text-5xl"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Create complete event stationery files for every celebration.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-stone-600">
+              This app supports all event file types - birthday, anniversary,
+              wedding, baby shower, graduation, retirement, and more. Build your
+              full 9-piece set here, then complete payment on Etsy.
+            </p>
 
-          <div className="mx-auto mb-8 grid max-w-3xl grid-cols-1 gap-2 rounded-lg border border-stone-200 bg-white p-4 text-xs text-stone-500 sm:grid-cols-3">
-            <p>Etsy checkout for event stationery</p>
-            <p>Access code delivered by email</p>
-            <p>Friendly support: support@theinvitationstudio.com</p>
+            <div className="mt-6 grid grid-cols-1 gap-3 text-sm text-stone-600 sm:grid-cols-3">
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
+                <p className="text-xs uppercase tracking-wider text-stone-400">Step 1</p>
+                <p className="mt-1 font-medium text-stone-700">Purchase access on Etsy</p>
+              </div>
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
+                <p className="text-xs uppercase tracking-wider text-stone-400">Step 2</p>
+                <p className="mt-1 font-medium text-stone-700">Receive code by email</p>
+              </div>
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
+                <p className="text-xs uppercase tracking-wider text-stone-400">Step 3</p>
+                <p className="mt-1 font-medium text-stone-700">Redeem and prepare Etsy order details</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2 text-xs text-stone-500">
+              <span className="rounded-full bg-stone-100 px-3 py-1">Etsy-only checkout</span>
+              <span className="rounded-full bg-stone-100 px-3 py-1">No in-app payment processing</span>
+              <span className="rounded-full bg-stone-100 px-3 py-1">Files delivered by Etsy after purchase</span>
+            </div>
           </div>
 
-          {/* Tab Switcher */}
-          <div className="mx-auto mb-8 flex max-w-md rounded-lg border border-stone-200 bg-white p-1">
-            <button
-              onClick={() => setTab("purchase")}
-              className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-                tab === "purchase"
-                  ? "bg-stone-800 text-white"
-                  : "text-stone-500 hover:text-stone-700"
-              }`}
-            >
-              Buy Event Access
-            </button>
-            <button
-              onClick={() => setTab("code")}
-              className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-                tab === "code"
-                  ? "bg-stone-800 text-white"
-                  : "text-stone-500 hover:text-stone-700"
-              }`}
-            >
-              Redeem Access Code
-            </button>
-          </div>
+          <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-7">
+            <div className="flex rounded-lg border border-stone-200 bg-stone-50 p-1">
+              <button
+                onClick={() => setTab("purchase")}
+                className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
+                  tab === "purchase"
+                    ? "bg-stone-800 text-white"
+                    : "text-stone-500 hover:text-stone-700"
+                }`}
+              >
+                Buy on Etsy
+              </button>
+              <button
+                onClick={() => setTab("code")}
+                className={`flex-1 rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
+                  tab === "code"
+                    ? "bg-stone-800 text-white"
+                    : "text-stone-500 hover:text-stone-700"
+                }`}
+              >
+                Redeem Code
+              </button>
+            </div>
 
-          {/* Purchase Tab */}
-          {tab === "purchase" && (
-            <div className="mx-auto max-w-xl">
-              <div className="mx-auto max-w-md space-y-4">
+            {tab === "purchase" && (
+              <div className="mt-5 space-y-3">
+                <h2 className="text-lg font-semibold text-stone-800">Checkout handled on Etsy</h2>
+                <p className="text-sm leading-relaxed text-stone-600">
+                  Purchase your event stationery access through Etsy. After payment,
+                  your redemption code is emailed to you.
+                </p>
                 <button
                   type="button"
                   onClick={handlePurchase}
-                  className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-lg bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700"
                 >
-                  Buy Event Stationery Access on Etsy
+                  {purchaseCtaLabel}
                 </button>
-
-                <p className="text-xs text-stone-500">
-                  All payments are completed on Etsy. This app does not process
-                  payments directly.
-                </p>
-                <p className="text-xs text-stone-400">
-                  After Etsy checkout, you receive an access code by email to
-                  redeem here and start your event stationery.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Access Code Tab */}
-          {tab === "code" && (
-            <form onSubmit={handleCodeSubmit} className="mx-auto max-w-md space-y-4">
-              <div>
-                <label htmlFor="access-code" className="mb-2 block text-sm font-medium text-stone-600">
-                  Enter Your Access Code
-                </label>
-                <input
-                  id="access-code"
-                  type="text"
-                  value={code}
-                  onChange={handleCodeChange}
-                  placeholder="XXXX-XXXX-XXXX"
-                  className="w-full rounded-lg border border-stone-300 bg-white px-4 py-3.5 text-center text-lg font-mono tracking-widest text-stone-800 placeholder-stone-300 transition-colors focus:border-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-200"
-                  maxLength={14}
-                  autoComplete="off"
-                />
-              </div>
-
-              {error && (
-                <p className="text-sm text-red-500">{error}</p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-lg bg-stone-800 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {loading ? "Validating..." : "Start Event Stationery Builder"}
-              </button>
-
-              <p className="text-xs text-stone-400">
-                Access code format: XXXX-XXXX-XXXX. Delivered by email after
-                purchase.
-              </p>
-            </form>
-          )}
-        </section>
-
-        {/* What's Included Section */}
-        <section className="w-full max-w-4xl border-t border-stone-200 py-16">
-          <h2
-            className="mb-3 text-center text-2xl font-light text-stone-800"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Complete 9-Piece Event Stationery Collection
-          </h2>
-          <p className="mb-10 text-center text-sm text-stone-400">
-            Everything you need for cohesive, beautiful event stationery
-          </p>
-
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9">
-            {SUITE_PIECES.map((piece) => (
-              <div key={piece} className="flex flex-col items-center text-center">
-                <div
-                  className="mb-2 flex h-14 w-10 items-center justify-center rounded border"
-                  style={{
-                    backgroundColor: "#FAF8F5",
-                    borderColor: "#E0DAD0",
-                  }}
+                <button
+                  type="button"
+                  onClick={handlePreviewBuilder}
+                  className="w-full rounded-lg border border-stone-300 bg-white px-6 py-3.5 text-sm font-semibold text-stone-700 transition-all hover:bg-stone-50"
                 >
-                  <div className="space-y-0.5">
-                    <div className="mx-auto h-[1px] w-4 rounded-full bg-stone-300" />
-                    <div className="mx-auto h-[1px] w-3 rounded-full bg-stone-200" />
-                    <div className="mx-auto h-[1px] w-4 rounded-full bg-stone-200" />
-                  </div>
+                  Preview Builder First (No Purchase Yet)
+                </button>
+              </div>
+            )}
+
+            {tab === "code" && (
+              <form onSubmit={handleCodeSubmit} className="mt-5 space-y-4">
+                <div>
+                  <label htmlFor="access-code" className="mb-2 block text-sm font-medium text-stone-600">
+                    Enter your access code
+                  </label>
+                  <input
+                    id="access-code"
+                    type="text"
+                    value={code}
+                    onChange={handleCodeChange}
+                    placeholder="XXXX-XXXX-XXXX"
+                    className="w-full rounded-lg border border-stone-300 bg-white px-4 py-3.5 text-center text-lg font-mono tracking-widest text-stone-800 placeholder-stone-300 focus:border-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-200"
+                    maxLength={14}
+                    autoComplete="off"
+                  />
                 </div>
-                <span className="text-[10px] leading-tight text-stone-500">{piece}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Features Grid */}
-        <section className="w-full max-w-4xl border-t border-stone-200 py-16">
-          <h2
-            className="mb-10 text-center text-2xl font-light text-stone-800"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Event Stationery, Simplified
-          </h2>
-
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                title: "12 Event Stationery Styles",
-                desc: "From Classic Elegance to Art Deco Luxe, Botanical Bliss to Coastal Breeze. Each with unique decorative elements.",
-              },
-              {
-                title: "12 Color Palettes",
-                desc: "Sage & Gold, Dusty Rose, Midnight & Pearl, Terracotta Sunset — curated palettes for every event style.",
-              },
-              {
-                title: "12 Premium Fonts",
-                desc: "Playfair Display, Great Vibes, Cinzel, Tangerine — beautiful typography pairings from Google Fonts.",
-              },
-              {
-                title: "AI Wording Assistant",
-                desc: "Powered by Claude AI. Get elegant wording suggestions for every section with 5 tone options.",
-              },
-              {
-                title: "Live Preview",
-                desc: "See your changes in real-time. Every edit updates the preview instantly — what you see is what you print.",
-              },
-              {
-                title: "Print-Ready Event Files",
-                desc: "High-resolution event stationery PDFs with proper margins, bleed, and color accuracy for professional printing.",
-              },
-            ].map((feature) => (
-              <div key={feature.title} className="text-center">
-                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-stone-700">
-                  {feature.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-stone-500">
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section className="w-full max-w-3xl border-t border-stone-200 py-16">
-          <h2
-            className="mb-10 text-center text-2xl font-light text-stone-800"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            How It Works
-          </h2>
-
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {[
-              {
-                step: "01",
-                title: "Pick Your Event Template",
-                desc: "Choose from designer-made styles curated for modern, romantic, and classic events.",
-              },
-              {
-                step: "02",
-                title: "Personalize Event Details",
-                desc: "Add your details, tune fonts and palettes, and use AI for polished wording.",
-              },
-              {
-                step: "03",
-                title: "Export Event Stationery Files",
-                desc: "Export print-ready event stationery PDFs instantly or order professionally printed sets.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <span
-                  className="mb-3 inline-block text-3xl font-light text-stone-300"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                {error && <p className="text-sm text-red-500">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-lg bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {item.step}
-                </span>
-                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-stone-700">
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-stone-500">
-                  {item.desc}
+                  {loading ? "Validating..." : "Open Event Builder"}
+                </button>
+                <p className="text-xs text-stone-500">
+                  All event types are supported in the builder. Final files are
+                  purchased and delivered through Etsy.
                 </p>
+              </form>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+          <h2
+            className="text-center text-2xl font-light text-stone-900"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Built for all event file types
+          </h2>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            {EVENT_TYPES.map((event) => (
+              <span
+                key={event}
+                className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-600"
+              >
+                {event}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+          <h2
+            className="mb-6 text-center text-2xl font-light text-stone-900"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            9 Matching Files Included
+          </h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-9">
+            {SUITE_PIECES.map((piece) => (
+              <div
+                key={piece}
+                className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-center text-xs font-medium text-stone-600"
+              >
+                {piece}
               </div>
             ))}
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-stone-200 py-8 text-center">
-        <p
-          className="mb-2 text-lg text-stone-300"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          The Invitation Studio
-        </p>
-        <p className="text-xs text-stone-400">
-          Need help?{" "}
+      <footer className="border-t border-stone-200 bg-white py-7 text-center text-xs text-stone-500">
+        <p className="font-medium text-stone-700">The Invitation Studio</p>
+        <p className="mt-1">
+          Support:{" "}
           <a
             href="mailto:support@theinvitationstudio.com"
-            className="text-stone-500 underline underline-offset-2 transition-colors hover:text-stone-700"
+            className="underline underline-offset-2 hover:text-stone-700"
           >
             support@theinvitationstudio.com
           </a>
         </p>
-        <p className="mt-2 text-[11px] text-stone-400">
-          Etsy-compliant final checkout &middot; Access code sent to your email after purchase
+        <p className="mt-1 text-[11px] text-stone-400">
+          Etsy-only checkout · Access code by email · All-event builder
         </p>
       </footer>
     </div>

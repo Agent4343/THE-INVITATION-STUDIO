@@ -10,13 +10,13 @@ const steps: { id: BuilderStep; label: string }[] = [
   { id: "palette", label: "Colors" },
   { id: "font", label: "Typography" },
   { id: "content", label: "Event Details" },
-  { id: "preview", label: "Review & Export" },
+  { id: "preview", label: "Review & Etsy Checkout" },
 ];
 
 export default function StepNavigator({
-  onDownload,
+  onFinalAction,
 }: {
-  onDownload?: () => void;
+  onFinalAction?: () => void;
 }) {
   const { currentStep, setCurrentStep } = useDesignStore();
 
@@ -26,7 +26,7 @@ export default function StepNavigator({
 
   const goNext = () => {
     if (isLast) {
-      onDownload?.();
+      onFinalAction?.();
       return;
     }
     setCurrentStep(steps[currentIndex + 1].id);
@@ -39,86 +39,57 @@ export default function StepNavigator({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Stepper bar */}
-      <nav className="flex items-center justify-between">
+    <div className="space-y-5">
+      <nav className="grid grid-cols-5 gap-2">
         {steps.map((step, idx) => {
           const isCompleted = idx < currentIndex;
           const isCurrent = step.id === currentStep;
 
           return (
-            <React.Fragment key={step.id}>
-              <button
-                onClick={() => setCurrentStep(step.id)}
-                className="flex flex-col items-center gap-1"
-              >
-                <span
-                  className={`
-                    flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium
-                    transition-colors duration-200
-                    ${
-                      isCurrent
-                        ? "bg-stone-800 text-white"
-                        : isCompleted
-                          ? "bg-stone-600 text-white"
-                          : "bg-stone-200 text-stone-500"
-                    }
-                  `}
-                >
-                  {isCompleted ? (
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  ) : (
-                    idx + 1
-                  )}
-                </span>
-                <span
-                  className={`text-xs font-medium ${
-                    isCurrent
-                      ? "text-stone-800"
-                      : isCompleted
-                        ? "text-stone-600"
-                        : "text-stone-400"
-                  }`}
-                >
-                  {step.label}
-                </span>
-              </button>
-
-              {idx < steps.length - 1 && (
-                <div
-                  className={`mx-1 h-px flex-1 ${
-                    idx < currentIndex ? "bg-stone-600" : "bg-stone-200"
-                  }`}
-                />
-              )}
-            </React.Fragment>
+            <button
+              key={step.id}
+              onClick={() => setCurrentStep(step.id)}
+              className={`rounded-lg border px-2 py-2 text-center transition-colors ${
+                isCurrent
+                  ? "border-stone-900 bg-stone-900 text-white"
+                  : isCompleted
+                    ? "border-stone-300 bg-stone-100 text-stone-700"
+                    : "border-stone-200 bg-white text-stone-500 hover:bg-stone-50"
+              }`}
+            >
+              <div className="mx-auto mb-1 flex h-6 w-6 items-center justify-center rounded-full border border-current text-[11px] font-semibold">
+                {isCompleted ? (
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  idx + 1
+                )}
+              </div>
+              <span className="text-[10px] font-medium leading-tight">
+                {step.label}
+              </span>
+            </button>
           );
         })}
       </nav>
 
-      {/* Previous / Next buttons */}
-      <div className="flex justify-between">
-        <Button
-          variant="secondary"
-          onClick={goPrev}
-          disabled={isFirst}
-        >
+      <div className="flex justify-between gap-3">
+        <Button variant="secondary" onClick={goPrev} disabled={isFirst}>
           Previous
         </Button>
         <Button onClick={goNext}>
-          {isLast ? "Go to Event Exports" : "Continue Setup"}
+          {isLast ? "Go to Etsy Checkout" : "Continue Setup"}
         </Button>
       </div>
     </div>

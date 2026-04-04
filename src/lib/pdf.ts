@@ -7,66 +7,400 @@ function normalizeEventType(value: unknown): string {
     .trim();
 }
 
+type EventKind =
+  | "birthday"
+  | "anniversary"
+  | "engagement"
+  | "vow-renewal"
+  | "baby-shower"
+  | "bridal-shower"
+  | "graduation"
+  | "retirement"
+  | "holiday-party"
+  | "corporate-event"
+  | "elopement"
+  | "civil-ceremony"
+  | "wedding"
+  | "default";
+
+function normalizeEventKind(value: unknown): EventKind {
+  const normalized = normalizeEventType(value);
+  if (normalized.includes("birthday")) return "birthday";
+  if (normalized.includes("vow-renewal") || (normalized.includes("vow") && normalized.includes("renew"))) {
+    return "vow-renewal";
+  }
+  if (normalized.includes("anniversary")) return "anniversary";
+  if (normalized.includes("engagement")) return "engagement";
+  if ((normalized.includes("baby") && normalized.includes("shower")) || normalized.includes("baby-shower")) {
+    return "baby-shower";
+  }
+  if ((normalized.includes("bridal") && normalized.includes("shower")) || normalized.includes("bridal-shower")) {
+    return "bridal-shower";
+  }
+  if (normalized.includes("graduation")) return "graduation";
+  if (normalized.includes("retirement")) return "retirement";
+  if (normalized.includes("holiday") || normalized.includes("christmas") || normalized.includes("new-year")) {
+    return "holiday-party";
+  }
+  if (normalized.includes("corporate") || normalized.includes("company") || normalized.includes("team-event")) {
+    return "corporate-event";
+  }
+  if (normalized.includes("elopement")) return "elopement";
+  if (normalized.includes("civil-ceremony") || (normalized.includes("civil") && normalized.includes("ceremony"))) {
+    return "civil-ceremony";
+  }
+  if (normalized.includes("wedding")) return "wedding";
+  return "default";
+}
+
 function detailsSectionsForEvent(eventType: string): Array<{
   label: string;
   detail: unknown;
   placeholder: string;
 }> {
-  const normalized = normalizeEventType(eventType);
-
-  if (normalized === "birthday") {
-    return [
-      { label: "Party", detail: undefined, placeholder: "Party starts at 4:30 PM\nwith games and cake to follow." },
-      { label: "Schedule", detail: undefined, placeholder: "Cake cutting at 6:00 PM\nand celebration photos after." },
-      { label: "Attire", detail: undefined, placeholder: "Festive Casual" },
-    ];
+  switch (normalizeEventKind(eventType)) {
+    case "birthday":
+      return [
+        { label: "Party", detail: undefined, placeholder: "Party starts at 4:30 PM\nwith games and cake to follow." },
+        { label: "Schedule", detail: undefined, placeholder: "Cake cutting at 6:00 PM\nand celebration photos after." },
+        { label: "Attire", detail: undefined, placeholder: "Festive Casual" },
+      ];
+    case "anniversary":
+    case "vow-renewal":
+      return [
+        { label: "Ceremony", detail: undefined, placeholder: "Vow renewal begins at 4:30 PM\nin the garden." },
+        { label: "Celebration", detail: undefined, placeholder: "Dinner and celebration to follow\nin the main hall." },
+        { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
+      ];
+    case "engagement":
+      return [
+        { label: "Celebration", detail: undefined, placeholder: "Engagement celebration starts at 5:30 PM\nwith cocktails and light bites." },
+        { label: "Reception", detail: undefined, placeholder: "Dinner and toasts to follow\nin the lounge." },
+        { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
+      ];
+    case "baby-shower":
+    case "bridal-shower":
+      return [
+        { label: "Shower", detail: undefined, placeholder: "Shower starts at 1:00 PM\nwith refreshments and activities." },
+        { label: "Activities", detail: undefined, placeholder: "Games, gift opening, and photos\nafter the welcome toast." },
+        { label: "Attire", detail: undefined, placeholder: "Smart Casual" },
+      ];
+    case "graduation":
+      return [
+        { label: "Ceremony", detail: undefined, placeholder: "Graduation ceremony begins at 3:00 PM\nat the auditorium." },
+        { label: "Celebration", detail: undefined, placeholder: "Family celebration to follow\nat Celebration Hall." },
+        { label: "Attire", detail: undefined, placeholder: "Semi-Formal" },
+      ];
+    case "retirement":
+      return [
+        { label: "Program", detail: undefined, placeholder: "Retirement celebration starts at 6:00 PM\nwith speeches and dinner." },
+        { label: "Reception", detail: undefined, placeholder: "Reception and memories to follow\nwith music and toasts." },
+        { label: "Attire", detail: undefined, placeholder: "Business Casual" },
+      ];
+    case "holiday-party":
+      return [
+        { label: "Gathering", detail: undefined, placeholder: "Holiday party begins at 7:00 PM\nwith seasonal drinks and appetizers." },
+        { label: "Celebration", detail: undefined, placeholder: "Dinner, music, and celebration to follow." },
+        { label: "Attire", detail: undefined, placeholder: "Festive Attire" },
+      ];
+    case "corporate-event":
+      return [
+        { label: "Agenda", detail: undefined, placeholder: "Event opens at 6:00 PM with networking\nand opening remarks." },
+        { label: "Program", detail: undefined, placeholder: "Dinner service and keynote presentation\nto follow." },
+        { label: "Attire", detail: undefined, placeholder: "Business Formal" },
+      ];
+    case "elopement":
+      return [
+        { label: "Ceremony", detail: undefined, placeholder: "Intimate ceremony begins at 4:00 PM\non the terrace." },
+        { label: "Celebration", detail: undefined, placeholder: "Champagne toast and dinner to follow." },
+        { label: "Attire", detail: undefined, placeholder: "Elegant Casual" },
+      ];
+    case "civil-ceremony":
+      return [
+        { label: "Ceremony", detail: undefined, placeholder: "Civil ceremony begins at 3:30 PM\nin the city hall chamber." },
+        { label: "Celebration", detail: undefined, placeholder: "Refreshments and photos to follow nearby." },
+        { label: "Attire", detail: undefined, placeholder: "Semi-Formal" },
+      ];
+    case "wedding":
+    case "default":
+    default:
+      return [
+        { label: "Ceremony", detail: undefined, placeholder: "Main event begins at 4:30 PM\nin the main hall." },
+        { label: "Celebration", detail: undefined, placeholder: "Celebration to follow\nwith dinner and music." },
+        { label: "Attire", detail: undefined, placeholder: "Event Attire" },
+      ];
   }
+}
 
-  if (normalized === "anniversary" || normalized === "vow-renewal") {
-    return [
-      { label: "Ceremony", detail: undefined, placeholder: "Vow renewal begins at 4:30 PM\nin the garden." },
-      { label: "Celebration", detail: undefined, placeholder: "Dinner and celebration to follow\nin the main hall." },
-      { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
-    ];
+function invitationSamplesForEvent(eventType: string): {
+  name1: string;
+  name2: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+} {
+  switch (normalizeEventKind(eventType)) {
+    case "birthday":
+      return {
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "6:00 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+      };
+    case "anniversary":
+      return {
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "5:00 PM",
+        venue: "Anniversary House",
+        address: "456 Memory Lane, Your City, ST",
+      };
+    case "engagement":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Saturday, May 8, 2027",
+        time: "5:30 PM",
+        venue: "Riverside Loft",
+        address: "25 Harbor Street, Your City, ST",
+      };
+    case "vow-renewal":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Sunday, August 22, 2027",
+        time: "4:00 PM",
+        venue: "Sunset Garden",
+        address: "18 Willow Avenue, Your City, ST",
+      };
+    case "baby-shower":
+      return {
+        name1: "Taylor",
+        name2: "Morgan",
+        date: "Sunday, October 19, 2026",
+        time: "11:00 AM",
+        venue: "Garden Room",
+        address: "789 Blossom Street, Your City, ST",
+      };
+    case "bridal-shower":
+      return {
+        name1: "Taylor",
+        name2: "Riley",
+        date: "Saturday, October 18, 2026",
+        time: "1:00 PM",
+        venue: "Rosewood Lounge",
+        address: "321 Rose Avenue, Your City, ST",
+      };
+    case "graduation":
+      return {
+        name1: "Jordan",
+        name2: "Family & Friends",
+        date: "Saturday, June 12, 2027",
+        time: "2:00 PM",
+        venue: "Main Auditorium",
+        address: "200 University Way, Your City, ST",
+      };
+    case "retirement":
+      return {
+        name1: "Alex",
+        name2: "Colleagues & Friends",
+        date: "Friday, September 10, 2027",
+        time: "6:30 PM",
+        venue: "Banquet Hall",
+        address: "100 Heritage Drive, Your City, ST",
+      };
+    case "holiday-party":
+      return {
+        name1: "The Rivera Family",
+        name2: "Friends & Neighbors",
+        date: "Saturday, December 12, 2026",
+        time: "7:00 PM",
+        venue: "Winter Hall",
+        address: "90 Evergreen Avenue, Your City, ST",
+      };
+    case "corporate-event":
+      return {
+        name1: "Horizon Team",
+        name2: "Clients & Partners",
+        date: "Thursday, November 4, 2027",
+        time: "6:00 PM",
+        venue: "City Conference Center",
+        address: "410 Commerce Plaza, Your City, ST",
+      };
+    case "elopement":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, July 16, 2027",
+        time: "4:00 PM",
+        venue: "Cliffside Terrace",
+        address: "12 Seaview Point, Your City, ST",
+      };
+    case "civil-ceremony":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, June 18, 2027",
+        time: "3:30 PM",
+        venue: "City Hall Atrium",
+        address: "1 Municipal Square, Your City, ST",
+      };
+    case "wedding":
+    case "default":
+    default:
+      return {
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "4:30 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+      };
   }
+}
 
-  if (normalized === "baby-shower" || normalized === "bridal-shower") {
-    return [
-      { label: "Shower", detail: undefined, placeholder: "Shower starts at 1:00 PM\nwith refreshments and activities." },
-      { label: "Activities", detail: undefined, placeholder: "Games, gift opening, and photos\nafter the welcome toast." },
-      { label: "Attire", detail: undefined, placeholder: "Smart Casual" },
-    ];
+function menuSamplesForEvent(eventType: string): {
+  menuHeading: string;
+  appetizer: string;
+  entree: string;
+  dessert: string;
+} {
+  switch (normalizeEventKind(eventType)) {
+    case "birthday":
+      return {
+        menuHeading: "Birthday Menu",
+        appetizer: "Mini Sliders & Crispy Fries",
+        entree: "Build-Your-Own Taco Bar",
+        dessert: "Birthday Cake & Ice Cream Bar",
+      };
+    case "anniversary":
+      return {
+        menuHeading: "Anniversary Dinner",
+        appetizer: "Burrata with Heirloom Tomatoes",
+        entree: "Filet Mignon with Truffle Mash",
+        dessert: "Champagne Tiramisu",
+      };
+    case "engagement":
+      return {
+        menuHeading: "Engagement Soiree",
+        appetizer: "Smoked Salmon Crostini",
+        entree: "Lemon Herb Chicken",
+        dessert: "Macaron Tower",
+      };
+    case "vow-renewal":
+      return {
+        menuHeading: "Vow Renewal Dinner",
+        appetizer: "Seasonal Bruschetta Trio",
+        entree: "Roasted Salmon with Citrus Glaze",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "baby-shower":
+      return {
+        menuHeading: "Shower Brunch",
+        appetizer: "Fresh Fruit & Yogurt Parfaits",
+        entree: "Quiche Lorraine & Garden Salad",
+        dessert: "Cupcake Assortment",
+      };
+    case "bridal-shower":
+      return {
+        menuHeading: "Bridal Shower Menu",
+        appetizer: "Tea Sandwich Selection",
+        entree: "Lemon Ricotta Pasta",
+        dessert: "Strawberry Shortcake",
+      };
+    case "graduation":
+      return {
+        menuHeading: "Graduation Feast",
+        appetizer: "Buffalo Cauliflower Bites",
+        entree: "BBQ Chicken and Cornbread",
+        dessert: "Chocolate Brownie Sundaes",
+      };
+    case "retirement":
+      return {
+        menuHeading: "Retirement Reception",
+        appetizer: "Charcuterie and Artisan Cheese",
+        entree: "Herb-Crusted Prime Rib",
+        dessert: "Classic New York Cheesecake",
+      };
+    case "holiday-party":
+      return {
+        menuHeading: "Holiday Party Menu",
+        appetizer: "Seasonal Cranberry Brie Bites",
+        entree: "Roast Turkey with Winter Vegetables",
+        dessert: "Gingerbread Trifle",
+      };
+    case "corporate-event":
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Mediterranean Mezze Platter",
+        entree: "Grilled Chicken with Wild Rice",
+        dessert: "Chocolate Mousse Cups",
+      };
+    case "elopement":
+      return {
+        menuHeading: "Celebration Dinner",
+        appetizer: "Prosciutto & Fig Flatbread",
+        entree: "Seared Sea Bass",
+        dessert: "Lemon Tartlets",
+      };
+    case "civil-ceremony":
+      return {
+        menuHeading: "Ceremony Reception Menu",
+        appetizer: "Roasted Tomato Crostini",
+        entree: "Chicken Piccata",
+        dessert: "Berry Chantilly Cake",
+      };
+    case "wedding":
+      return {
+        menuHeading: "Reception Menu",
+        appetizer: "Burrata & Heirloom Tomato",
+        entree: "Herb-Crusted Lamb",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "default":
+    default:
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Seasonal Starter",
+        entree: "Chef's Signature Entree",
+        dessert: "House Dessert",
+      };
   }
+}
 
-  if (normalized === "graduation") {
-    return [
-      { label: "Ceremony", detail: undefined, placeholder: "Graduation ceremony begins at 3:00 PM\nat the auditorium." },
-      { label: "Celebration", detail: undefined, placeholder: "Family celebration to follow\nat Celebration Hall." },
-      { label: "Attire", detail: undefined, placeholder: "Semi-Formal" },
-    ];
+function menuCourseLabelsForEvent(eventType: string): {
+  first: string;
+  main: string;
+  dessert: string;
+} {
+  switch (normalizeEventKind(eventType)) {
+    case "birthday":
+      return { first: "Party Bites", main: "Main Station", dessert: "Cake & Sweets" };
+    case "baby-shower":
+    case "bridal-shower":
+      return { first: "Brunch Bites", main: "Mains", dessert: "Sweets" };
+    case "holiday-party":
+      return { first: "Seasonal Bites", main: "Main Spread", dessert: "Holiday Sweets" };
+    case "corporate-event":
+      return { first: "Canapes", main: "Dinner", dessert: "Dessert" };
+    case "graduation":
+      return { first: "Snacks", main: "Mains", dessert: "Sweets" };
+    case "retirement":
+      return { first: "Starters", main: "Entree", dessert: "Dessert" };
+    case "default":
+    case "anniversary":
+    case "engagement":
+    case "vow-renewal":
+    case "elopement":
+    case "civil-ceremony":
+    case "wedding":
+    default:
+      return { first: "First Course", main: "Main Course", dessert: "Dessert" };
   }
-
-  if (normalized === "retirement") {
-    return [
-      { label: "Program", detail: undefined, placeholder: "Retirement celebration starts at 6:00 PM\nwith speeches and dinner." },
-      { label: "Reception", detail: undefined, placeholder: "Reception and memories to follow\nwith music and toasts." },
-      { label: "Attire", detail: undefined, placeholder: "Business Casual" },
-    ];
-  }
-
-  if (normalized === "engagement") {
-    return [
-      { label: "Celebration", detail: undefined, placeholder: "Engagement celebration starts at 5:00 PM\nwith cocktails and light bites." },
-      { label: "Reception", detail: undefined, placeholder: "Dinner and dancing to follow\nin the grand room." },
-      { label: "Attire", detail: undefined, placeholder: "Cocktail Attire" },
-    ];
-  }
-
-  return [
-    { label: "Ceremony", detail: undefined, placeholder: "Main event begins at 4:30 PM\nin the main hall." },
-    { label: "Celebration", detail: undefined, placeholder: "Celebration to follow\nwith dinner and music." },
-    { label: "Attire", detail: undefined, placeholder: "Event Attire" },
-  ];
 }
 
 function escapeHtml(value: string): string {
@@ -96,44 +430,100 @@ export function renderPieceHtml(
         : String(value),
     );
   const normalizedEventType = normalizeEventType(c.eventType);
-  const defaultInviteLine =
-    normalizedEventType.includes("birthday")
-      ? "invite you to a birthday celebration"
-      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
-        ? "invite you to celebrate an anniversary"
-        : normalizedEventType.includes("baby-shower")
-          ? "invite you to a baby shower celebration"
-          : normalizedEventType.includes("bridal-shower")
-            ? "invite you to a bridal shower celebration"
-            : normalizedEventType.includes("graduation")
-              ? "invite you to celebrate this graduation"
-              : normalizedEventType.includes("retirement")
-                ? "invite you to celebrate a retirement"
-                : "invite you to celebrate with us";
+  const eventKind = normalizeEventKind(c.eventType);
+  const invitationSamples = invitationSamplesForEvent(normalizedEventType);
+  const menuSamples = menuSamplesForEvent(normalizedEventType);
+  const menuCourseLabels = menuCourseLabelsForEvent(normalizedEventType);
+  const defaultInviteLine = (() => {
+    switch (eventKind) {
+      case "birthday":
+        return "invite you to a birthday celebration";
+      case "anniversary":
+        return "invite you to celebrate our anniversary";
+      case "engagement":
+        return "invite you to celebrate our engagement";
+      case "vow-renewal":
+        return "invite you to celebrate our vow renewal";
+      case "baby-shower":
+        return "invite you to a baby shower celebration";
+      case "bridal-shower":
+        return "invite you to a bridal shower celebration";
+      case "graduation":
+        return "invite you to celebrate this graduation";
+      case "retirement":
+        return "invite you to celebrate a retirement";
+      case "holiday-party":
+        return "invite you to our holiday party";
+      case "corporate-event":
+        return "invite you to our corporate celebration";
+      case "elopement":
+        return "invite you to celebrate our elopement";
+      case "civil-ceremony":
+        return "invite you to celebrate our civil ceremony";
+      case "wedding":
+      case "default":
+      default:
+        return "invite you to celebrate with us";
+    }
+  })();
 
-  const defaultHostLine =
-    normalizedEventType.includes("birthday")
-      ? "Join us for a birthday celebration"
-      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
-        ? "Together with our loved ones"
-        : normalizedEventType.includes("baby-shower") || normalizedEventType.includes("bridal-shower")
-          ? "Hosted with love"
-          : "Hosted by friends and family";
+  const defaultHostLine = (() => {
+    switch (eventKind) {
+      case "birthday":
+        return "Join us for a birthday celebration";
+      case "anniversary":
+      case "vow-renewal":
+      case "engagement":
+      case "civil-ceremony":
+        return "Together with our loved ones";
+      case "baby-shower":
+      case "bridal-shower":
+        return "Hosted with love";
+      case "holiday-party":
+        return "You're invited to celebrate the season";
+      case "corporate-event":
+        return "You're invited";
+      case "elopement":
+        return "A small celebration with those we love";
+      case "wedding":
+      case "default":
+      default:
+        return "Hosted by friends and family";
+    }
+  })();
 
-  const defaultWelcomeMessage =
-    normalizedEventType.includes("birthday")
-      ? "Welcome to the Birthday Celebration of"
-      : normalizedEventType.includes("anniversary") || normalizedEventType.includes("vow-renewal")
-        ? "Welcome to the Anniversary Celebration of"
-        : normalizedEventType.includes("baby-shower")
-          ? "Welcome to the Baby Shower of"
-          : normalizedEventType.includes("bridal-shower")
-            ? "Welcome to the Bridal Shower of"
-            : normalizedEventType.includes("graduation")
-              ? "Welcome to the Graduation Celebration of"
-              : normalizedEventType.includes("retirement")
-                ? "Welcome to the Retirement Celebration of"
-                : "Welcome to the Celebration of";
+  const defaultWelcomeMessage = (() => {
+    switch (eventKind) {
+      case "birthday":
+        return "Welcome to the Birthday Celebration of";
+      case "anniversary":
+        return "Welcome to the Anniversary Celebration of";
+      case "engagement":
+        return "Welcome to the Engagement Celebration of";
+      case "vow-renewal":
+        return "Welcome to the Vow Renewal Celebration of";
+      case "baby-shower":
+        return "Welcome to the Baby Shower of";
+      case "bridal-shower":
+        return "Welcome to the Bridal Shower of";
+      case "graduation":
+        return "Welcome to the Graduation Celebration of";
+      case "retirement":
+        return "Welcome to the Retirement Celebration of";
+      case "holiday-party":
+        return "Welcome to the Holiday Celebration of";
+      case "corporate-event":
+        return "Welcome to the Corporate Event of";
+      case "elopement":
+        return "Welcome to the Elopement Celebration of";
+      case "civil-ceremony":
+        return "Welcome to the Civil Ceremony Celebration of";
+      case "wedding":
+      case "default":
+      default:
+        return "Welcome to the Celebration of";
+    }
+  })();
   const googleFontUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font.googleFontsFamily)}&display=swap`;
 
   const textAlign =
@@ -219,29 +609,29 @@ export function renderPieceHtml(
           ${e(c.preHeading, defaultHostLine)}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 8px 0 2px; line-height: 1.15; z-index:1;">
-          ${e(c.name1, "Host Name")}
+          ${e(c.name1, invitationSamples.name1)}
         </h1>
         <p style="font-size: 16px; font-style: italic; color: ${palette.accent}; margin: ${spacing / 3}px 0; z-index:1;">
           ${e(c.conjunction, "&")}
         </p>
         <h1 style="font-size: 32px; font-weight: 300; color: ${palette.primary}; margin: 2px 0 0; line-height: 1.15; z-index:1;">
-          ${e(c.name2, "Co-Host Name")}
+          ${e(c.name2, invitationSamples.name2)}
         </h1>
         ${ornamentHtml}
         <p style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: ${palette.muted}; margin: 6px 0 ${spacing}px; opacity:0.7; z-index:1;">
           ${e(c.invitationLine, defaultInviteLine)}
         </p>
         <p style="font-size: 14px; letter-spacing: 0.15em; margin: 0 0 4px; color: ${palette.text}; font-weight:500; z-index:1;">
-          ${e(c.date, "Your Event Date")}
+          ${e(c.date, invitationSamples.date)}
         </p>
         <p style="font-size: 11px; color: ${palette.muted}; margin: 0 0 ${spacing}px; z-index:1;">
-          ${e(c.time, "Your Event Time")}
+          ${e(c.time, invitationSamples.time)}
         </p>
         <p style="font-size: 13px; color: ${palette.primary}; margin: 0 0 2px; font-weight:500; z-index:1;">
-          ${e(c.venue, "Your Event Venue")}
+          ${e(c.venue, invitationSamples.venue)}
         </p>
         <p style="font-size: 10px; color: ${palette.muted}; margin: 0; z-index:1;">
-          ${e(c.address, "Your Event Address")}
+          ${e(c.address, invitationSamples.address)}
         </p>
       `;
       break;
@@ -299,19 +689,19 @@ export function renderPieceHtml(
     case "menu":
       body += `
         <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.3}px; opacity:0.8;">
-          Dinner
+          ${e(c.menuHeading, menuSamples.menuHeading)}
         </p>
         <h2 style="font-size: 22px; font-weight: 300; color: ${palette.primary}; margin: 0; letter-spacing:5px; text-transform:uppercase;">
           Menu
         </h2>
         ${ornamentHtml}
         <div style="margin: ${spacing * 1.5}px 0; line-height: 1.6; font-size: 13px;">
-          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">First Course</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.appetizer)}</p>
-          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Main Course</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.entree)}</p>
-          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dessert</p>
-          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${e(c.dessert)}</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(menuCourseLabels.first)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.appetizer, menuSamples.appetizer)}</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(menuCourseLabels.main)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.entree, menuSamples.entree)}</p>
+          <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">${e(menuCourseLabels.dessert)}</p>
+          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${e(c.dessert, menuSamples.dessert)}</p>
         </div>
       `;
       break;

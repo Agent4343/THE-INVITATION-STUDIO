@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useDesignStore } from "@/store/designStore";
 import Button from "@/components/ui/Button";
+import { trackEvent } from "@/lib/clientAnalytics";
 
 const etsyPathOptions = [
   {
@@ -22,32 +23,43 @@ const etsyPathOptions = [
 type EtsyPath = (typeof etsyPathOptions)[number]["id"];
 
 const itemOptions = [
-  "Main Invitation",
-  "RSVP Card",
-  "Details Card",
-  "Menu Card",
-  "Thank You Card",
-  "Save the Date",
-  "Table Number",
-  "Place Card",
-  "Welcome Sign",
+  { id: "invitation", title: "Main Invitation" },
+  { id: "rsvp", title: "RSVP Card" },
+  { id: "details", title: "Details Card" },
+  { id: "menu", title: "Menu Card" },
+  { id: "thankyou", title: "Thank You Card" },
+  { id: "savethedate", title: "Save the Date" },
+  { id: "tablenumber", title: "Table Number" },
+  { id: "placecard", title: "Place Card" },
+  { id: "welcomesign", title: "Welcome Sign" },
 ] as const;
 
-type EtsyItemName = (typeof itemOptions)[number];
+type EtsyItemId = (typeof itemOptions)[number]["id"];
+
+const addOnOptions = [
+  { id: "rush-proof", label: "Rush proof turnaround (24-48h)" },
+  { id: "extra-revisions", label: "Extra revisions beyond standard" },
+  { id: "matching-envelopes", label: "Matching envelope recommendation" },
+  { id: "print-consult", label: "Print specification consult" },
+] as const;
+
+type EtsyAddOnId = (typeof addOnOptions)[number]["id"];
 
 export default function EtsyCheckoutPanel() {
   const { designId, token, template, palette, font, content } = useDesignStore();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [etsyPath, setEtsyPath] = useState<EtsyPath>("listing");
-  const [selectedItems, setSelectedItems] = useState<EtsyItemName[]>([
-    "Main Invitation",
-    "RSVP Card",
-    "Details Card",
+  const [selectedItems, setSelectedItems] = useState<EtsyItemId[]>([
+    "invitation",
+    "rsvp",
+    "details",
   ]);
   const [noteCopied, setNoteCopied] = useState(false);
   const [previewNote, setPreviewNote] = useState<string>("");
   const [selectedRouteLabel, setSelectedRouteLabel] = useState<string>("");
+  const [selectedAddOns, setSelectedAddOns] = useState<EtsyAddOnId[]>([]);
+  const [checkoutUrl, setCheckoutUrl] = useState<string>("");
 
   const headline = useMemo(() => {
     const eventType = (content.eventType || "event").toLowerCase();
@@ -66,7 +78,7 @@ export default function EtsyCheckoutPanel() {
 
   const hasBundleDeal = selectedItems.length >= 4;
 
-  function toggleItem(item: EtsyItemName) {
+  function toggleItem(item: EtsyItemId) {
     setSelectedItems((prev) => {
       if (prev.includes(item)) {
         if (prev.length === 1) return prev;
@@ -76,43 +88,84 @@ export default function EtsyCheckoutPanel() {
     });
   }
 
-  async function requestEtsyCheckout() {
-    if (!designId || !token) {
-      setError("Please finish loading your event stationery first.");
-      return;
-    }
+  function toggleAddOn(addOnId: EtsyAddOnId) {
+    setSelectedAddOns((prev) =>
+      prev.includes(addOnId)
+        ? prev.filter((id) => id !== addOnId)
+        : [...prev, addOnId],
+    );
+  }
 
+  async function requestEtsyCheckout() {
     setLoading(true);
     setError(null);
     setNoteCopied(false);
     setSelectedRouteLabel("");
+    setCheckoutUrl("");
 
     try {
-      const res = await fetch("/api/etsy/checkout", {
+      const selectedItemsPayload = selectedItems.map((id) => ({ id, quantity: 1 }));
+      const hasAuthDesign = Boolean(designId && token);
+      const endpoint = hasAuthDesign ? "/api/etsy/checkout" : "/api/etsy/preview-checkout";
+      const requestBody = hasAuthDesign
+        ? {
+            designId,
+            etsyPath,
+            selectedItems: selectedItemsPayload,
+            requestBundleDeal: hasBundleDeal,
+            selectedAddOns,
+          }
+        : {
+            etsyPath,
+            selectedItems: selectedItemsPayload,
+            content,
+            templateName: template.name,
+            paletteName: palette.name,
+            fontName: font.name,
+            requestBundleDeal: hasBundleDeal,
+            selectedAddOns,
+          };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          ...(hasAuthDesign ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({
-          designId,
-          etsyPath,
-          selectedItems,
-          requestBundleDeal: hasBundleDeal,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await res.json();
       if (!res.ok) {
+        void trackEvent("etsy_handoff_error", {
+          status: res.status,
+          mode: hasAuthDesign ? "redeemed" : "preview",
+          error: String(data.error || "UNKNOWN"),
+        });
         throw new Error(data.error || "Unable to prepare Etsy checkout.");
       }
 
       setPreviewNote(data.personalizationText || "");
       setSelectedRouteLabel(data.selectedRoute?.listing_label || "Primary Etsy listing");
+      void trackEvent("etsy_handoff_success", {
+        mode: hasAuthDesign ? "redeemed" : "preview",
+        etsyPath,
+        itemCount: selectedItems.length,
+      });
       if (data.checkoutUrl) {
-        window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+        setCheckoutUrl(data.checkoutUrl);
+        const popup = window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+        if (!popup) {
+          setError(
+            "Your browser blocked the Etsy tab. Use the buttons below to continue checkout.",
+          );
+        }
       }
     } catch (err) {
+      void trackEvent("etsy_handoff_error", {
+        mode: designId && token ? "redeemed" : "preview",
+        error: err instanceof Error ? err.message : "UNKNOWN",
+      });
       setError(
         err instanceof Error ? err.message : "Unable to open Etsy checkout.",
       );
@@ -146,6 +199,38 @@ export default function EtsyCheckoutPanel() {
 
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+          Optional add-ons (request on Etsy)
+        </p>
+        <p className="text-xs text-stone-500">
+          Select paid extras you want included in the Etsy personalization note.
+        </p>
+        {addOnOptions.map((addOn) => (
+          <label
+            key={addOn.id}
+            className={`block cursor-pointer rounded-md border p-3 transition-colors ${
+              selectedAddOns.includes(addOn.id)
+                ? "border-stone-700 bg-stone-50"
+                : "border-stone-200 bg-white hover:border-stone-300"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                name="etsyAddOns"
+                checked={selectedAddOns.includes(addOn.id)}
+                onChange={() => toggleAddOn(addOn.id)}
+                className="mt-1"
+              />
+              <div>
+                <p className="text-sm font-medium text-stone-800">{addOn.label}</p>
+              </div>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
           Choose what you want to purchase
         </p>
         <p className="text-xs text-stone-500">
@@ -153,9 +238,9 @@ export default function EtsyCheckoutPanel() {
         </p>
         {itemOptions.map((item) => (
           <label
-            key={item}
+            key={item.id}
             className={`block cursor-pointer rounded-md border p-3 transition-colors ${
-              selectedItems.includes(item)
+              selectedItems.includes(item.id)
                 ? "border-stone-700 bg-stone-50"
                 : "border-stone-200 bg-white hover:border-stone-300"
             }`}
@@ -164,12 +249,12 @@ export default function EtsyCheckoutPanel() {
               <input
                 type="checkbox"
                 name="etsyItems"
-                checked={selectedItems.includes(item)}
-                onChange={() => toggleItem(item)}
+                checked={selectedItems.includes(item.id)}
+                onChange={() => toggleItem(item.id)}
                 className="mt-1"
               />
               <div>
-                <p className="text-sm font-medium text-stone-800">{item}</p>
+                <p className="text-sm font-medium text-stone-800">{item.title}</p>
               </div>
             </div>
           </label>
@@ -230,10 +315,32 @@ export default function EtsyCheckoutPanel() {
         Payment and order confirmation are handled on Etsy. Keep this tab open
         until your Etsy checkout is complete.
       </p>
+      <p className="text-center text-xs text-stone-500">
+        Files are not downloaded directly in this app. Admin finalizes and
+        fulfills files through Etsy after purchase.
+      </p>
       {selectedRouteLabel && (
         <p className="text-center text-xs text-stone-500">
           Routed to: <span className="font-medium text-stone-700">{selectedRouteLabel}</span>
         </p>
+      )}
+      {checkoutUrl && (
+        <div className="flex flex-wrap justify-center gap-2">
+          <a
+            href={checkoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+          >
+            Open Etsy in new tab
+          </a>
+          <a
+            href={checkoutUrl}
+            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+          >
+            Open Etsy in this tab
+          </a>
+        </div>
       )}
 
       {previewNote && (

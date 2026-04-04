@@ -11,6 +11,183 @@ interface PreviewProps {
   content: DesignContent;
 }
 
+type MenuKind =
+  | "birthday"
+  | "anniversary"
+  | "engagement"
+  | "vow-renewal"
+  | "baby-shower"
+  | "bridal-shower"
+  | "graduation"
+  | "retirement"
+  | "holiday-party"
+  | "corporate-event"
+  | "elopement"
+  | "civil-ceremony"
+  | "wedding"
+  | "default";
+
+function normalizeMenuKind(value?: string): MenuKind {
+  const v = (value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
+  if (v.includes("birthday")) return "birthday";
+  if (v.includes("vow-renewal") || (v.includes("vow") && v.includes("renew"))) return "vow-renewal";
+  if (v.includes("anniversary")) return "anniversary";
+  if (v.includes("engagement")) return "engagement";
+  if ((v.includes("baby") && v.includes("shower")) || v.includes("baby-shower")) return "baby-shower";
+  if ((v.includes("bridal") && v.includes("shower")) || v.includes("bridal-shower")) return "bridal-shower";
+  if (v.includes("graduation")) return "graduation";
+  if (v.includes("retirement")) return "retirement";
+  if (v.includes("holiday") || v.includes("christmas") || v.includes("new-year")) return "holiday-party";
+  if (v.includes("corporate") || v.includes("company") || v.includes("team-event")) return "corporate-event";
+  if (v.includes("elopement")) return "elopement";
+  if (v.includes("civil-ceremony") || (v.includes("civil") && v.includes("ceremony"))) return "civil-ceremony";
+  if (v.includes("wedding")) return "wedding";
+  return "default";
+}
+
+function menuDefaultsForKind(kind: MenuKind): {
+  heading: string;
+  appetizer: string;
+  entree: string;
+  dessert: string;
+} {
+  switch (kind) {
+    case "birthday":
+      return {
+        heading: "Birthday Menu",
+        appetizer: "Mini Sliders & Crispy Fries",
+        entree: "Build-Your-Own Taco Bar",
+        dessert: "Birthday Cake & Ice Cream Bar",
+      };
+    case "anniversary":
+      return {
+        heading: "Anniversary Dinner",
+        appetizer: "Burrata with Heirloom Tomatoes",
+        entree: "Filet Mignon with Truffle Mash",
+        dessert: "Champagne Tiramisu",
+      };
+    case "engagement":
+      return {
+        heading: "Engagement Soiree",
+        appetizer: "Smoked Salmon Crostini",
+        entree: "Lemon Herb Chicken",
+        dessert: "Macaron Tower",
+      };
+    case "vow-renewal":
+      return {
+        heading: "Vow Renewal Dinner",
+        appetizer: "Seasonal Bruschetta Trio",
+        entree: "Roasted Salmon with Citrus Glaze",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "baby-shower":
+      return {
+        heading: "Shower Brunch",
+        appetizer: "Fresh Fruit & Yogurt Parfaits",
+        entree: "Quiche Lorraine & Garden Salad",
+        dessert: "Cupcake Assortment",
+      };
+    case "bridal-shower":
+      return {
+        heading: "Bridal Shower Menu",
+        appetizer: "Tea Sandwich Selection",
+        entree: "Lemon Ricotta Pasta",
+        dessert: "Strawberry Shortcake",
+      };
+    case "graduation":
+      return {
+        heading: "Graduation Feast",
+        appetizer: "Buffalo Cauliflower Bites",
+        entree: "BBQ Chicken and Cornbread",
+        dessert: "Chocolate Brownie Sundaes",
+      };
+    case "retirement":
+      return {
+        heading: "Retirement Reception",
+        appetizer: "Charcuterie and Artisan Cheese",
+        entree: "Herb-Crusted Prime Rib",
+        dessert: "Classic New York Cheesecake",
+      };
+    case "holiday-party":
+      return {
+        heading: "Holiday Party Menu",
+        appetizer: "Seasonal Cranberry Brie Bites",
+        entree: "Roast Turkey with Winter Vegetables",
+        dessert: "Gingerbread Trifle",
+      };
+    case "corporate-event":
+      return {
+        heading: "Event Menu",
+        appetizer: "Mediterranean Mezze Platter",
+        entree: "Grilled Chicken with Wild Rice",
+        dessert: "Chocolate Mousse Cups",
+      };
+    case "elopement":
+      return {
+        heading: "Celebration Dinner",
+        appetizer: "Prosciutto & Fig Flatbread",
+        entree: "Seared Sea Bass",
+        dessert: "Lemon Tartlets",
+      };
+    case "civil-ceremony":
+      return {
+        heading: "Ceremony Reception Menu",
+        appetizer: "Roasted Tomato Crostini",
+        entree: "Chicken Piccata",
+        dessert: "Berry Chantilly Cake",
+      };
+    case "wedding":
+      return {
+        heading: "Reception Menu",
+        appetizer: "Burrata & Heirloom Tomato",
+        entree: "Herb-Crusted Lamb",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "default":
+    default:
+      return {
+        heading: "Event Menu",
+        appetizer: "Seasonal Starter",
+        entree: "Chef's Signature Entree",
+        dessert: "House Dessert",
+      };
+  }
+}
+
+function courseLabelsForKind(kind: MenuKind): {
+  first: string;
+  main: string;
+  dessert: string;
+} {
+  switch (kind) {
+    case "birthday":
+      return { first: "Party Bites", main: "Main Station", dessert: "Cake & Sweets" };
+    case "baby-shower":
+    case "bridal-shower":
+      return { first: "Brunch Bites", main: "Mains", dessert: "Sweets" };
+    case "holiday-party":
+      return { first: "Seasonal Bites", main: "Main Spread", dessert: "Holiday Sweets" };
+    case "corporate-event":
+      return { first: "Canapes", main: "Dinner", dessert: "Dessert" };
+    case "graduation":
+      return { first: "Snacks", main: "Mains", dessert: "Sweets" };
+    case "retirement":
+      return { first: "Starters", main: "Entree", dessert: "Dessert" };
+    case "default":
+    case "anniversary":
+    case "engagement":
+    case "vow-renewal":
+    case "elopement":
+    case "civil-ceremony":
+    case "wedding":
+    default:
+      return { first: "First Course", main: "Main Course", dessert: "Dessert" };
+  }
+}
+
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
   switch (borderStyle) {
     case "thin":
@@ -26,13 +203,16 @@ function getBorderStyle(borderStyle: Template["borderStyle"], color: string): Re
 export default function MenuPreview({ template, palette, font, content }: PreviewProps) {
   const baseSpacing = 16 * template.spacingRatio;
   const ornStyle = template.ornamentStyle || "classic";
+  const menuKind = normalizeMenuKind(content.eventType);
+  const defaults = menuDefaultsForKind(menuKind);
+  const labels = courseLabelsForKind(menuKind);
 
   const courses = [
-    { label: "First Course", item: content.appetizer, placeholder: "Seared Scallops with citrus beurre blanc" },
-    { label: "Main Course", item: content.entree, placeholder: "Herb-Crusted Lamb with rosemary jus" },
-    { label: "Dessert", item: content.dessert, placeholder: "Vanilla Bean Cr\u00e8me Br\u00fbl\u00e9e" },
+    { label: labels.first, item: content.appetizer, placeholder: defaults.appetizer },
+    { label: labels.main, item: content.entree, placeholder: defaults.entree },
+    { label: labels.dessert, item: content.dessert, placeholder: defaults.dessert },
   ];
-  const menuHeading = content.menuHeading || "Menu";
+  const menuHeading = content.menuHeading || defaults.heading;
 
   return (
     <div

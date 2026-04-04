@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth";
 import { createServerSupabase } from "@/lib/supabase";
-import { palettes } from "@/data/palettes";
-import { fonts } from "@/data/fonts";
-import { templates } from "@/data/templates";
 import {
   buildEtsyDraftPayload,
-  deriveDealFromSelection,
-  type EtsyBundleConfig,
   type EtsyAddonInput,
+  type EtsyBundleConfig,
+  deriveDealFromSelection,
   normalizeSelectedItems,
   toEtsyPersonalizationNote,
 } from "@/lib/etsy";
@@ -18,6 +14,12 @@ import {
   routeCandidates,
   type EtsyListingRoute,
 } from "@/lib/etsyRoutes";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+
+const PREVIEW_CHECKOUT_LIMIT = {
+  windowMs: 10 * 60 * 1000,
+  maxRequests: 40,
+};
 
 function getEnv(name: string): string {
   const value = process.env[name];
@@ -40,6 +42,10 @@ function getMessageSellerUrl(): string {
   const explicit = process.env.ETSY_MESSAGE_SELLER_URL;
   if (explicit) return explicit;
   return `${getEnv("ETSY_SHOP_URL").replace(/\/+$/, "")}/contact`;
+}
+
+function isContentRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 async function loadBundleConfig(supabase: ReturnType<typeof createServerSupabase>) {
@@ -65,74 +71,71 @@ async function loadBundleConfig(supabase: ReturnType<typeof createServerSupabase
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.slice(7);
-    let payload;
-    try {
-      payload = verifyToken(token);
-    } catch {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const ip = getClientIp(request);
+    const rateLimit = checkRateLimit(
+      `etsy-preview-checkout:${ip}`,
+      PREVIEW_CHECKOUT_LIMIT,
+    );
+    if (rateLimit.limited) {
+      return NextResponse.json(
+        { error: "RATE_LIMITED" },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimit.retryAfterSeconds),
+          },
+        },
+      );
     }
 
     const body = (await request.json()) as {
-      designId?: string;
       etsyPath?: "listing" | "message";
       selectedItems?: unknown;
+      content?: unknown;
+      templateName?: string;
+      paletteName?: string;
+      fontName?: string;
       selectedAddons?: unknown;
     };
-    if (!body.designId || body.designId !== payload.designId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    if (!isContentRecord(body.content)) {
+      return NextResponse.json(
+        { error: "Missing design content for preview checkout." },
+        { status: 400 },
+      );
     }
-
-    const supabase = createServerSupabase();
-    const { data: design, error } = await supabase
-      .from("designs")
-      .select("id, template_id, palette_id, font_id, content")
-      .eq("id", body.designId)
-      .single();
-
-    if (error || !design) {
-      return NextResponse.json({ error: "Design not found" }, { status: 404 });
-    }
-
-    const template = templates.find((item) => item.id === design.template_id);
-    const palette = palettes.find((item) => item.id === design.palette_id);
-    const font = fonts.find((item) => item.id === design.font_id);
 
     const normalizedItems = normalizeSelectedItems(
       Array.isArray(body.selectedItems)
         ? (body.selectedItems as Array<{ id?: string; quantity?: number }>)
         : undefined,
     );
-    const normalizedAddons: EtsyAddonInput[] = Array.isArray(body.selectedAddons)
-      ? (body.selectedAddons
-          .map((item) => {
-            if (typeof item === "string") return { id: item };
-            if (typeof item === "object" && item !== null) {
-              return { id: (item as { id?: unknown }).id as string | undefined };
-            }
-            return { id: undefined };
-          }))
+
+    const selectedAddons: EtsyAddonInput[] = Array.isArray(body.selectedAddons)
+      ? body.selectedAddons.map((item) => {
+          if (typeof item === "string") return { id: item };
+          if (typeof item === "object" && item !== null) {
+            return { id: (item as { id?: unknown }).id as string | undefined };
+          }
+          return { id: undefined };
+        })
       : [];
 
+    const supabase = createServerSupabase();
     const bundleConfig = await loadBundleConfig(supabase);
 
     const draftPayload = buildEtsyDraftPayload({
-      content: (design.content ?? {}) as Record<string, unknown>,
-      templateName: template?.name || "Template",
-      paletteName: palette?.name || "Palette",
-      fontName: font?.name || "Font",
+      content: body.content,
+      templateName: String(body.templateName || "Template"),
+      paletteName: String(body.paletteName || "Palette"),
+      fontName: String(body.fontName || "Font"),
       selectedItems: normalizedItems,
-      selectedAddons: normalizedAddons,
+      selectedAddons,
       bundleConfig,
     });
     const deal = deriveDealFromSelection(draftPayload.lineItems, bundleConfig);
-
     const personalizationText = toEtsyPersonalizationNote(draftPayload);
+
     let selectedRoute: EtsyListingRoute | null = null;
     let checkoutUrl: string;
 
@@ -161,9 +164,10 @@ export async function POST(request: Request) {
       draftPayload,
       deal,
       selectedRoute,
+      previewMode: true,
     });
   } catch (error) {
-    console.error("Failed to prepare Etsy handoff:", error);
+    console.error("Failed to prepare Etsy preview handoff:", error);
     return NextResponse.json(
       { error: "Failed to prepare Etsy checkout handoff." },
       { status: 500 },

@@ -11,7 +11,6 @@ import TemplateGrid from "@/components/builder/TemplateGrid";
 import PaletteSelector from "@/components/builder/PaletteSelector";
 import FontSelector from "@/components/builder/FontSelector";
 import ContentForm from "@/components/builder/ContentForm";
-import DownloadPanel from "@/components/builder/DownloadPanel";
 import SuitePieces from "@/components/builder/SuitePieces";
 import LivePreview from "@/components/builder/LivePreview";
 import StepNavigator from "@/components/builder/StepNavigator";
@@ -21,22 +20,62 @@ const EVENT_PRESETS = [
   { value: "celebration", label: "General" },
   { value: "birthday", label: "Birthday" },
   { value: "anniversary", label: "Anniversary" },
+  { value: "engagement", label: "Engagement" },
+  { value: "vow-renewal", label: "Vow Renewal" },
   { value: "baby-shower", label: "Baby Shower" },
   { value: "bridal-shower", label: "Bridal Shower" },
   { value: "graduation", label: "Graduation" },
   { value: "retirement", label: "Retirement" },
+  { value: "holiday-party", label: "Holiday Party" },
+  { value: "corporate-event", label: "Corporate Event" },
+  { value: "elopement", label: "Elopement" },
+  { value: "civil-ceremony", label: "Civil Ceremony" },
   { value: "wedding", label: "Wedding" },
 ] as const;
 
+interface EventStarterCopy {
+  preHeading: string;
+  invitationLine: string;
+  welcomeMessage: string;
+  welcomeSubtext: string;
+  name1: string;
+  name2: string;
+  date: string;
+  time: string;
+  venue: string;
+  address: string;
+  ceremonyDetails: string;
+  receptionDetails: string;
+  dressCode: string;
+  saveTheDateMessage: string;
+  thankYouMessage: string;
+}
+
+interface MenuStarterCopy {
+  menuHeading: string;
+  appetizer: string;
+  entree: string;
+  dessert: string;
+}
+
 function normalizeEventPreset(value?: string): string {
-  const v = (value || "").trim().toLowerCase();
+  const v = (value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
   if (v.includes("birthday")) return "birthday";
-  if (v.includes("anniversary") || v.includes("vow-renewal")) return "anniversary";
-  if (v.includes("baby-shower")) return "baby-shower";
-  if (v.includes("bridal-shower")) return "bridal-shower";
+  if (v.includes("vow-renewal") || (v.includes("vow") && v.includes("renew"))) return "vow-renewal";
+  if (v.includes("anniversary")) return "anniversary";
+  if (v.includes("engagement")) return "engagement";
+  if ((v.includes("baby") && v.includes("shower")) || v.includes("baby-shower")) return "baby-shower";
+  if ((v.includes("bridal") && v.includes("shower")) || v.includes("bridal-shower")) return "bridal-shower";
   if (v.includes("graduation")) return "graduation";
   if (v.includes("retirement")) return "retirement";
-  if (v.includes("wedding") || v.includes("elopement") || v.includes("civil-ceremony")) return "wedding";
+  if (v.includes("holiday") || v.includes("christmas") || v.includes("new-year")) return "holiday-party";
+  if (v.includes("corporate") || v.includes("company") || v.includes("team-event")) return "corporate-event";
+  if (v.includes("elopement")) return "elopement";
+  if (v.includes("civil-ceremony") || (v.includes("civil") && v.includes("ceremony"))) return "civil-ceremony";
+  if (v.includes("wedding")) return "wedding";
   return "celebration";
 }
 
@@ -45,55 +84,362 @@ function shouldReplaceField(current: unknown, allowList: string[]): boolean {
   return value === "" || allowList.includes(value);
 }
 
-function starterCopyForPreset(eventType: string) {
+function starterCopyForPreset(eventType: string): EventStarterCopy {
   switch (eventType) {
     case "birthday":
       return {
         preHeading: "Join us for a birthday celebration",
         invitationLine: "invite you to celebrate this birthday with us",
         welcomeMessage: "Welcome to the Birthday Celebration",
+        welcomeSubtext: "Let the celebration begin",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "6:00 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+        ceremonyDetails: "Birthday celebration starts at 6:00 PM with welcome drinks and photos.",
+        receptionDetails: "Dinner, cake, and dancing to follow.",
+        dressCode: "Festive Casual",
+        saveTheDateMessage: "Save the Date for the Birthday Celebration",
+        thankYouMessage: "Thank you for celebrating this birthday with us.",
       };
     case "anniversary":
       return {
         preHeading: "Together with our loved ones",
         invitationLine: "invite you to celebrate our anniversary",
         welcomeMessage: "Welcome to Our Anniversary Celebration",
+        welcomeSubtext: "Please find your seat and enjoy the evening",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "5:00 PM",
+        venue: "Anniversary House",
+        address: "456 Memory Lane, Your City, ST",
+        ceremonyDetails: "Anniversary celebration begins at 5:00 PM with a welcome toast.",
+        receptionDetails: "Dinner and dancing to follow in the main hall.",
+        dressCode: "Cocktail Attire",
+        saveTheDateMessage: "Save the Date for Our Anniversary",
+        thankYouMessage: "Thank you for celebrating our anniversary with us.",
+      };
+    case "engagement":
+      return {
+        preHeading: "Together with our families",
+        invitationLine: "invite you to celebrate our engagement",
+        welcomeMessage: "Welcome to Our Engagement Celebration",
+        welcomeSubtext: "Please join us for cocktails and celebration",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Saturday, May 8, 2027",
+        time: "5:30 PM",
+        venue: "Riverside Loft",
+        address: "25 Harbor Street, Your City, ST",
+        ceremonyDetails: "Engagement celebration begins at 5:30 PM with a welcome toast.",
+        receptionDetails: "Cocktails and light bites to follow in the lounge.",
+        dressCode: "Cocktail Attire",
+        saveTheDateMessage: "Save the Date for Our Engagement Party",
+        thankYouMessage: "Thank you for sharing in our engagement celebration.",
+      };
+    case "vow-renewal":
+      return {
+        preHeading: "Together with our loved ones",
+        invitationLine: "invite you to celebrate our vow renewal",
+        welcomeMessage: "Welcome to Our Vow Renewal Celebration",
+        welcomeSubtext: "Thank you for celebrating this milestone with us",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Sunday, August 22, 2027",
+        time: "4:00 PM",
+        venue: "Sunset Garden",
+        address: "18 Willow Avenue, Your City, ST",
+        ceremonyDetails: "Vow renewal begins at 4:00 PM in the garden courtyard.",
+        receptionDetails: "Dinner, stories, and dancing to follow.",
+        dressCode: "Semi-Formal",
+        saveTheDateMessage: "Save the Date for Our Vow Renewal",
+        thankYouMessage: "Thank you for celebrating our vow renewal with us.",
       };
     case "baby-shower":
       return {
         preHeading: "With joy in our hearts",
         invitationLine: "invite you to celebrate our growing family",
         welcomeMessage: "Welcome to the Baby Shower",
+        welcomeSubtext: "Thank you for celebrating this special chapter",
+        name1: "Taylor",
+        name2: "Morgan",
+        date: "Sunday, October 19, 2026",
+        time: "11:00 AM",
+        venue: "Garden Room",
+        address: "789 Blossom Street, Your City, ST",
+        ceremonyDetails: "Baby shower starts at 11:00 AM with brunch and games.",
+        receptionDetails: "Light refreshments and gift opening to follow.",
+        dressCode: "Pastel Garden Party",
+        saveTheDateMessage: "Save the Date for the Baby Shower",
+        thankYouMessage: "Thank you for showering us with love.",
       };
     case "bridal-shower":
       return {
         preHeading: "Hosted with love",
         invitationLine: "invite you to join the bridal shower celebration",
         welcomeMessage: "Welcome to the Bridal Shower",
+        welcomeSubtext: "Please enjoy the celebration and festivities",
+        name1: "Taylor",
+        name2: "Riley",
+        date: "Saturday, October 18, 2026",
+        time: "1:00 PM",
+        venue: "Rosewood Lounge",
+        address: "321 Rose Avenue, Your City, ST",
+        ceremonyDetails: "Bridal shower begins at 1:00 PM with brunch and games.",
+        receptionDetails: "Gift opening and desserts to follow.",
+        dressCode: "Smart Casual",
+        saveTheDateMessage: "Save the Date for the Bridal Shower",
+        thankYouMessage: "Thank you for celebrating the bride-to-be with us.",
       };
     case "graduation":
       return {
         preHeading: "Please join us",
         invitationLine: "invite you to celebrate this graduation milestone",
         welcomeMessage: "Welcome to the Graduation Celebration",
+        welcomeSubtext: "Please enjoy the celebration and reception",
+        name1: "Jordan",
+        name2: "Family & Friends",
+        date: "Saturday, June 12, 2027",
+        time: "2:00 PM",
+        venue: "Main Auditorium",
+        address: "200 University Way, Your City, ST",
+        ceremonyDetails: "Graduation ceremony starts at 10:00 AM at the main auditorium.",
+        receptionDetails: "Celebration reception to follow at 12:30 PM.",
+        dressCode: "Semi-Formal",
+        saveTheDateMessage: "Save the Date for Graduation",
+        thankYouMessage: "Thank you for celebrating this graduation with us.",
       };
     case "retirement":
       return {
         preHeading: "Please join us",
         invitationLine: "invite you to celebrate a remarkable retirement",
         welcomeMessage: "Welcome to the Retirement Celebration",
+        welcomeSubtext: "Please enjoy the tribute and dinner",
+        name1: "Alex",
+        name2: "Colleagues & Friends",
+        date: "Friday, September 10, 2027",
+        time: "6:30 PM",
+        venue: "Banquet Hall",
+        address: "100 Heritage Drive, Your City, ST",
+        ceremonyDetails: "Retirement celebration starts at 6:00 PM with remarks and a toast.",
+        receptionDetails: "Dinner and tribute stories to follow.",
+        dressCode: "Business Casual",
+        saveTheDateMessage: "Save the Date for the Retirement Celebration",
+        thankYouMessage: "Thank you for honoring this retirement milestone with us.",
+      };
+    case "holiday-party":
+      return {
+        preHeading: "You're invited to celebrate the season",
+        invitationLine: "invite you to our holiday party",
+        welcomeMessage: "Welcome to the Holiday Celebration",
+        welcomeSubtext: "Enjoy food, music, and festive cheer",
+        name1: "The Rivera Family",
+        name2: "Friends & Neighbors",
+        date: "Saturday, December 12, 2026",
+        time: "7:00 PM",
+        venue: "Winter Hall",
+        address: "90 Evergreen Avenue, Your City, ST",
+        ceremonyDetails: "Holiday party begins at 7:00 PM with seasonal drinks and appetizers.",
+        receptionDetails: "Dinner, music, and celebration to follow.",
+        dressCode: "Festive Attire",
+        saveTheDateMessage: "Save the Date for the Holiday Party",
+        thankYouMessage: "Thank you for celebrating the season with us.",
+      };
+    case "corporate-event":
+      return {
+        preHeading: "You're invited",
+        invitationLine: "invite you to our corporate celebration",
+        welcomeMessage: "Welcome to the Corporate Event",
+        welcomeSubtext: "Please check in at reception upon arrival",
+        name1: "Horizon Team",
+        name2: "Clients & Partners",
+        date: "Thursday, November 4, 2027",
+        time: "6:00 PM",
+        venue: "City Conference Center",
+        address: "410 Commerce Plaza, Your City, ST",
+        ceremonyDetails: "Event opens at 6:00 PM with networking and opening remarks.",
+        receptionDetails: "Dinner service and keynote presentation to follow.",
+        dressCode: "Business Formal",
+        saveTheDateMessage: "Save the Date for Our Corporate Event",
+        thankYouMessage: "Thank you for being part of our event.",
+      };
+    case "elopement":
+      return {
+        preHeading: "A small celebration with those we love",
+        invitationLine: "invite you to celebrate our elopement",
+        welcomeMessage: "Welcome to Our Elopement Celebration",
+        welcomeSubtext: "Thank you for joining our intimate celebration",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, July 16, 2027",
+        time: "4:00 PM",
+        venue: "Cliffside Terrace",
+        address: "12 Seaview Point, Your City, ST",
+        ceremonyDetails: "Intimate ceremony begins at 4:00 PM on the terrace.",
+        receptionDetails: "Champagne toast and dinner to follow.",
+        dressCode: "Elegant Casual",
+        saveTheDateMessage: "Save the Date for Our Elopement Celebration",
+        thankYouMessage: "Thank you for sharing in our elopement celebration.",
+      };
+    case "civil-ceremony":
+      return {
+        preHeading: "Together with our loved ones",
+        invitationLine: "invite you to celebrate our civil ceremony",
+        welcomeMessage: "Welcome to Our Civil Ceremony Celebration",
+        welcomeSubtext: "Please join us after the ceremony for refreshments",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, June 18, 2027",
+        time: "3:30 PM",
+        venue: "City Hall Atrium",
+        address: "1 Municipal Square, Your City, ST",
+        ceremonyDetails: "Civil ceremony begins at 3:30 PM in the city hall chamber.",
+        receptionDetails: "Refreshments and photos to follow nearby.",
+        dressCode: "Semi-Formal",
+        saveTheDateMessage: "Save the Date for Our Civil Ceremony",
+        thankYouMessage: "Thank you for celebrating our civil ceremony with us.",
       };
     case "wedding":
       return {
         preHeading: "Hosted by friends and family",
         invitationLine: "invite you to celebrate with us",
         welcomeMessage: "Welcome to Our Celebration",
+        welcomeSubtext: "Please find your seat and enjoy the celebration",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "4:30 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+        ceremonyDetails: "Ceremony begins at 4:30 PM in the garden.",
+        receptionDetails: "Reception to follow in the grand ballroom.",
+        dressCode: "Black Tie Optional",
+        saveTheDateMessage: "Save the Date",
+        thankYouMessage: "Thank you for sharing in our special day.",
       };
     default:
       return {
         preHeading: "Hosted by friends and family",
         invitationLine: "invite you to celebrate with us",
         welcomeMessage: "Welcome to Our Celebration",
+        welcomeSubtext: "Please find your seat and enjoy the celebration",
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "4:30 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+        ceremonyDetails: "Main event begins at 4:30 PM in the main venue.",
+        receptionDetails: "Celebration and refreshments to follow.",
+        dressCode: "Event Attire",
+        saveTheDateMessage: "Save the Date",
+        thankYouMessage: "Thank you for celebrating with us.",
+      };
+  }
+}
+
+function menuStarterForPreset(eventType: string): MenuStarterCopy {
+  switch (eventType) {
+    case "birthday":
+      return {
+        menuHeading: "Birthday Menu",
+        appetizer: "Mini Sliders & Crispy Fries",
+        entree: "Build-Your-Own Taco Bar",
+        dessert: "Birthday Cake & Ice Cream Bar",
+      };
+    case "anniversary":
+      return {
+        menuHeading: "Anniversary Dinner",
+        appetizer: "Burrata with Heirloom Tomatoes",
+        entree: "Filet Mignon with Truffle Mash",
+        dessert: "Champagne Tiramisu",
+      };
+    case "engagement":
+      return {
+        menuHeading: "Engagement Soiree",
+        appetizer: "Smoked Salmon Crostini",
+        entree: "Lemon Herb Chicken",
+        dessert: "Macaron Tower",
+      };
+    case "vow-renewal":
+      return {
+        menuHeading: "Vow Renewal Dinner",
+        appetizer: "Seasonal Bruschetta Trio",
+        entree: "Roasted Salmon with Citrus Glaze",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "baby-shower":
+      return {
+        menuHeading: "Shower Brunch",
+        appetizer: "Fresh Fruit & Yogurt Parfaits",
+        entree: "Quiche Lorraine & Garden Salad",
+        dessert: "Cupcake Assortment",
+      };
+    case "bridal-shower":
+      return {
+        menuHeading: "Bridal Shower Menu",
+        appetizer: "Tea Sandwich Selection",
+        entree: "Lemon Ricotta Pasta",
+        dessert: "Strawberry Shortcake",
+      };
+    case "graduation":
+      return {
+        menuHeading: "Graduation Feast",
+        appetizer: "Buffalo Cauliflower Bites",
+        entree: "BBQ Chicken and Cornbread",
+        dessert: "Chocolate Brownie Sundaes",
+      };
+    case "retirement":
+      return {
+        menuHeading: "Retirement Reception",
+        appetizer: "Charcuterie and Artisan Cheese",
+        entree: "Herb-Crusted Prime Rib",
+        dessert: "Classic New York Cheesecake",
+      };
+    case "holiday-party":
+      return {
+        menuHeading: "Holiday Party Menu",
+        appetizer: "Seasonal Cranberry Brie Bites",
+        entree: "Roast Turkey with Winter Vegetables",
+        dessert: "Gingerbread Trifle",
+      };
+    case "corporate-event":
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Mediterranean Mezze Platter",
+        entree: "Grilled Chicken with Wild Rice",
+        dessert: "Chocolate Mousse Cups",
+      };
+    case "elopement":
+      return {
+        menuHeading: "Celebration Dinner",
+        appetizer: "Prosciutto & Fig Flatbread",
+        entree: "Seared Sea Bass",
+        dessert: "Lemon Tartlets",
+      };
+    case "civil-ceremony":
+      return {
+        menuHeading: "Ceremony Reception Menu",
+        appetizer: "Roasted Tomato Crostini",
+        entree: "Chicken Piccata",
+        dessert: "Berry Chantilly Cake",
+      };
+    case "wedding":
+      return {
+        menuHeading: "Reception Menu",
+        appetizer: "Burrata & Heirloom Tomato",
+        entree: "Herb-Crusted Lamb",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    default:
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Seasonal Starter",
+        entree: "Chef's Signature Entree",
+        dessert: "House Dessert",
       };
   }
 }
@@ -124,6 +470,8 @@ function normalizeLegacyEventCopy(content: Record<string, unknown>) {
   if (name2 === "james william") normalized.name2 = "";
   if (name1 === "name one") normalized.name1 = "";
   if (name2 === "name two") normalized.name2 = "";
+  if (name1 === "host name") normalized.name1 = "";
+  if (name2 === "co-host name") normalized.name2 = "";
 
   const venue = typeof normalized.venue === "string" ? normalized.venue.trim().toLowerCase() : "";
   if (venue === "the grand estate") normalized.venue = "";
@@ -149,17 +497,17 @@ function PrintOffer() {
   return (
     <div className="mt-6 rounded-lg border border-stone-200 bg-white p-5">
       <h3 className="mb-2 text-sm font-semibold uppercase tracking-widest text-stone-500">
-        Want event stationery printed?
+        Fulfillment policy
       </h3>
       <p className="mb-4 text-sm leading-relaxed text-stone-500">
-        Order professionally printed event stationery on premium paper,
-        delivered to your door.
+        Files are not delivered directly in-app. Final fulfillment is handled by
+        admin through Etsy after purchase.
       </p>
       <button
         disabled
         className="w-full rounded-lg bg-stone-100 px-4 py-2.5 text-sm font-medium text-stone-400"
       >
-        Print ordering coming soon
+        Managed through Etsy checkout
       </button>
     </div>
   );
@@ -168,6 +516,7 @@ function PrintOffer() {
 function DesignPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const forcePreviewMode = searchParams.get("mode") === "preview";
   const {
     currentStep,
     designId,
@@ -186,26 +535,44 @@ function DesignPageInner() {
     setToken,
     setSaving,
     setLastSavedAt,
+    resetDesign,
   } = useDesignStore();
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedContentRef = useRef<string>("");
+  const seededPresetRef = useRef(false);
+  const previewInitRef = useRef(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [designLoaded, setDesignLoaded] = useState(false);
 
   const activePreset = normalizeEventPreset(content.eventType);
+  const isPreviewMode = forcePreviewMode || !token || !designId;
 
   const applyEventPreset = (eventType: string) => {
-    const starter = starterCopyForPreset(eventType);
-    const update: Record<string, string> = { eventType };
+    const normalizedPreset = normalizeEventPreset(eventType);
+    const starter = starterCopyForPreset(normalizedPreset);
+    const menuStarter = menuStarterForPreset(normalizedPreset);
+    const update: Record<string, string> = { eventType: normalizedPreset };
+    const starterSamples = EVENT_PRESETS.map((preset) =>
+      starterCopyForPreset(preset.value),
+    );
+    const menuStarterSamples = EVENT_PRESETS.map((preset) =>
+      menuStarterForPreset(preset.value),
+    );
+    const allowFromStarters = (field: keyof EventStarterCopy) =>
+      starterSamples.map((sample) => sample[field].trim().toLowerCase());
+    const allowFromMenuStarters = (field: keyof MenuStarterCopy) =>
+      menuStarterSamples.map((sample) => sample[field].trim().toLowerCase());
 
     if (
       shouldReplaceField(content.preHeading, [
         "hosted by their loved ones",
         "hosted by friends and family",
         "together with their families",
+        ...allowFromStarters("preHeading"),
       ])
     ) {
       update.preHeading = starter.preHeading;
@@ -215,6 +582,7 @@ function DesignPageInner() {
       shouldReplaceField(content.invitationLine, [
         "invite you to celebrate with us",
         "invite you to celebrate their marriage",
+        ...allowFromStarters("invitationLine"),
       ])
     ) {
       update.invitationLine = starter.invitationLine;
@@ -225,9 +593,134 @@ function DesignPageInner() {
         "welcome to our celebration",
         "welcome to the celebration of",
         "welcome to our wedding",
+        "welcome to the birthday celebration",
+        "welcome to our anniversary celebration",
+        "welcome to the baby shower",
+        "welcome to the bridal shower",
+        "welcome to the graduation celebration",
+        "welcome to the retirement celebration",
+        ...allowFromStarters("welcomeMessage"),
       ])
     ) {
       update.welcomeMessage = starter.welcomeMessage;
+    }
+
+    if (shouldReplaceField(content.welcomeSubtext, [
+      "please find your seat",
+      "please find your seat and enjoy the celebration",
+      ...allowFromStarters("welcomeSubtext"),
+    ])) {
+      update.welcomeSubtext = starter.welcomeSubtext;
+    }
+
+    if (shouldReplaceField(content.name1, [
+      "name one",
+      "alex",
+      "taylor",
+      "jordan",
+      "avery",
+      "horizon team",
+      "the rivera family",
+    ])) {
+      update.name1 = starter.name1;
+    }
+    if (shouldReplaceField(content.name2, [
+      "name two",
+      "jordan",
+      "riley",
+      "family & friends",
+      "colleagues & friends",
+      "friends & neighbors",
+      "clients & partners",
+      "morgan",
+      "cameron",
+    ])) {
+      update.name2 = starter.name2;
+    }
+    if (shouldReplaceField(content.date, [
+      "your event date",
+      ...allowFromStarters("date"),
+    ])) {
+      update.date = starter.date;
+    }
+    if (shouldReplaceField(content.time, [
+      "your event time",
+      ...allowFromStarters("time"),
+    ])) {
+      update.time = starter.time;
+    }
+    if (shouldReplaceField(content.venue, [
+      "your event venue",
+      ...allowFromStarters("venue"),
+    ])) {
+      update.venue = starter.venue;
+    }
+    if (shouldReplaceField(content.address, [
+      "your event location",
+      "your event address",
+      ...allowFromStarters("address"),
+    ])) {
+      update.address = starter.address;
+    }
+    if (shouldReplaceField(content.ceremonyDetails, [
+      "ceremony begins at 4:30 pm in the garden.",
+      ...allowFromStarters("ceremonyDetails"),
+    ])) {
+      update.ceremonyDetails = starter.ceremonyDetails;
+    }
+    if (shouldReplaceField(content.receptionDetails, [
+      "reception to follow in the grand ballroom.",
+      ...allowFromStarters("receptionDetails"),
+    ])) {
+      update.receptionDetails = starter.receptionDetails;
+    }
+    if (shouldReplaceField(content.dressCode, [
+      "black tie optional",
+      ...allowFromStarters("dressCode"),
+    ])) {
+      update.dressCode = starter.dressCode;
+    }
+    if (shouldReplaceField(content.saveTheDateMessage, [
+      "save the date",
+      ...allowFromStarters("saveTheDateMessage"),
+    ])) {
+      update.saveTheDateMessage = starter.saveTheDateMessage;
+    }
+    if (shouldReplaceField(content.thankYouMessage, [
+      "thank you for sharing in our special day.",
+      ...allowFromStarters("thankYouMessage"),
+    ])) {
+      update.thankYouMessage = starter.thankYouMessage;
+    }
+    if (shouldReplaceField(content.menuHeading, [
+      "menu",
+      "event menu",
+      "reception menu",
+      ...allowFromMenuStarters("menuHeading"),
+    ])) {
+      update.menuHeading = menuStarter.menuHeading;
+    }
+    if (shouldReplaceField(content.appetizer, [
+      "burrata & heirloom tomato",
+      "seared scallops with citrus beurre blanc",
+      ...allowFromMenuStarters("appetizer"),
+    ])) {
+      update.appetizer = menuStarter.appetizer;
+    }
+    if (shouldReplaceField(content.entree, [
+      "herb-crusted lamb",
+      "herb-crusted lamb with rosemary jus",
+      ...allowFromMenuStarters("entree"),
+    ])) {
+      update.entree = menuStarter.entree;
+    }
+    if (shouldReplaceField(content.dessert, [
+      "vanilla bean panna cotta",
+      "vanilla bean crème brûlée",
+      "vanilla bean creme brulee",
+      ...allowFromMenuStarters("dessert"),
+    ])) {
+      update.dessert = menuStarter.dessert;
     }
 
     setContent(update);
@@ -235,6 +728,7 @@ function DesignPageInner() {
 
   // Handle ?code= query parameter: auto-validate and store auth
   useEffect(() => {
+    if (forcePreviewMode) return;
     const codeParam = searchParams.get("code");
     if (!codeParam) return;
 
@@ -262,25 +756,36 @@ function DesignPageInner() {
         router.push("/");
       }
     })();
-  }, [searchParams, router, setToken, setDesignId]);
+  }, [searchParams, router, setToken, setDesignId, forcePreviewMode]);
 
   // Restore auth from localStorage on mount
   useEffect(() => {
+    if (forcePreviewMode) {
+      if (!previewInitRef.current) {
+        resetDesign();
+        previewInitRef.current = true;
+      }
+      localStorage.removeItem("token");
+      localStorage.removeItem("designId");
+      setAuthChecked(true);
+      setDesignLoaded(true);
+      return;
+    }
+
     const storedToken = localStorage.getItem("token");
     const storedDesignId = localStorage.getItem("designId");
 
     if (!storedToken || !storedDesignId) {
-      // Only redirect if there's no ?code= param (handled above)
-      if (!searchParams.get("code")) {
-        router.push("/");
-      }
+      // Allow preview mode without purchase/auth to encourage design-first flow.
+      setAuthChecked(true);
+      setDesignLoaded(true);
       return;
     }
 
     if (!token) setToken(storedToken);
     if (!designId) setDesignId(storedDesignId);
     setAuthChecked(true);
-  }, [router, token, designId, setToken, setDesignId, searchParams]);
+  }, [token, designId, setToken, setDesignId, searchParams, forcePreviewMode, resetDesign]);
 
   // Mark auth as checked once token and designId are in the store
   useEffect(() => {
@@ -288,6 +793,14 @@ function DesignPageInner() {
       setAuthChecked(true);
     }
   }, [token, designId]);
+
+  // Seed visible event-specific starter copy once after load.
+  useEffect(() => {
+    if (!designLoaded || seededPresetRef.current) return;
+    seededPresetRef.current = true;
+    applyEventPreset(normalizeEventPreset(content.eventType));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [designLoaded]);
 
   // Load saved design from server on mount
   useEffect(() => {
@@ -299,9 +812,15 @@ function DesignPageInner() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!res.ok) return;
+        if (!res.ok) {
+          setLoadError(
+            "We couldn't load your saved design. You can continue with starter content or retry.",
+          );
+          return;
+        }
 
         const { design } = await res.json();
+        setLoadError(null);
 
         if (design.templateId) {
           const t = templates.find((tpl) => tpl.id === design.templateId);
@@ -332,7 +851,9 @@ function DesignPageInner() {
           content: design.content,
         });
       } catch {
-        // Failed to load; continue with defaults
+        setLoadError(
+          "We couldn't load your saved design right now. Please check your connection and retry.",
+        );
       } finally {
         setDesignLoaded(true);
       }
@@ -380,6 +901,7 @@ function DesignPageInner() {
 
   // Debounced auto-save (10s) with max delay (60s)
   useEffect(() => {
+    if (!token || !designId) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(saveDesign, 10_000);
 
@@ -394,7 +916,7 @@ function DesignPageInner() {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [content, template, palette, font, saveDesign]);
+  }, [content, template, palette, font, saveDesign, token, designId]);
 
   // Clear max delay timer when save completes
   useEffect(() => {
@@ -406,7 +928,7 @@ function DesignPageInner() {
 
   // Save on beforeunload
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const sendKeepaliveSave = () => {
       if (!designId || !token) return;
 
       const payload = JSON.stringify({
@@ -419,14 +941,41 @@ function DesignPageInner() {
 
       if (payload === lastSavedContentRef.current) return;
 
-      // Use sendBeacon for reliable save on page close
-      const blob = new Blob([payload], { type: "application/json" });
-      navigator.sendBeacon("/api/design/save", blob);
+      void fetch("/api/design/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+        keepalive: true,
+      }).catch(() => {
+        // Ignore close-time failures.
+      });
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("beforeunload", sendKeepaliveSave);
+    window.addEventListener("pagehide", sendKeepaliveSave);
+    return () => {
+      window.removeEventListener("beforeunload", sendKeepaliveSave);
+      window.removeEventListener("pagehide", sendKeepaliveSave);
+    };
   }, [designId, token, template, palette, font, content]);
+
+  const handleRetryLoad = useCallback(() => {
+    if (!token || !designId) return;
+    setLoadError(null);
+    setDesignLoaded(false);
+  }, [token, designId]);
+
+  const handleFinalStepAction = useCallback(() => {
+    const etsyPanel = document.getElementById("etsy-checkout-panel");
+    if (etsyPanel) {
+      etsyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }, []);
 
   // Cleanup max save timer on unmount
   useEffect(() => {
@@ -440,7 +989,7 @@ function DesignPageInner() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-stone-50">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-sm text-stone-500">Loading your design...</p>
+        <p className="mt-4 text-sm text-stone-500">Loading your event stationery...</p>
       </div>
     );
   }
@@ -452,88 +1001,117 @@ function DesignPageInner() {
     content: <ContentForm />,
     preview: (
       <>
-        <DownloadPanel />
-        <EtsyCheckoutPanel />
+        <div id="etsy-checkout-panel">
+          <EtsyCheckoutPanel />
+        </div>
         <PrintOffer />
       </>
     ),
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-stone-200 px-6 py-3">
-        <h1
-          className="text-xl font-semibold text-stone-800"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          The Invitation Studio
-        </h1>
-        <div className="flex items-center gap-3">
-          {saveError && (
-            <span className="text-xs text-red-400">{saveError}</span>
-          )}
-          {isSaving && (
-            <span className="text-xs text-stone-400">Saving...</span>
-          )}
-          {!isSaving && !saveError && lastSavedAt && (
-            <span className="text-xs text-stone-400">
-              Saved{" "}
-              {new Date(lastSavedAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          )}
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-stone-50 to-white">
+      <header className="border-b border-stone-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          <div>
+            <h1
+              className="text-xl font-semibold text-stone-900"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              The Invitation Studio
+            </h1>
+            <p className="text-xs text-stone-500">
+              All-event stationery builder
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {saveError && (
+              <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs text-red-500">
+                {saveError}
+              </span>
+            )}
+            {isSaving && (
+              <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-500">
+                Saving...
+              </span>
+            )}
+            {!isSaving && !saveError && lastSavedAt && (
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700">
+                Saved{" "}
+                {new Date(lastSavedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Main layout */}
-      <div className="border-b border-stone-200 bg-white px-6 py-3">
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-500">
-          Event Type Preset
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {EVENT_PRESETS.map((preset) => (
+      <main className="mx-auto w-full max-w-7xl px-4 pb-8 pt-5 sm:px-6">
+        {isPreviewMode && (
+          <section className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Preview mode is active. You can design everything before purchase.
+            File copies are locked until you complete Etsy checkout and admin fulfills the order.
+          </section>
+        )}
+        {loadError && (
+          <section className="mb-4 flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:flex-row sm:items-center sm:justify-between">
+            <p>{loadError}</p>
             <button
-              key={preset.value}
               type="button"
-              onClick={() => applyEventPreset(preset.value)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                activePreset === preset.value
-                  ? "bg-stone-800 text-white"
-                  : "bg-stone-100 text-stone-600 hover:bg-stone-200"
-              }`}
+              onClick={handleRetryLoad}
+              className="inline-flex w-fit rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
             >
-              {preset.label}
+              Retry load
             </button>
-          ))}
-        </div>
-      </div>
+          </section>
+        )}
+        <section className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+              Event Preset
+            </p>
+            <p className="text-xs text-stone-500">
+              Choose the event type to auto-fill better starter content.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {EVENT_PRESETS.map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                onClick={() => applyEventPreset(preset.value)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  activePreset === preset.value
+                    ? "bg-stone-900 text-white"
+                    : "border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <div className="flex flex-1 flex-col lg:flex-row">
-        {/* Left panel - Controls */}
-        <div className="flex w-full flex-col border-b border-stone-200 lg:w-2/5 lg:border-b-0 lg:border-r">
-          <div className="flex-1 overflow-y-auto p-6">
-            {stepPanel[currentStep]}
+        <section className="grid gap-4 lg:grid-cols-[420px_1fr]">
+          <div className="flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
+            <div className="flex-1 overflow-y-auto p-5">{stepPanel[currentStep]}</div>
+            <div className="border-t border-stone-200 bg-stone-50 p-5">
+              <StepNavigator onFinalAction={handleFinalStepAction} />
+            </div>
           </div>
 
-          <div className="border-t border-stone-200 p-6">
-            <StepNavigator />
+          <div className="flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
+            <div className="border-b border-stone-200 bg-stone-50 p-4">
+              <SuitePieces />
+            </div>
+            <div className="flex flex-1 items-start justify-center overflow-y-auto p-5 sm:p-7">
+              <LivePreview />
+            </div>
           </div>
-        </div>
-
-        {/* Right panel - Preview */}
-        <div className="flex w-full flex-1 flex-col lg:w-3/5">
-          <div className="border-b border-stone-200 p-4">
-            <SuitePieces />
-          </div>
-
-          <div className="flex flex-1 items-start justify-center overflow-y-auto p-6">
-            <LivePreview />
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

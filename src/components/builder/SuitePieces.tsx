@@ -20,24 +20,29 @@ export default function SuitePieces() {
   const { activePiece, setActivePiece } = useDesignStore();
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
+    <div className="space-y-2">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        Preview Piece
+      </p>
+      <div className="flex gap-2 overflow-x-auto pb-1">
       {pieces.map((piece) => (
         <button
           key={piece.id}
           onClick={() => setActivePiece(piece.id)}
           className={`
-            whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium
+            whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium
             transition-colors duration-200
             ${
               activePiece === piece.id
-                ? "bg-stone-800 text-white"
-                : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                ? "border-stone-800 bg-stone-800 text-white"
+                : "border-stone-200 bg-white text-stone-600 hover:bg-stone-100"
             }
           `}
         >
           {piece.label}
         </button>
       ))}
+      </div>
     </div>
   );
 }

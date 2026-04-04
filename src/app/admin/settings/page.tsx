@@ -3,6 +3,16 @@
 import { useState, useEffect } from "react";
 
 export default function AdminSettingsPage() {
+  interface EtsyBundleConfig {
+    id: string;
+    min_distinct_items: number;
+    deal_code: string;
+    unlocked_message: string;
+    locked_message: string;
+    is_active: boolean;
+    updated_at: string | null;
+  }
+
   interface EtsyRoute {
     id: string;
     event_type: string;
@@ -25,6 +35,17 @@ export default function AdminSettingsPage() {
   const [loadingEtsyRoutes, setLoadingEtsyRoutes] = useState(false);
   const [etsyMessage, setEtsyMessage] = useState("");
   const [etsyError, setEtsyError] = useState("");
+  const [bundleConfig, setBundleConfig] = useState<EtsyBundleConfig | null>(null);
+  const [bundleConfigForm, setBundleConfigForm] = useState({
+    minDistinctItems: "4",
+    dealCode: "STUDIO4PLUS",
+    unlockedMessage:
+      "Mix & Match 4+ perk unlocked. Ask seller to apply STUDIO4PLUS for bundle savings and coordinated finishing recommendations.",
+    lockedMessage:
+      "Add 4 or more different pieces to unlock the STUDIO4PLUS bundle perk on Etsy.",
+    isActive: true,
+  });
+  const [savingBundleConfig, setSavingBundleConfig] = useState(false);
   const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
   const [routeForm, setRouteForm] = useState({
     eventType: "default",
@@ -37,6 +58,7 @@ export default function AdminSettingsPage() {
     const email = localStorage.getItem("admin_email") || "";
     setAdminEmail(email);
     void loadEtsyRoutes();
+    void loadBundleConfig();
   }, []);
 
   async function loadEtsyRoutes() {
@@ -60,6 +82,73 @@ export default function AdminSettingsPage() {
       );
     } finally {
       setLoadingEtsyRoutes(false);
+    }
+  }
+
+  async function loadBundleConfig() {
+    setEtsyError("");
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch("/api/admin/etsy-bundle-config", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to load bundle config");
+      }
+      const cfg = data.config as EtsyBundleConfig | null;
+      if (!cfg) return;
+      setBundleConfig(cfg);
+      setBundleConfigForm({
+        minDistinctItems: String(cfg.min_distinct_items || 4),
+        dealCode: cfg.deal_code || "STUDIO4PLUS",
+        unlockedMessage: cfg.unlocked_message || "",
+        lockedMessage: cfg.locked_message || "",
+        isActive: cfg.is_active,
+      });
+    } catch (err) {
+      setEtsyError(
+        err instanceof Error ? err.message : "Failed to load bundle config",
+      );
+    }
+  }
+
+  async function handleSaveBundleConfig() {
+    setSavingBundleConfig(true);
+    setEtsyMessage("");
+    setEtsyError("");
+    try {
+      const token = localStorage.getItem("admin_token");
+      const minDistinctItems = Number.parseInt(bundleConfigForm.minDistinctItems, 10);
+      const res = await fetch("/api/admin/etsy-bundle-config", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          minDistinctItems,
+          dealCode: bundleConfigForm.dealCode,
+          unlockedMessage: bundleConfigForm.unlockedMessage,
+          lockedMessage: bundleConfigForm.lockedMessage,
+          isActive: bundleConfigForm.isActive,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save bundle config");
+      }
+      setEtsyMessage("Bundle rules updated.");
+      const cfg = data.config as EtsyBundleConfig;
+      setBundleConfig(cfg);
+    } catch (err) {
+      setEtsyError(
+        err instanceof Error ? err.message : "Failed to save bundle config",
+      );
+    } finally {
+      setSavingBundleConfig(false);
     }
   }
 
@@ -609,6 +698,113 @@ export default function AdminSettingsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Etsy Bundle Deal Config */}
+      <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <h3 className="font-semibold text-slate-900">Etsy Bundle Deal Rules</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Configure 4+ item bundle logic and messaging without redeploying.
+          </p>
+        </div>
+        <div className="px-6 py-5 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Min Distinct Items
+              </label>
+              <input
+                value={bundleConfigForm.minDistinctItems}
+                onChange={(e) =>
+                  setBundleConfigForm((prev) => ({
+                    ...prev,
+                    minDistinctItems: e.target.value,
+                  }))
+                }
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Deal Code
+              </label>
+              <input
+                value={bundleConfigForm.dealCode}
+                onChange={(e) =>
+                  setBundleConfigForm((prev) => ({
+                    ...prev,
+                    dealCode: e.target.value,
+                  }))
+                }
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="flex items-end">
+              <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={bundleConfigForm.isActive}
+                  onChange={(e) =>
+                    setBundleConfigForm((prev) => ({
+                      ...prev,
+                      isActive: e.target.checked,
+                    }))
+                  }
+                />
+                Active
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Unlocked Message
+            </label>
+            <textarea
+              value={bundleConfigForm.unlockedMessage}
+              onChange={(e) =>
+                setBundleConfigForm((prev) => ({
+                  ...prev,
+                  unlockedMessage: e.target.value,
+                }))
+              }
+              rows={3}
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Locked Message
+            </label>
+            <textarea
+              value={bundleConfigForm.lockedMessage}
+              onChange={(e) =>
+                setBundleConfigForm((prev) => ({
+                  ...prev,
+                  lockedMessage: e.target.value,
+                }))
+              }
+              rows={3}
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleSaveBundleConfig}
+              disabled={savingBundleConfig}
+              className="px-4 py-2 text-sm font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {savingBundleConfig ? "Saving..." : "Save Bundle Rules"}
+            </button>
+            {bundleConfig?.updated_at && (
+              <p className="text-xs text-slate-500">
+                Last updated: {new Date(bundleConfig.updated_at).toLocaleString()}
+              </p>
+            )}
           </div>
         </div>
       </section>

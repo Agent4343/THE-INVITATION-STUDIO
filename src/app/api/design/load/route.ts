@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import { verifyToken } from "@/lib/auth";
+import { normalizeLegacyDesignContent } from "@/lib/designContent";
 
 export async function GET(request: Request) {
   try {
@@ -48,12 +49,26 @@ export async function GET(request: Request) {
       );
     }
 
+    const { content: normalizedContent, changed } = normalizeLegacyDesignContent(
+      design.content,
+    );
+
+    if (changed) {
+      await supabase
+        .from("designs")
+        .update({
+          content: normalizedContent,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", designId);
+    }
+
     return NextResponse.json({
       design: {
         templateId: design.template_id,
         paletteId: design.palette_id,
         fontId: design.font_id,
-        content: design.content,
+        content: normalizedContent,
       },
     });
   } catch {
