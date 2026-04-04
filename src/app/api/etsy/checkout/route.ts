@@ -7,6 +7,8 @@ import { templates } from "@/data/templates";
 import {
   buildEtsyDraftPayload,
   deriveDealFromSelection,
+  type EtsyBundleConfig,
+  type EtsyAddonInput,
   normalizeSelectedItems,
   toEtsyPersonalizationNote,
 } from "@/lib/etsy";
@@ -40,6 +42,27 @@ function getMessageSellerUrl(): string {
   return `${getEnv("ETSY_SHOP_URL").replace(/\/+$/, "")}/contact`;
 }
 
+async function loadBundleConfig(supabase: ReturnType<typeof createServerSupabase>) {
+  const { data } = await supabase
+    .from("etsy_bundle_configs")
+    .select(
+      "is_active,min_distinct_items,deal_code,unlocked_message,locked_message",
+    )
+    .eq("singleton_key", "default")
+    .maybeSingle();
+
+  if (!data) return undefined;
+
+  const config: Partial<EtsyBundleConfig> = {
+    isActive: data.is_active,
+    minDistinctItems: data.min_distinct_items,
+    code: data.deal_code,
+    unlockedMessage: data.unlocked_message,
+    lockedMessage: data.locked_message,
+  };
+  return config;
+}
+
 export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get("Authorization");
@@ -59,6 +82,7 @@ export async function POST(request: Request) {
       designId?: string;
       etsyPath?: "listing" | "message";
       selectedItems?: unknown;
+      selectedAddons?: unknown;
     };
     if (!body.designId || body.designId !== payload.designId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -84,6 +108,18 @@ export async function POST(request: Request) {
         ? (body.selectedItems as Array<{ id?: string; quantity?: number }>)
         : undefined,
     );
+    const normalizedAddons: EtsyAddonInput[] = Array.isArray(body.selectedAddons)
+      ? (body.selectedAddons
+          .map((item) => {
+            if (typeof item === "string") return { id: item };
+            if (typeof item === "object" && item !== null) {
+              return { id: (item as { id?: unknown }).id as string | undefined };
+            }
+            return { id: undefined };
+          }))
+      : [];
+
+    const bundleConfig = await loadBundleConfig(supabase);
 
     const draftPayload = buildEtsyDraftPayload({
       content: (design.content ?? {}) as Record<string, unknown>,
@@ -91,8 +127,10 @@ export async function POST(request: Request) {
       paletteName: palette?.name || "Palette",
       fontName: font?.name || "Font",
       selectedItems: normalizedItems,
+      selectedAddons: normalizedAddons,
+      bundleConfig,
     });
-    const deal = deriveDealFromSelection(draftPayload.lineItems);
+    const deal = deriveDealFromSelection(draftPayload.lineItems, bundleConfig);
 
     const personalizationText = toEtsyPersonalizationNote(draftPayload);
     let selectedRoute: EtsyListingRoute | null = null;

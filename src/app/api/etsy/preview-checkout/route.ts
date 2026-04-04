@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase";
 import {
   buildEtsyDraftPayload,
+  type EtsyAddonInput,
+  type EtsyBundleConfig,
   deriveDealFromSelection,
   normalizeSelectedItems,
   toEtsyPersonalizationNote,
@@ -46,6 +48,27 @@ function isContentRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+async function loadBundleConfig(supabase: ReturnType<typeof createServerSupabase>) {
+  const { data } = await supabase
+    .from("etsy_bundle_configs")
+    .select(
+      "is_active,min_distinct_items,deal_code,unlocked_message,locked_message",
+    )
+    .eq("singleton_key", "default")
+    .maybeSingle();
+
+  if (!data) return undefined;
+
+  const config: Partial<EtsyBundleConfig> = {
+    isActive: data.is_active,
+    minDistinctItems: data.min_distinct_items,
+    code: data.deal_code,
+    unlockedMessage: data.unlocked_message,
+    lockedMessage: data.locked_message,
+  };
+  return config;
+}
+
 export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
@@ -72,6 +95,7 @@ export async function POST(request: Request) {
       templateName?: string;
       paletteName?: string;
       fontName?: string;
+      selectedAddons?: unknown;
     };
 
     if (!isContentRecord(body.content)) {
@@ -87,14 +111,29 @@ export async function POST(request: Request) {
         : undefined,
     );
 
+    const selectedAddons: EtsyAddonInput[] = Array.isArray(body.selectedAddons)
+      ? body.selectedAddons.map((item) => {
+          if (typeof item === "string") return { id: item };
+          if (typeof item === "object" && item !== null) {
+            return { id: (item as { id?: unknown }).id as string | undefined };
+          }
+          return { id: undefined };
+        })
+      : [];
+
+    const supabase = createServerSupabase();
+    const bundleConfig = await loadBundleConfig(supabase);
+
     const draftPayload = buildEtsyDraftPayload({
       content: body.content,
       templateName: String(body.templateName || "Template"),
       paletteName: String(body.paletteName || "Palette"),
       fontName: String(body.fontName || "Font"),
       selectedItems: normalizedItems,
+      selectedAddons,
+      bundleConfig,
     });
-    const deal = deriveDealFromSelection(draftPayload.lineItems);
+    const deal = deriveDealFromSelection(draftPayload.lineItems, bundleConfig);
     const personalizationText = toEtsyPersonalizationNote(draftPayload);
 
     let selectedRoute: EtsyListingRoute | null = null;
@@ -103,7 +142,6 @@ export async function POST(request: Request) {
     if (body.etsyPath === "message") {
       checkoutUrl = getMessageSellerUrl();
     } else {
-      const supabase = createServerSupabase();
       const eventCandidates = routeCandidates(draftPayload.eventType);
       const { data: routeRows } = await supabase
         .from("etsy_listing_routes")
