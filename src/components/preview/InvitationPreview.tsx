@@ -11,35 +11,113 @@ interface PreviewProps {
   content: DesignContent;
 }
 
+type EventKind =
+  | "birthday"
+  | "anniversary"
+  | "engagement"
+  | "vow-renewal"
+  | "baby-shower"
+  | "bridal-shower"
+  | "graduation"
+  | "retirement"
+  | "holiday-party"
+  | "corporate-event"
+  | "elopement"
+  | "civil-ceremony"
+  | "wedding"
+  | "default";
+
 function normalizeEventType(value?: string): string {
-  return (value || "celebration").trim().toLowerCase();
+  return (value || "celebration")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
+}
+
+function normalizeEventKind(value?: string): EventKind {
+  const eventType = normalizeEventType(value);
+  if (eventType.includes("birthday")) return "birthday";
+  if (eventType.includes("vow-renewal") || (eventType.includes("vow") && eventType.includes("renew"))) {
+    return "vow-renewal";
+  }
+  if (eventType.includes("anniversary")) return "anniversary";
+  if (eventType.includes("engagement")) return "engagement";
+  if ((eventType.includes("baby") && eventType.includes("shower")) || eventType.includes("baby-shower")) {
+    return "baby-shower";
+  }
+  if ((eventType.includes("bridal") && eventType.includes("shower")) || eventType.includes("bridal-shower")) {
+    return "bridal-shower";
+  }
+  if (eventType.includes("graduation")) return "graduation";
+  if (eventType.includes("retirement")) return "retirement";
+  if (eventType.includes("holiday") || eventType.includes("christmas") || eventType.includes("new-year")) {
+    return "holiday-party";
+  }
+  if (eventType.includes("corporate") || eventType.includes("company") || eventType.includes("team-event")) {
+    return "corporate-event";
+  }
+  if (eventType.includes("elopement")) return "elopement";
+  if (eventType.includes("civil-ceremony") || (eventType.includes("civil") && eventType.includes("ceremony"))) {
+    return "civil-ceremony";
+  }
+  if (eventType.includes("wedding")) return "wedding";
+  return "default";
 }
 
 function invitationLineForEvent(content: DesignContent): string {
   if (content.invitationLine?.trim()) return content.invitationLine.trim();
-  const eventType = normalizeEventType(content.eventType);
-  if (eventType.includes("birthday")) return "invite you to a birthday celebration";
-  if (eventType.includes("anniversary") || eventType.includes("vow-renewal")) {
-    return "invite you to celebrate an anniversary";
+  switch (normalizeEventKind(content.eventType)) {
+    case "birthday":
+      return "invite you to a birthday celebration";
+    case "anniversary":
+      return "invite you to celebrate our anniversary";
+    case "engagement":
+      return "invite you to celebrate our engagement";
+    case "vow-renewal":
+      return "invite you to celebrate our vow renewal";
+    case "baby-shower":
+      return "invite you to a baby shower celebration";
+    case "bridal-shower":
+      return "invite you to a bridal shower celebration";
+    case "graduation":
+      return "invite you to celebrate this graduation";
+    case "retirement":
+      return "invite you to celebrate a retirement";
+    case "holiday-party":
+      return "invite you to our holiday party";
+    case "corporate-event":
+      return "invite you to our corporate celebration";
+    case "elopement":
+      return "invite you to celebrate our elopement";
+    case "civil-ceremony":
+      return "invite you to celebrate our civil ceremony";
+    default:
+      return "invite you to celebrate with us";
   }
-  if (eventType.includes("baby-shower")) return "invite you to a baby shower celebration";
-  if (eventType.includes("bridal-shower")) return "invite you to a bridal shower celebration";
-  if (eventType.includes("graduation")) return "invite you to celebrate this graduation";
-  if (eventType.includes("retirement")) return "invite you to celebrate a retirement";
-  return "invite you to celebrate with us";
 }
 
 function preHeadingForEvent(content: DesignContent): string {
   if (content.preHeading?.trim()) return content.preHeading.trim();
-  const eventType = normalizeEventType(content.eventType);
-  if (eventType.includes("birthday")) return "Join us for a birthday celebration";
-  if (eventType.includes("anniversary") || eventType.includes("vow-renewal")) {
-    return "Together with our loved ones";
+  switch (normalizeEventKind(content.eventType)) {
+    case "birthday":
+      return "Join us for a birthday celebration";
+    case "anniversary":
+    case "vow-renewal":
+    case "engagement":
+    case "civil-ceremony":
+      return "Together with our loved ones";
+    case "baby-shower":
+    case "bridal-shower":
+      return "Hosted with love";
+    case "holiday-party":
+      return "You're invited to celebrate the season";
+    case "corporate-event":
+      return "You're invited";
+    case "elopement":
+      return "A small celebration with those we love";
+    default:
+      return "Hosted by friends and family";
   }
-  if (eventType.includes("baby-shower") || eventType.includes("bridal-shower")) {
-    return "Hosted with love";
-  }
-  return "Hosted by friends and family";
 }
 
 function sampleInvitationDefaults(content: DesignContent): {
@@ -50,75 +128,127 @@ function sampleInvitationDefaults(content: DesignContent): {
   venue: string;
   address: string;
 } {
-  const eventType = normalizeEventType(content.eventType);
-  if (eventType.includes("birthday")) {
-    return {
-      name1: "Alex",
-      name2: "Jordan",
-      date: "Saturday, October 18, 2026",
-      time: "6:00 PM",
-      venue: "Celebration Hall",
-      address: "123 Celebration Lane, Your City, ST",
-    };
+  switch (normalizeEventKind(content.eventType)) {
+    case "birthday":
+      return {
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "6:00 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+      };
+    case "anniversary":
+      return {
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "5:00 PM",
+        venue: "Anniversary House",
+        address: "456 Memory Lane, Your City, ST",
+      };
+    case "engagement":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Saturday, May 8, 2027",
+        time: "5:30 PM",
+        venue: "Riverside Loft",
+        address: "25 Harbor Street, Your City, ST",
+      };
+    case "vow-renewal":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Sunday, August 22, 2027",
+        time: "4:00 PM",
+        venue: "Sunset Garden",
+        address: "18 Willow Avenue, Your City, ST",
+      };
+    case "baby-shower":
+      return {
+        name1: "Taylor",
+        name2: "Morgan",
+        date: "Sunday, October 19, 2026",
+        time: "11:00 AM",
+        venue: "Garden Room",
+        address: "789 Blossom Street, Your City, ST",
+      };
+    case "bridal-shower":
+      return {
+        name1: "Taylor",
+        name2: "Riley",
+        date: "Saturday, October 18, 2026",
+        time: "1:00 PM",
+        venue: "Rosewood Lounge",
+        address: "321 Rose Avenue, Your City, ST",
+      };
+    case "graduation":
+      return {
+        name1: "Jordan",
+        name2: "Family & Friends",
+        date: "Saturday, June 12, 2027",
+        time: "2:00 PM",
+        venue: "Main Auditorium",
+        address: "200 University Way, Your City, ST",
+      };
+    case "retirement":
+      return {
+        name1: "Alex",
+        name2: "Colleagues & Friends",
+        date: "Friday, September 10, 2027",
+        time: "6:30 PM",
+        venue: "Banquet Hall",
+        address: "100 Heritage Drive, Your City, ST",
+      };
+    case "holiday-party":
+      return {
+        name1: "The Rivera Family",
+        name2: "Friends & Neighbors",
+        date: "Saturday, December 12, 2026",
+        time: "7:00 PM",
+        venue: "Winter Hall",
+        address: "90 Evergreen Avenue, Your City, ST",
+      };
+    case "corporate-event":
+      return {
+        name1: "Horizon Team",
+        name2: "Clients & Partners",
+        date: "Thursday, November 4, 2027",
+        time: "6:00 PM",
+        venue: "City Conference Center",
+        address: "410 Commerce Plaza, Your City, ST",
+      };
+    case "elopement":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, July 16, 2027",
+        time: "4:00 PM",
+        venue: "Cliffside Terrace",
+        address: "12 Seaview Point, Your City, ST",
+      };
+    case "civil-ceremony":
+      return {
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, June 18, 2027",
+        time: "3:30 PM",
+        venue: "City Hall Atrium",
+        address: "1 Municipal Square, Your City, ST",
+      };
+    case "wedding":
+    case "default":
+    default:
+      return {
+        name1: "Alex",
+        name2: "Jordan",
+        date: "Saturday, October 18, 2026",
+        time: "4:30 PM",
+        venue: "Celebration Hall",
+        address: "123 Celebration Lane, Your City, ST",
+      };
   }
-  if (eventType.includes("anniversary") || eventType.includes("vow-renewal")) {
-    return {
-      name1: "Alex",
-      name2: "Jordan",
-      date: "Saturday, October 18, 2026",
-      time: "5:00 PM",
-      venue: "Anniversary House",
-      address: "456 Memory Lane, Your City, ST",
-    };
-  }
-  if (eventType.includes("baby-shower")) {
-    return {
-      name1: "Taylor",
-      name2: "Morgan",
-      date: "Sunday, October 19, 2026",
-      time: "11:00 AM",
-      venue: "Garden Room",
-      address: "789 Blossom Street, Your City, ST",
-    };
-  }
-  if (eventType.includes("bridal-shower")) {
-    return {
-      name1: "Taylor",
-      name2: "Riley",
-      date: "Saturday, October 18, 2026",
-      time: "1:00 PM",
-      venue: "Rosewood Lounge",
-      address: "321 Rose Avenue, Your City, ST",
-    };
-  }
-  if (eventType.includes("graduation")) {
-    return {
-      name1: "Jordan",
-      name2: "Family & Friends",
-      date: "Saturday, June 12, 2027",
-      time: "2:00 PM",
-      venue: "Main Auditorium",
-      address: "200 University Way, Your City, ST",
-    };
-  }
-  if (eventType.includes("retirement")) {
-    return {
-      name1: "Alex",
-      name2: "Colleagues & Friends",
-      date: "Friday, September 10, 2027",
-      time: "6:30 PM",
-      venue: "Banquet Hall",
-      address: "100 Heritage Drive, Your City, ST",
-    };
-  }
-  return {
-    name1: "Alex",
-    name2: "Jordan",
-    date: "Saturday, October 18, 2026",
-    time: "4:30 PM",
-    venue: "Celebration Hall",
-    address: "123 Celebration Lane, Your City, ST",
-  };
 }
 
 function getBorderStyle(borderStyle: Template["borderStyle"], color: string): React.CSSProperties {
@@ -422,7 +552,7 @@ export default function InvitationPreview({ template, palette, font, content }: 
             zIndex: 1,
           }}
         >
-          <InvitationSubtext text="invite you to celebrate" palette={palette} font={font} />
+          <InvitationSubtext text={invitationLine} palette={palette} font={font} />
           <div style={{ height: baseSpacing * 0.8 }} />
           <p
             style={{

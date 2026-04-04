@@ -23,22 +23,37 @@ interface Section {
 type EventKind =
   | "birthday"
   | "anniversary"
+  | "engagement"
+  | "vow-renewal"
   | "baby-shower"
   | "bridal-shower"
   | "graduation"
   | "retirement"
+  | "holiday-party"
+  | "corporate-event"
+  | "elopement"
+  | "civil-ceremony"
   | "wedding"
   | "default";
 
 function normalizeEventKind(value?: string): EventKind {
-  const v = (value || "").trim().toLowerCase();
+  const v = (value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
   if (v.includes("birthday")) return "birthday";
-  if (v.includes("anniversary") || v.includes("vow-renewal")) return "anniversary";
-  if (v.includes("baby-shower")) return "baby-shower";
-  if (v.includes("bridal-shower")) return "bridal-shower";
+  if (v.includes("vow-renewal") || (v.includes("vow") && v.includes("renew"))) return "vow-renewal";
+  if (v.includes("anniversary")) return "anniversary";
+  if (v.includes("engagement")) return "engagement";
+  if ((v.includes("baby") && v.includes("shower")) || v.includes("baby-shower")) return "baby-shower";
+  if ((v.includes("bridal") && v.includes("shower")) || v.includes("bridal-shower")) return "bridal-shower";
   if (v.includes("graduation")) return "graduation";
   if (v.includes("retirement")) return "retirement";
-  if (v.includes("wedding") || v.includes("elopement") || v.includes("civil-ceremony")) return "wedding";
+  if (v.includes("holiday") || v.includes("christmas") || v.includes("new-year")) return "holiday-party";
+  if (v.includes("corporate") || v.includes("company") || v.includes("team-event")) return "corporate-event";
+  if (v.includes("elopement")) return "elopement";
+  if (v.includes("civil-ceremony") || (v.includes("civil") && v.includes("ceremony"))) return "civil-ceremony";
+  if (v.includes("wedding")) return "wedding";
   return "default";
 }
 
@@ -50,7 +65,7 @@ const sections: Section[] = [
         key: "eventType",
         label: "Event Type",
         placeholder:
-          "birthday, anniversary, wedding, elopement, civil-ceremony, vow-renewal, engagement, bridal-shower, baby-shower, graduation, retirement, holiday",
+          "birthday, anniversary, engagement, vow-renewal, wedding, elopement, civil-ceremony, bridal-shower, baby-shower, graduation, retirement, holiday-party, corporate-event",
         maxLength: 40,
       },
       {
@@ -304,6 +319,26 @@ function getEventSpecificOverrides(eventType?: string): Partial<Record<string, F
       welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to Our Anniversary Celebration", maxLength: 80, aiField: true },
       thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for celebrating our anniversary with us.", multiline: true, maxLength: 200, aiField: true },
     },
+    engagement: {
+      invitationLine: { key: "invitationLine", label: "Engagement Invitation Line", placeholder: "invite you to celebrate our engagement", maxLength: 120, aiField: true },
+      hostLine: { key: "hostLine", label: "Host Line", placeholder: "Together with our families", maxLength: 120, aiField: true },
+      ceremonyDetails: { key: "ceremonyDetails", label: "Celebration Program", placeholder: "Engagement celebration begins at 5:30 PM with a welcome toast.", multiline: true, maxLength: 200, aiField: true },
+      receptionDetails: { key: "receptionDetails", label: "Reception Details", placeholder: "Cocktails and light bites to follow in the lounge.", multiline: true, maxLength: 200, aiField: true },
+      dressCode: { key: "dressCode", label: "Dress Code", placeholder: "Cocktail Attire", maxLength: 40, aiField: true },
+      saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for Our Engagement Party", maxLength: 60, aiField: true },
+      welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to Our Engagement Celebration", maxLength: 80, aiField: true },
+      thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for sharing in our engagement celebration.", multiline: true, maxLength: 200, aiField: true },
+    },
+    "vow-renewal": {
+      invitationLine: { key: "invitationLine", label: "Vow Renewal Line", placeholder: "invite you to celebrate our vow renewal", maxLength: 120, aiField: true },
+      hostLine: { key: "hostLine", label: "Host Line", placeholder: "Together with our loved ones", maxLength: 120, aiField: true },
+      ceremonyDetails: { key: "ceremonyDetails", label: "Ceremony Details", placeholder: "Vow renewal begins at 4:00 PM in the garden courtyard.", multiline: true, maxLength: 200, aiField: true },
+      receptionDetails: { key: "receptionDetails", label: "Celebration Details", placeholder: "Dinner, stories, and dancing to follow.", multiline: true, maxLength: 200, aiField: true },
+      dressCode: { key: "dressCode", label: "Dress Code", placeholder: "Semi-Formal", maxLength: 40, aiField: true },
+      saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for Our Vow Renewal", maxLength: 60, aiField: true },
+      welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to Our Vow Renewal Celebration", maxLength: 80, aiField: true },
+      thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for celebrating our vow renewal with us.", multiline: true, maxLength: 200, aiField: true },
+    },
     "baby-shower": {
       invitationLine: { key: "invitationLine", label: "Shower Invitation Line", placeholder: "invite you to celebrate our growing family", maxLength: 120, aiField: true },
       hostLine: { key: "hostLine", label: "Host Line", placeholder: "Hosted by family and friends", maxLength: 120, aiField: true },
@@ -335,6 +370,46 @@ function getEventSpecificOverrides(eventType?: string): Partial<Record<string, F
       receptionDetails: { key: "receptionDetails", label: "Celebration Details", placeholder: "Dinner and tribute stories to follow.", multiline: true, maxLength: 200, aiField: true },
       saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for the Retirement Celebration", maxLength: 60, aiField: true },
       welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to the Retirement Celebration", maxLength: 80, aiField: true },
+    },
+    "holiday-party": {
+      invitationLine: { key: "invitationLine", label: "Holiday Invitation Line", placeholder: "invite you to our holiday party", maxLength: 120, aiField: true },
+      hostLine: { key: "hostLine", label: "Host Line", placeholder: "You're invited to celebrate the season", maxLength: 120, aiField: true },
+      ceremonyDetails: { key: "ceremonyDetails", label: "Party Details", placeholder: "Holiday party begins at 7:00 PM with seasonal drinks and appetizers.", multiline: true, maxLength: 200, aiField: true },
+      receptionDetails: { key: "receptionDetails", label: "Celebration Details", placeholder: "Dinner, music, and celebration to follow.", multiline: true, maxLength: 200, aiField: true },
+      dressCode: { key: "dressCode", label: "Style Note", placeholder: "Festive Attire", maxLength: 40, aiField: true },
+      saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for the Holiday Party", maxLength: 60, aiField: true },
+      welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to the Holiday Celebration", maxLength: 80, aiField: true },
+      thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for celebrating the season with us.", multiline: true, maxLength: 200, aiField: true },
+    },
+    "corporate-event": {
+      invitationLine: { key: "invitationLine", label: "Corporate Invitation Line", placeholder: "invite you to our corporate celebration", maxLength: 120, aiField: true },
+      hostLine: { key: "hostLine", label: "Host Line", placeholder: "You're invited", maxLength: 120, aiField: true },
+      ceremonyDetails: { key: "ceremonyDetails", label: "Program Details", placeholder: "Event opens at 6:00 PM with networking and opening remarks.", multiline: true, maxLength: 200, aiField: true },
+      receptionDetails: { key: "receptionDetails", label: "Agenda Details", placeholder: "Dinner service and keynote presentation to follow.", multiline: true, maxLength: 200, aiField: true },
+      dressCode: { key: "dressCode", label: "Dress Code", placeholder: "Business Formal", maxLength: 40, aiField: true },
+      saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for Our Corporate Event", maxLength: 60, aiField: true },
+      welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to the Corporate Event", maxLength: 80, aiField: true },
+      thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for being part of our event.", multiline: true, maxLength: 200, aiField: true },
+    },
+    elopement: {
+      invitationLine: { key: "invitationLine", label: "Elopement Invitation Line", placeholder: "invite you to celebrate our elopement", maxLength: 120, aiField: true },
+      hostLine: { key: "hostLine", label: "Host Line", placeholder: "A small celebration with those we love", maxLength: 120, aiField: true },
+      ceremonyDetails: { key: "ceremonyDetails", label: "Ceremony Details", placeholder: "Intimate ceremony begins at 4:00 PM on the terrace.", multiline: true, maxLength: 200, aiField: true },
+      receptionDetails: { key: "receptionDetails", label: "Celebration Details", placeholder: "Champagne toast and dinner to follow.", multiline: true, maxLength: 200, aiField: true },
+      dressCode: { key: "dressCode", label: "Dress Code", placeholder: "Elegant Casual", maxLength: 40, aiField: true },
+      saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for Our Elopement Celebration", maxLength: 60, aiField: true },
+      welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to Our Elopement Celebration", maxLength: 80, aiField: true },
+      thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for sharing in our elopement celebration.", multiline: true, maxLength: 200, aiField: true },
+    },
+    "civil-ceremony": {
+      invitationLine: { key: "invitationLine", label: "Civil Ceremony Line", placeholder: "invite you to celebrate our civil ceremony", maxLength: 120, aiField: true },
+      hostLine: { key: "hostLine", label: "Host Line", placeholder: "Together with our loved ones", maxLength: 120, aiField: true },
+      ceremonyDetails: { key: "ceremonyDetails", label: "Ceremony Details", placeholder: "Civil ceremony begins at 3:30 PM in the city hall chamber.", multiline: true, maxLength: 200, aiField: true },
+      receptionDetails: { key: "receptionDetails", label: "Celebration Details", placeholder: "Refreshments and photos to follow nearby.", multiline: true, maxLength: 200, aiField: true },
+      dressCode: { key: "dressCode", label: "Dress Code", placeholder: "Semi-Formal", maxLength: 40, aiField: true },
+      saveTheDateMessage: { key: "saveTheDateMessage", label: "Save Message", placeholder: "Save the Date for Our Civil Ceremony", maxLength: 60, aiField: true },
+      welcomeMessage: { key: "welcomeMessage", label: "Welcome Message", placeholder: "Welcome to Our Civil Ceremony Celebration", maxLength: 80, aiField: true },
+      thankYouMessage: { key: "thankYouMessage", label: "Thank You Message", placeholder: "Thank you for celebrating our civil ceremony with us.", multiline: true, maxLength: 200, aiField: true },
     },
     wedding: {
       invitationLine: { key: "invitationLine", label: "Invitation Line", placeholder: "invite you to celebrate with us", maxLength: 120, aiField: true },

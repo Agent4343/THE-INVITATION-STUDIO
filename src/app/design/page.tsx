@@ -20,10 +20,16 @@ const EVENT_PRESETS = [
   { value: "celebration", label: "General" },
   { value: "birthday", label: "Birthday" },
   { value: "anniversary", label: "Anniversary" },
+  { value: "engagement", label: "Engagement" },
+  { value: "vow-renewal", label: "Vow Renewal" },
   { value: "baby-shower", label: "Baby Shower" },
   { value: "bridal-shower", label: "Bridal Shower" },
   { value: "graduation", label: "Graduation" },
   { value: "retirement", label: "Retirement" },
+  { value: "holiday-party", label: "Holiday Party" },
+  { value: "corporate-event", label: "Corporate Event" },
+  { value: "elopement", label: "Elopement" },
+  { value: "civil-ceremony", label: "Civil Ceremony" },
   { value: "wedding", label: "Wedding" },
 ] as const;
 
@@ -31,23 +37,38 @@ interface EventStarterCopy {
   preHeading: string;
   invitationLine: string;
   welcomeMessage: string;
+  welcomeSubtext: string;
   name1: string;
   name2: string;
   date: string;
   time: string;
   venue: string;
   address: string;
+  ceremonyDetails: string;
+  receptionDetails: string;
+  dressCode: string;
+  saveTheDateMessage: string;
+  thankYouMessage: string;
 }
 
 function normalizeEventPreset(value?: string): string {
-  const v = (value || "").trim().toLowerCase();
+  const v = (value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
   if (v.includes("birthday")) return "birthday";
-  if (v.includes("anniversary") || v.includes("vow-renewal")) return "anniversary";
-  if (v.includes("baby-shower")) return "baby-shower";
-  if (v.includes("bridal-shower")) return "bridal-shower";
+  if (v.includes("vow-renewal") || (v.includes("vow") && v.includes("renew"))) return "vow-renewal";
+  if (v.includes("anniversary")) return "anniversary";
+  if (v.includes("engagement")) return "engagement";
+  if ((v.includes("baby") && v.includes("shower")) || v.includes("baby-shower")) return "baby-shower";
+  if ((v.includes("bridal") && v.includes("shower")) || v.includes("bridal-shower")) return "bridal-shower";
   if (v.includes("graduation")) return "graduation";
   if (v.includes("retirement")) return "retirement";
-  if (v.includes("wedding") || v.includes("elopement") || v.includes("civil-ceremony")) return "wedding";
+  if (v.includes("holiday") || v.includes("christmas") || v.includes("new-year")) return "holiday-party";
+  if (v.includes("corporate") || v.includes("company") || v.includes("team-event")) return "corporate-event";
+  if (v.includes("elopement")) return "elopement";
+  if (v.includes("civil-ceremony") || (v.includes("civil") && v.includes("ceremony"))) return "civil-ceremony";
+  if (v.includes("wedding")) return "wedding";
   return "celebration";
 }
 
@@ -63,96 +84,252 @@ function starterCopyForPreset(eventType: string): EventStarterCopy {
         preHeading: "Join us for a birthday celebration",
         invitationLine: "invite you to celebrate this birthday with us",
         welcomeMessage: "Welcome to the Birthday Celebration",
+        welcomeSubtext: "Let the celebration begin",
         name1: "Alex",
         name2: "Jordan",
         date: "Saturday, October 18, 2026",
         time: "6:00 PM",
         venue: "Celebration Hall",
         address: "123 Celebration Lane, Your City, ST",
+        ceremonyDetails: "Birthday celebration starts at 6:00 PM with welcome drinks and photos.",
+        receptionDetails: "Dinner, cake, and dancing to follow.",
+        dressCode: "Festive Casual",
+        saveTheDateMessage: "Save the Date for the Birthday Celebration",
+        thankYouMessage: "Thank you for celebrating this birthday with us.",
       };
     case "anniversary":
       return {
         preHeading: "Together with our loved ones",
         invitationLine: "invite you to celebrate our anniversary",
         welcomeMessage: "Welcome to Our Anniversary Celebration",
+        welcomeSubtext: "Please find your seat and enjoy the evening",
         name1: "Alex",
         name2: "Jordan",
         date: "Saturday, October 18, 2026",
         time: "5:00 PM",
         venue: "Anniversary House",
         address: "456 Memory Lane, Your City, ST",
+        ceremonyDetails: "Anniversary celebration begins at 5:00 PM with a welcome toast.",
+        receptionDetails: "Dinner and dancing to follow in the main hall.",
+        dressCode: "Cocktail Attire",
+        saveTheDateMessage: "Save the Date for Our Anniversary",
+        thankYouMessage: "Thank you for celebrating our anniversary with us.",
+      };
+    case "engagement":
+      return {
+        preHeading: "Together with our families",
+        invitationLine: "invite you to celebrate our engagement",
+        welcomeMessage: "Welcome to Our Engagement Celebration",
+        welcomeSubtext: "Please join us for cocktails and celebration",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Saturday, May 8, 2027",
+        time: "5:30 PM",
+        venue: "Riverside Loft",
+        address: "25 Harbor Street, Your City, ST",
+        ceremonyDetails: "Engagement celebration begins at 5:30 PM with a welcome toast.",
+        receptionDetails: "Cocktails and light bites to follow in the lounge.",
+        dressCode: "Cocktail Attire",
+        saveTheDateMessage: "Save the Date for Our Engagement Party",
+        thankYouMessage: "Thank you for sharing in our engagement celebration.",
+      };
+    case "vow-renewal":
+      return {
+        preHeading: "Together with our loved ones",
+        invitationLine: "invite you to celebrate our vow renewal",
+        welcomeMessage: "Welcome to Our Vow Renewal Celebration",
+        welcomeSubtext: "Thank you for celebrating this milestone with us",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Sunday, August 22, 2027",
+        time: "4:00 PM",
+        venue: "Sunset Garden",
+        address: "18 Willow Avenue, Your City, ST",
+        ceremonyDetails: "Vow renewal begins at 4:00 PM in the garden courtyard.",
+        receptionDetails: "Dinner, stories, and dancing to follow.",
+        dressCode: "Semi-Formal",
+        saveTheDateMessage: "Save the Date for Our Vow Renewal",
+        thankYouMessage: "Thank you for celebrating our vow renewal with us.",
       };
     case "baby-shower":
       return {
         preHeading: "With joy in our hearts",
         invitationLine: "invite you to celebrate our growing family",
         welcomeMessage: "Welcome to the Baby Shower",
+        welcomeSubtext: "Thank you for celebrating this special chapter",
         name1: "Taylor",
         name2: "Morgan",
         date: "Sunday, October 19, 2026",
         time: "11:00 AM",
         venue: "Garden Room",
         address: "789 Blossom Street, Your City, ST",
+        ceremonyDetails: "Baby shower starts at 11:00 AM with brunch and games.",
+        receptionDetails: "Light refreshments and gift opening to follow.",
+        dressCode: "Pastel Garden Party",
+        saveTheDateMessage: "Save the Date for the Baby Shower",
+        thankYouMessage: "Thank you for showering us with love.",
       };
     case "bridal-shower":
       return {
         preHeading: "Hosted with love",
         invitationLine: "invite you to join the bridal shower celebration",
         welcomeMessage: "Welcome to the Bridal Shower",
+        welcomeSubtext: "Please enjoy the celebration and festivities",
         name1: "Taylor",
         name2: "Riley",
         date: "Saturday, October 18, 2026",
         time: "1:00 PM",
         venue: "Rosewood Lounge",
         address: "321 Rose Avenue, Your City, ST",
+        ceremonyDetails: "Bridal shower begins at 1:00 PM with brunch and games.",
+        receptionDetails: "Gift opening and desserts to follow.",
+        dressCode: "Smart Casual",
+        saveTheDateMessage: "Save the Date for the Bridal Shower",
+        thankYouMessage: "Thank you for celebrating the bride-to-be with us.",
       };
     case "graduation":
       return {
         preHeading: "Please join us",
         invitationLine: "invite you to celebrate this graduation milestone",
         welcomeMessage: "Welcome to the Graduation Celebration",
+        welcomeSubtext: "Please enjoy the celebration and reception",
         name1: "Jordan",
         name2: "Family & Friends",
         date: "Saturday, June 12, 2027",
         time: "2:00 PM",
         venue: "Main Auditorium",
         address: "200 University Way, Your City, ST",
+        ceremonyDetails: "Graduation ceremony starts at 10:00 AM at the main auditorium.",
+        receptionDetails: "Celebration reception to follow at 12:30 PM.",
+        dressCode: "Semi-Formal",
+        saveTheDateMessage: "Save the Date for Graduation",
+        thankYouMessage: "Thank you for celebrating this graduation with us.",
       };
     case "retirement":
       return {
         preHeading: "Please join us",
         invitationLine: "invite you to celebrate a remarkable retirement",
         welcomeMessage: "Welcome to the Retirement Celebration",
+        welcomeSubtext: "Please enjoy the tribute and dinner",
         name1: "Alex",
         name2: "Colleagues & Friends",
         date: "Friday, September 10, 2027",
         time: "6:30 PM",
         venue: "Banquet Hall",
         address: "100 Heritage Drive, Your City, ST",
+        ceremonyDetails: "Retirement celebration starts at 6:00 PM with remarks and a toast.",
+        receptionDetails: "Dinner and tribute stories to follow.",
+        dressCode: "Business Casual",
+        saveTheDateMessage: "Save the Date for the Retirement Celebration",
+        thankYouMessage: "Thank you for honoring this retirement milestone with us.",
+      };
+    case "holiday-party":
+      return {
+        preHeading: "You're invited to celebrate the season",
+        invitationLine: "invite you to our holiday party",
+        welcomeMessage: "Welcome to the Holiday Celebration",
+        welcomeSubtext: "Enjoy food, music, and festive cheer",
+        name1: "The Rivera Family",
+        name2: "Friends & Neighbors",
+        date: "Saturday, December 12, 2026",
+        time: "7:00 PM",
+        venue: "Winter Hall",
+        address: "90 Evergreen Avenue, Your City, ST",
+        ceremonyDetails: "Holiday party begins at 7:00 PM with seasonal drinks and appetizers.",
+        receptionDetails: "Dinner, music, and celebration to follow.",
+        dressCode: "Festive Attire",
+        saveTheDateMessage: "Save the Date for the Holiday Party",
+        thankYouMessage: "Thank you for celebrating the season with us.",
+      };
+    case "corporate-event":
+      return {
+        preHeading: "You're invited",
+        invitationLine: "invite you to our corporate celebration",
+        welcomeMessage: "Welcome to the Corporate Event",
+        welcomeSubtext: "Please check in at reception upon arrival",
+        name1: "Horizon Team",
+        name2: "Clients & Partners",
+        date: "Thursday, November 4, 2027",
+        time: "6:00 PM",
+        venue: "City Conference Center",
+        address: "410 Commerce Plaza, Your City, ST",
+        ceremonyDetails: "Event opens at 6:00 PM with networking and opening remarks.",
+        receptionDetails: "Dinner service and keynote presentation to follow.",
+        dressCode: "Business Formal",
+        saveTheDateMessage: "Save the Date for Our Corporate Event",
+        thankYouMessage: "Thank you for being part of our event.",
+      };
+    case "elopement":
+      return {
+        preHeading: "A small celebration with those we love",
+        invitationLine: "invite you to celebrate our elopement",
+        welcomeMessage: "Welcome to Our Elopement Celebration",
+        welcomeSubtext: "Thank you for joining our intimate celebration",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, July 16, 2027",
+        time: "4:00 PM",
+        venue: "Cliffside Terrace",
+        address: "12 Seaview Point, Your City, ST",
+        ceremonyDetails: "Intimate ceremony begins at 4:00 PM on the terrace.",
+        receptionDetails: "Champagne toast and dinner to follow.",
+        dressCode: "Elegant Casual",
+        saveTheDateMessage: "Save the Date for Our Elopement Celebration",
+        thankYouMessage: "Thank you for sharing in our elopement celebration.",
+      };
+    case "civil-ceremony":
+      return {
+        preHeading: "Together with our loved ones",
+        invitationLine: "invite you to celebrate our civil ceremony",
+        welcomeMessage: "Welcome to Our Civil Ceremony Celebration",
+        welcomeSubtext: "Please join us after the ceremony for refreshments",
+        name1: "Avery",
+        name2: "Cameron",
+        date: "Friday, June 18, 2027",
+        time: "3:30 PM",
+        venue: "City Hall Atrium",
+        address: "1 Municipal Square, Your City, ST",
+        ceremonyDetails: "Civil ceremony begins at 3:30 PM in the city hall chamber.",
+        receptionDetails: "Refreshments and photos to follow nearby.",
+        dressCode: "Semi-Formal",
+        saveTheDateMessage: "Save the Date for Our Civil Ceremony",
+        thankYouMessage: "Thank you for celebrating our civil ceremony with us.",
       };
     case "wedding":
       return {
         preHeading: "Hosted by friends and family",
         invitationLine: "invite you to celebrate with us",
         welcomeMessage: "Welcome to Our Celebration",
+        welcomeSubtext: "Please find your seat and enjoy the celebration",
         name1: "Alex",
         name2: "Jordan",
         date: "Saturday, October 18, 2026",
         time: "4:30 PM",
         venue: "Celebration Hall",
         address: "123 Celebration Lane, Your City, ST",
+        ceremonyDetails: "Ceremony begins at 4:30 PM in the garden.",
+        receptionDetails: "Reception to follow in the grand ballroom.",
+        dressCode: "Black Tie Optional",
+        saveTheDateMessage: "Save the Date",
+        thankYouMessage: "Thank you for sharing in our special day.",
       };
     default:
       return {
         preHeading: "Hosted by friends and family",
         invitationLine: "invite you to celebrate with us",
         welcomeMessage: "Welcome to Our Celebration",
+        welcomeSubtext: "Please find your seat and enjoy the celebration",
         name1: "Alex",
         name2: "Jordan",
         date: "Saturday, October 18, 2026",
         time: "4:30 PM",
         venue: "Celebration Hall",
         address: "123 Celebration Lane, Your City, ST",
+        ceremonyDetails: "Main event begins at 4:30 PM in the main venue.",
+        receptionDetails: "Celebration and refreshments to follow.",
+        dressCode: "Event Attire",
+        saveTheDateMessage: "Save the Date",
+        thankYouMessage: "Thank you for celebrating with us.",
       };
   }
 }
@@ -265,14 +442,21 @@ function DesignPageInner() {
   const isPreviewMode = forcePreviewMode || !token || !designId;
 
   const applyEventPreset = (eventType: string) => {
-    const starter = starterCopyForPreset(eventType);
-    const update: Record<string, string> = { eventType };
+    const normalizedPreset = normalizeEventPreset(eventType);
+    const starter = starterCopyForPreset(normalizedPreset);
+    const update: Record<string, string> = { eventType: normalizedPreset };
+    const starterSamples = EVENT_PRESETS.map((preset) =>
+      starterCopyForPreset(preset.value),
+    );
+    const allowFromStarters = (field: keyof EventStarterCopy) =>
+      starterSamples.map((sample) => sample[field].trim().toLowerCase());
 
     if (
       shouldReplaceField(content.preHeading, [
         "hosted by their loved ones",
         "hosted by friends and family",
         "together with their families",
+        ...allowFromStarters("preHeading"),
       ])
     ) {
       update.preHeading = starter.preHeading;
@@ -282,6 +466,7 @@ function DesignPageInner() {
       shouldReplaceField(content.invitationLine, [
         "invite you to celebrate with us",
         "invite you to celebrate their marriage",
+        ...allowFromStarters("invitationLine"),
       ])
     ) {
       update.invitationLine = starter.invitationLine;
@@ -298,28 +483,98 @@ function DesignPageInner() {
         "welcome to the bridal shower",
         "welcome to the graduation celebration",
         "welcome to the retirement celebration",
+        ...allowFromStarters("welcomeMessage"),
       ])
     ) {
       update.welcomeMessage = starter.welcomeMessage;
     }
 
-    if (shouldReplaceField(content.name1, ["name one", "alex", "taylor", "jordan"])) {
+    if (shouldReplaceField(content.welcomeSubtext, [
+      "please find your seat",
+      "please find your seat and enjoy the celebration",
+      ...allowFromStarters("welcomeSubtext"),
+    ])) {
+      update.welcomeSubtext = starter.welcomeSubtext;
+    }
+
+    if (shouldReplaceField(content.name1, [
+      "name one",
+      "alex",
+      "taylor",
+      "jordan",
+      "avery",
+      "horizon team",
+      "the rivera family",
+    ])) {
       update.name1 = starter.name1;
     }
-    if (shouldReplaceField(content.name2, ["name two", "jordan", "riley", "family & friends", "colleagues & friends"])) {
+    if (shouldReplaceField(content.name2, [
+      "name two",
+      "jordan",
+      "riley",
+      "family & friends",
+      "colleagues & friends",
+      "friends & neighbors",
+      "clients & partners",
+      "morgan",
+      "cameron",
+    ])) {
       update.name2 = starter.name2;
     }
-    if (shouldReplaceField(content.date, ["your event date", "saturday, october 18, 2026", "saturday, june 12, 2027", "friday, september 10, 2027", "sunday, october 19, 2026"])) {
+    if (shouldReplaceField(content.date, [
+      "your event date",
+      ...allowFromStarters("date"),
+    ])) {
       update.date = starter.date;
     }
-    if (shouldReplaceField(content.time, ["your event time", "4:30 pm", "5:00 pm", "6:00 pm", "1:00 pm", "2:00 pm", "6:30 pm", "11:00 am"])) {
+    if (shouldReplaceField(content.time, [
+      "your event time",
+      ...allowFromStarters("time"),
+    ])) {
       update.time = starter.time;
     }
-    if (shouldReplaceField(content.venue, ["your event venue", "celebration hall", "anniversary house", "garden room", "rosewood lounge", "main auditorium", "banquet hall"])) {
+    if (shouldReplaceField(content.venue, [
+      "your event venue",
+      ...allowFromStarters("venue"),
+    ])) {
       update.venue = starter.venue;
     }
-    if (shouldReplaceField(content.address, ["your event location", "your event address", "123 celebration lane, your city, st", "456 memory lane, your city, st", "789 blossom street, your city, st", "321 rose avenue, your city, st", "200 university way, your city, st", "100 heritage drive, your city, st"])) {
+    if (shouldReplaceField(content.address, [
+      "your event location",
+      "your event address",
+      ...allowFromStarters("address"),
+    ])) {
       update.address = starter.address;
+    }
+    if (shouldReplaceField(content.ceremonyDetails, [
+      "ceremony begins at 4:30 pm in the garden.",
+      ...allowFromStarters("ceremonyDetails"),
+    ])) {
+      update.ceremonyDetails = starter.ceremonyDetails;
+    }
+    if (shouldReplaceField(content.receptionDetails, [
+      "reception to follow in the grand ballroom.",
+      ...allowFromStarters("receptionDetails"),
+    ])) {
+      update.receptionDetails = starter.receptionDetails;
+    }
+    if (shouldReplaceField(content.dressCode, [
+      "black tie optional",
+      ...allowFromStarters("dressCode"),
+    ])) {
+      update.dressCode = starter.dressCode;
+    }
+    if (shouldReplaceField(content.saveTheDateMessage, [
+      "save the date",
+      ...allowFromStarters("saveTheDateMessage"),
+    ])) {
+      update.saveTheDateMessage = starter.saveTheDateMessage;
+    }
+    if (shouldReplaceField(content.thankYouMessage, [
+      "thank you for sharing in our special day.",
+      ...allowFromStarters("thankYouMessage"),
+    ])) {
+      update.thankYouMessage = starter.thankYouMessage;
     }
 
     setContent(update);

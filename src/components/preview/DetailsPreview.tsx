@@ -12,7 +12,10 @@ interface PreviewProps {
 }
 
 function normalizeEventType(value?: string): string {
-  return (value || "celebration").trim().toLowerCase();
+  return (value || "celebration")
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
 }
 
 function detailsConfigForEventType(eventType: string): {
@@ -25,6 +28,19 @@ function detailsConfigForEventType(eventType: string): {
   dressCodeLabel: string;
   dressCodePlaceholder: string;
 } {
+  if (eventType.includes("vow-renewal") || (eventType.includes("vow") && eventType.includes("renew"))) {
+    return {
+      dayLabel: "Vow Renewal Event",
+      detailsTitle: "Vow Renewal Details",
+      sectionOneLabel: "Ceremony",
+      sectionOnePlaceholder: "Vow renewal begins at 4:00 PM\nin the garden courtyard",
+      sectionTwoLabel: "Celebration",
+      sectionTwoPlaceholder: "Dinner, stories, and dancing to follow\nin the main hall",
+      dressCodeLabel: "Dress Style",
+      dressCodePlaceholder: "Semi-Formal",
+    };
+  }
+
   switch (eventType) {
     case "birthday":
       return {
@@ -45,6 +61,17 @@ function detailsConfigForEventType(eventType: string): {
         sectionOnePlaceholder: "Anniversary ceremony starts at 4:30 PM\nin the garden",
         sectionTwoLabel: "Celebration",
         sectionTwoPlaceholder: "Dinner and toasts to follow\nin the ballroom",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Cocktail Attire",
+      };
+    case "engagement":
+      return {
+        dayLabel: "Engagement Event",
+        detailsTitle: "Engagement Details",
+        sectionOneLabel: "Welcome",
+        sectionOnePlaceholder: "Engagement celebration begins at 5:30 PM\nwith a welcome toast",
+        sectionTwoLabel: "Reception",
+        sectionTwoPlaceholder: "Cocktails and light bites to follow\nin the lounge",
         dressCodeLabel: "Dress Style",
         dressCodePlaceholder: "Cocktail Attire",
       };
@@ -81,6 +108,61 @@ function detailsConfigForEventType(eventType: string): {
         sectionTwoPlaceholder: "Dinner, speeches, and tributes to follow\nin the main hall",
         dressCodeLabel: "Dress Style",
         dressCodePlaceholder: "Business Casual",
+      };
+    case "holiday-party":
+      return {
+        dayLabel: "Holiday Event",
+        detailsTitle: "Holiday Party Details",
+        sectionOneLabel: "Gathering",
+        sectionOnePlaceholder: "Holiday party starts at 7:00 PM\nwith seasonal drinks and appetizers",
+        sectionTwoLabel: "Celebration",
+        sectionTwoPlaceholder: "Dinner, music, and celebration to follow\nin the winter hall",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Festive Attire",
+      };
+    case "corporate-event":
+      return {
+        dayLabel: "Corporate Event",
+        detailsTitle: "Program Details",
+        sectionOneLabel: "Agenda",
+        sectionOnePlaceholder: "Event opens at 6:00 PM with networking\nand opening remarks",
+        sectionTwoLabel: "Evening Program",
+        sectionTwoPlaceholder: "Dinner service and keynote presentation\nto follow",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Business Formal",
+      };
+    case "elopement":
+      return {
+        dayLabel: "Elopement Celebration",
+        detailsTitle: "Elopement Details",
+        sectionOneLabel: "Ceremony",
+        sectionOnePlaceholder: "Intimate ceremony begins at 4:00 PM\non the terrace",
+        sectionTwoLabel: "Celebration",
+        sectionTwoPlaceholder: "Champagne toast and dinner to follow\nin the lounge",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Elegant Casual",
+      };
+    case "civil-ceremony":
+      return {
+        dayLabel: "Civil Ceremony Event",
+        detailsTitle: "Civil Ceremony Details",
+        sectionOneLabel: "Ceremony",
+        sectionOnePlaceholder: "Civil ceremony begins at 3:30 PM\nin the city hall chamber",
+        sectionTwoLabel: "Reception",
+        sectionTwoPlaceholder: "Refreshments and photos to follow\nnearby",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Semi-Formal",
+      };
+    case "wedding":
+      return {
+        dayLabel: "Wedding Event",
+        detailsTitle: "Wedding Details",
+        sectionOneLabel: "Ceremony",
+        sectionOnePlaceholder: "Ceremony starts at 4:30 PM\nin the garden",
+        sectionTwoLabel: "Reception",
+        sectionTwoPlaceholder: "Dinner and dancing to follow\nin the ballroom",
+        dressCodeLabel: "Dress Style",
+        dressCodePlaceholder: "Black Tie Optional",
       };
     default:
       return {
