@@ -14,9 +14,9 @@ const steps: { id: BuilderStep; label: string }[] = [
 ];
 
 export default function StepNavigator({
-  onDownload,
+  onFinalAction,
 }: {
-  onDownload?: () => void;
+  onFinalAction?: () => void;
 }) {
   const { currentStep, setCurrentStep } = useDesignStore();
 
@@ -26,7 +26,7 @@ export default function StepNavigator({
 
   const goNext = () => {
     if (isLast) {
-      onDownload?.();
+      onFinalAction?.();
       return;
     }
     setCurrentStep(steps[currentIndex + 1].id);

@@ -3,6 +3,7 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDesignStore } from "@/store/designStore";
+import { trackEvent } from "@/lib/clientAnalytics";
 
 type Tab = "code" | "purchase";
 
@@ -34,6 +35,11 @@ function HomePageInner() {
   const ETSY_SHOP_URL =
     process.env.NEXT_PUBLIC_ETSY_SHOP_URL ||
     "https://www.etsy.com/shop/theinvitationstudio";
+  const ETSY_PRIMARY_LISTING_URL =
+    process.env.NEXT_PUBLIC_ETSY_PRIMARY_LISTING_URL || ETSY_SHOP_URL;
+  const purchaseCtaLabel = ETSY_PRIMARY_LISTING_URL.includes("/listing/")
+    ? "Continue to Etsy Checkout"
+    : "Browse Etsy Listings";
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setDesignId, setToken, resetDesign } = useDesignStore();
@@ -87,7 +93,29 @@ function HomePageInner() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Invalid access code. Please try again.");
+        const retryAfter = res.headers.get("Retry-After");
+        void trackEvent("code_redeem_error", {
+          code: String(data.error || "UNKNOWN"),
+          status: res.status,
+        });
+        switch (data.error) {
+          case "RATE_LIMITED":
+            setError(
+              retryAfter
+                ? `Too many attempts. Please wait ${retryAfter} seconds and try again.`
+                : "Too many attempts. Please wait a moment and try again.",
+            );
+            break;
+          case "EXPIRED":
+            setError("This access code is expired. Please contact support for help.");
+            break;
+          case "INVALID_CODE":
+            setError("That code doesn't match our records. Check the code and try again.");
+            break;
+          default:
+            setError("We couldn't validate the code right now. Please try again.");
+            break;
+        }
         return;
       }
 
@@ -95,8 +123,10 @@ function HomePageInner() {
       localStorage.setItem("token", data.token);
       setDesignId(data.designId);
       setToken(data.token);
+      void trackEvent("code_redeem_success");
       router.push("/design");
     } catch {
+      void trackEvent("code_redeem_network_error");
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -104,13 +134,29 @@ function HomePageInner() {
   };
 
   const handlePurchase = () => {
-    window.open(ETSY_SHOP_URL, "_blank", "noopener,noreferrer");
+    void trackEvent("home_etsy_click", {
+      destination: ETSY_PRIMARY_LISTING_URL.includes("/listing/")
+        ? "listing"
+        : "shop",
+    });
+    window.open(ETSY_PRIMARY_LISTING_URL, "_blank", "noopener,noreferrer");
   };
 
   const handlePreviewBuilder = () => {
+    const hasActiveSession =
+      Boolean(localStorage.getItem("token")) || Boolean(localStorage.getItem("designId"));
+    if (
+      hasActiveSession &&
+      !window.confirm(
+        "Starting preview mode will clear your current saved session on this browser. Continue?",
+      )
+    ) {
+      return;
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("designId");
     resetDesign();
+    void trackEvent("home_preview_mode_click");
     router.push("/design?mode=preview");
   };
 
@@ -192,7 +238,7 @@ function HomePageInner() {
                   onClick={handlePurchase}
                   className="w-full rounded-lg bg-stone-900 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-stone-700"
                 >
-                  Continue to Etsy Checkout
+                  {purchaseCtaLabel}
                 </button>
                 <button
                   type="button"

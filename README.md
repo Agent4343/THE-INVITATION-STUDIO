@@ -34,11 +34,18 @@ Minimum variables to run core app/auth flows:
 Feature-specific variables:
 
 - Stripe: `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`, webhook secrets
-- Etsy links: `NEXT_PUBLIC_ETSY_SHOP_URL`, optional route overrides
+- Etsy links: `NEXT_PUBLIC_ETSY_SHOP_URL`, optional `NEXT_PUBLIC_ETSY_PRIMARY_LISTING_URL`, and optional route overrides
 - Email: `RESEND_API_KEY`
 - AI wording: `ANTHROPIC_API_KEY`
 - Storage: `R2_*`
 - Print fulfillment: `PRODIGI_BASE_URL`, `PRODIGI_API_KEY`
+
+### 4) Run Supabase migrations
+
+Apply all migrations in `supabase/migrations` (including the newest ones) before go-live:
+
+- `005_normalize_legacy_design_content.sql`
+- `006_conversion_events.sql`
 
 ### 3) Set the app URL
 

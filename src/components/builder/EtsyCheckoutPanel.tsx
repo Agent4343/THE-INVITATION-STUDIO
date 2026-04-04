@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useDesignStore } from "@/store/designStore";
 import Button from "@/components/ui/Button";
+import { trackEvent } from "@/lib/clientAnalytics";
 
 const etsyPathOptions = [
   {
@@ -48,6 +49,7 @@ export default function EtsyCheckoutPanel() {
   const [noteCopied, setNoteCopied] = useState(false);
   const [previewNote, setPreviewNote] = useState<string>("");
   const [selectedRouteLabel, setSelectedRouteLabel] = useState<string>("");
+  const [checkoutUrl, setCheckoutUrl] = useState<string>("");
 
   const headline = useMemo(() => {
     const eventType = (content.eventType || "event").toLowerCase();
@@ -81,6 +83,7 @@ export default function EtsyCheckoutPanel() {
     setError(null);
     setNoteCopied(false);
     setSelectedRouteLabel("");
+    setCheckoutUrl("");
 
     try {
       const selectedItemsPayload = selectedItems.map((id) => ({ id, quantity: 1 }));
@@ -114,15 +117,35 @@ export default function EtsyCheckoutPanel() {
 
       const data = await res.json();
       if (!res.ok) {
+        void trackEvent("etsy_handoff_error", {
+          status: res.status,
+          mode: hasAuthDesign ? "redeemed" : "preview",
+          error: String(data.error || "UNKNOWN"),
+        });
         throw new Error(data.error || "Unable to prepare Etsy checkout.");
       }
 
       setPreviewNote(data.personalizationText || "");
       setSelectedRouteLabel(data.selectedRoute?.listing_label || "Primary Etsy listing");
+      void trackEvent("etsy_handoff_success", {
+        mode: hasAuthDesign ? "redeemed" : "preview",
+        etsyPath,
+        itemCount: selectedItems.length,
+      });
       if (data.checkoutUrl) {
-        window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+        setCheckoutUrl(data.checkoutUrl);
+        const popup = window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+        if (!popup) {
+          setError(
+            "Your browser blocked the Etsy tab. Use the buttons below to continue checkout.",
+          );
+        }
       }
     } catch (err) {
+      void trackEvent("etsy_handoff_error", {
+        mode: designId && token ? "redeemed" : "preview",
+        error: err instanceof Error ? err.message : "UNKNOWN",
+      });
       setError(
         err instanceof Error ? err.message : "Unable to open Etsy checkout.",
       );
@@ -248,6 +271,24 @@ export default function EtsyCheckoutPanel() {
         <p className="text-center text-xs text-stone-500">
           Routed to: <span className="font-medium text-stone-700">{selectedRouteLabel}</span>
         </p>
+      )}
+      {checkoutUrl && (
+        <div className="flex flex-wrap justify-center gap-2">
+          <a
+            href={checkoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+          >
+            Open Etsy in new tab
+          </a>
+          <a
+            href={checkoutUrl}
+            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+          >
+            Open Etsy in this tab
+          </a>
+        </div>
       )}
 
       {previewNote && (

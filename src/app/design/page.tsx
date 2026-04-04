@@ -258,6 +258,7 @@ function DesignPageInner() {
   const previewInitRef = useRef(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [designLoaded, setDesignLoaded] = useState(false);
 
   const activePreset = normalizeEventPreset(content.eventType);
@@ -410,9 +411,15 @@ function DesignPageInner() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!res.ok) return;
+        if (!res.ok) {
+          setLoadError(
+            "We couldn't load your saved design. You can continue with starter content or retry.",
+          );
+          return;
+        }
 
         const { design } = await res.json();
+        setLoadError(null);
 
         if (design.templateId) {
           const t = templates.find((tpl) => tpl.id === design.templateId);
@@ -443,7 +450,9 @@ function DesignPageInner() {
           content: design.content,
         });
       } catch {
-        // Failed to load; continue with defaults
+        setLoadError(
+          "We couldn't load your saved design right now. Please check your connection and retry.",
+        );
       } finally {
         setDesignLoaded(true);
       }
@@ -518,7 +527,7 @@ function DesignPageInner() {
 
   // Save on beforeunload
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const sendKeepaliveSave = () => {
       if (!designId || !token) return;
 
       const payload = JSON.stringify({
@@ -531,14 +540,41 @@ function DesignPageInner() {
 
       if (payload === lastSavedContentRef.current) return;
 
-      // Use sendBeacon for reliable save on page close
-      const blob = new Blob([payload], { type: "application/json" });
-      navigator.sendBeacon("/api/design/save", blob);
+      void fetch("/api/design/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+        keepalive: true,
+      }).catch(() => {
+        // Ignore close-time failures.
+      });
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("beforeunload", sendKeepaliveSave);
+    window.addEventListener("pagehide", sendKeepaliveSave);
+    return () => {
+      window.removeEventListener("beforeunload", sendKeepaliveSave);
+      window.removeEventListener("pagehide", sendKeepaliveSave);
+    };
   }, [designId, token, template, palette, font, content]);
+
+  const handleRetryLoad = useCallback(() => {
+    if (!token || !designId) return;
+    setLoadError(null);
+    setDesignLoaded(false);
+  }, [token, designId]);
+
+  const handleFinalStepAction = useCallback(() => {
+    const etsyPanel = document.getElementById("etsy-checkout-panel");
+    if (etsyPanel) {
+      etsyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }, []);
 
   // Cleanup max save timer on unmount
   useEffect(() => {
@@ -564,7 +600,9 @@ function DesignPageInner() {
     content: <ContentForm />,
     preview: (
       <>
-        <EtsyCheckoutPanel />
+        <div id="etsy-checkout-panel">
+          <EtsyCheckoutPanel />
+        </div>
         <PrintOffer />
       </>
     ),
@@ -616,6 +654,18 @@ function DesignPageInner() {
             File copies are locked until you complete Etsy checkout and admin fulfills the order.
           </section>
         )}
+        {loadError && (
+          <section className="mb-4 flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:flex-row sm:items-center sm:justify-between">
+            <p>{loadError}</p>
+            <button
+              type="button"
+              onClick={handleRetryLoad}
+              className="inline-flex w-fit rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
+            >
+              Retry load
+            </button>
+          </section>
+        )}
         <section className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
@@ -647,7 +697,7 @@ function DesignPageInner() {
           <div className="flex min-h-[70vh] flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white">
             <div className="flex-1 overflow-y-auto p-5">{stepPanel[currentStep]}</div>
             <div className="border-t border-stone-200 bg-stone-50 p-5">
-              <StepNavigator />
+              <StepNavigator onFinalAction={handleFinalStepAction} />
             </div>
           </div>
 
