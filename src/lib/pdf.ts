@@ -263,6 +263,115 @@ function invitationSamplesForEvent(eventType: string): {
   }
 }
 
+function menuSamplesForEvent(eventType: string): {
+  menuHeading: string;
+  appetizer: string;
+  entree: string;
+  dessert: string;
+} {
+  switch (normalizeEventKind(eventType)) {
+    case "birthday":
+      return {
+        menuHeading: "Birthday Menu",
+        appetizer: "Mini Sliders & Crispy Fries",
+        entree: "Build-Your-Own Taco Bar",
+        dessert: "Birthday Cake & Ice Cream Bar",
+      };
+    case "anniversary":
+      return {
+        menuHeading: "Anniversary Dinner",
+        appetizer: "Burrata with Heirloom Tomatoes",
+        entree: "Filet Mignon with Truffle Mash",
+        dessert: "Champagne Tiramisu",
+      };
+    case "engagement":
+      return {
+        menuHeading: "Engagement Soiree",
+        appetizer: "Smoked Salmon Crostini",
+        entree: "Lemon Herb Chicken",
+        dessert: "Macaron Tower",
+      };
+    case "vow-renewal":
+      return {
+        menuHeading: "Vow Renewal Dinner",
+        appetizer: "Seasonal Bruschetta Trio",
+        entree: "Roasted Salmon with Citrus Glaze",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "baby-shower":
+      return {
+        menuHeading: "Shower Brunch",
+        appetizer: "Fresh Fruit & Yogurt Parfaits",
+        entree: "Quiche Lorraine & Garden Salad",
+        dessert: "Cupcake Assortment",
+      };
+    case "bridal-shower":
+      return {
+        menuHeading: "Bridal Shower Menu",
+        appetizer: "Tea Sandwich Selection",
+        entree: "Lemon Ricotta Pasta",
+        dessert: "Strawberry Shortcake",
+      };
+    case "graduation":
+      return {
+        menuHeading: "Graduation Feast",
+        appetizer: "Buffalo Cauliflower Bites",
+        entree: "BBQ Chicken and Cornbread",
+        dessert: "Chocolate Brownie Sundaes",
+      };
+    case "retirement":
+      return {
+        menuHeading: "Retirement Reception",
+        appetizer: "Charcuterie and Artisan Cheese",
+        entree: "Herb-Crusted Prime Rib",
+        dessert: "Classic New York Cheesecake",
+      };
+    case "holiday-party":
+      return {
+        menuHeading: "Holiday Party Menu",
+        appetizer: "Seasonal Cranberry Brie Bites",
+        entree: "Roast Turkey with Winter Vegetables",
+        dessert: "Gingerbread Trifle",
+      };
+    case "corporate-event":
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Mediterranean Mezze Platter",
+        entree: "Grilled Chicken with Wild Rice",
+        dessert: "Chocolate Mousse Cups",
+      };
+    case "elopement":
+      return {
+        menuHeading: "Celebration Dinner",
+        appetizer: "Prosciutto & Fig Flatbread",
+        entree: "Seared Sea Bass",
+        dessert: "Lemon Tartlets",
+      };
+    case "civil-ceremony":
+      return {
+        menuHeading: "Ceremony Reception Menu",
+        appetizer: "Roasted Tomato Crostini",
+        entree: "Chicken Piccata",
+        dessert: "Berry Chantilly Cake",
+      };
+    case "wedding":
+      return {
+        menuHeading: "Reception Menu",
+        appetizer: "Burrata & Heirloom Tomato",
+        entree: "Herb-Crusted Lamb",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "default":
+    default:
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Seasonal Starter",
+        entree: "Chef's Signature Entree",
+        dessert: "House Dessert",
+      };
+  }
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -292,6 +401,7 @@ export function renderPieceHtml(
   const normalizedEventType = normalizeEventType(c.eventType);
   const eventKind = normalizeEventKind(c.eventType);
   const invitationSamples = invitationSamplesForEvent(normalizedEventType);
+  const menuSamples = menuSamplesForEvent(normalizedEventType);
   const defaultInviteLine = (() => {
     switch (eventKind) {
       case "birthday":
@@ -547,7 +657,7 @@ export function renderPieceHtml(
     case "menu":
       body += `
         <p style="font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: ${palette.muted}; margin: 0 0 ${spacing * 0.3}px; opacity:0.8;">
-          Dinner
+          ${e(c.menuHeading, menuSamples.menuHeading)}
         </p>
         <h2 style="font-size: 22px; font-weight: 300; color: ${palette.primary}; margin: 0; letter-spacing:5px; text-transform:uppercase;">
           Menu
@@ -555,11 +665,11 @@ export function renderPieceHtml(
         ${ornamentHtml}
         <div style="margin: ${spacing * 1.5}px 0; line-height: 1.6; font-size: 13px;">
           <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">First Course</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.appetizer)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.appetizer, menuSamples.appetizer)}</p>
           <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Main Course</p>
-          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.entree)}</p>
+          <p style="color: ${palette.text}; margin: 0 0 ${spacing}px; font-style:italic;">${e(c.entree, menuSamples.entree)}</p>
           <p style="font-size:9px; font-weight:600; color:${palette.accent}; letter-spacing:3px; text-transform:uppercase; margin: 0 0 4px;">Dessert</p>
-          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${e(c.dessert)}</p>
+          <p style="color: ${palette.text}; margin: 0; font-style:italic;">${e(c.dessert, menuSamples.dessert)}</p>
         </div>
       `;
       break;

@@ -227,6 +227,7 @@ const sections: Section[] = [
   {
     title: "Menu",
     fields: [
+      { key: "menuHeading", label: "Menu Heading", placeholder: "Event Menu", maxLength: 40, aiField: true },
       { key: "appetizer", label: "Appetizer", placeholder: "Burrata & Heirloom Tomato", maxLength: 50, aiField: true },
       { key: "entree", label: "Entree", placeholder: "Herb-Crusted Lamb", maxLength: 50, aiField: true },
       { key: "dessert", label: "Dessert", placeholder: "Vanilla Bean Panna Cotta", maxLength: 50, aiField: true },
@@ -419,7 +420,94 @@ function getEventSpecificOverrides(eventType?: string): Partial<Record<string, F
     default: {},
   };
 
-  return byKind[kind];
+  const menuByKind: Record<EventKind, Partial<Record<string, FieldDef>>> = {
+    birthday: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Birthday Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Mini Sliders & Crispy Fries", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Build-Your-Own Taco Bar", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Birthday Cake & Ice Cream Bar", maxLength: 50, aiField: true },
+    },
+    anniversary: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Anniversary Dinner", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Burrata with Heirloom Tomatoes", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Filet Mignon with Truffle Mash", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Champagne Tiramisu", maxLength: 50, aiField: true },
+    },
+    engagement: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Engagement Soiree", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Smoked Salmon Crostini", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Lemon Herb Chicken", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Macaron Tower", maxLength: 50, aiField: true },
+    },
+    "vow-renewal": {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Vow Renewal Dinner", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Seasonal Bruschetta Trio", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Roasted Salmon with Citrus Glaze", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Vanilla Bean Panna Cotta", maxLength: 50, aiField: true },
+    },
+    "baby-shower": {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Shower Brunch", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Fresh Fruit & Yogurt Parfaits", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Quiche Lorraine & Garden Salad", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Cupcake Assortment", maxLength: 50, aiField: true },
+    },
+    "bridal-shower": {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Bridal Shower Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Tea Sandwich Selection", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Lemon Ricotta Pasta", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Strawberry Shortcake", maxLength: 50, aiField: true },
+    },
+    graduation: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Graduation Feast", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Buffalo Cauliflower Bites", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "BBQ Chicken and Cornbread", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Chocolate Brownie Sundaes", maxLength: 50, aiField: true },
+    },
+    retirement: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Retirement Reception", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Charcuterie and Artisan Cheese", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Herb-Crusted Prime Rib", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Classic New York Cheesecake", maxLength: 50, aiField: true },
+    },
+    "holiday-party": {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Holiday Party Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Seasonal Cranberry Brie Bites", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Roast Turkey with Winter Vegetables", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Gingerbread Trifle", maxLength: 50, aiField: true },
+    },
+    "corporate-event": {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Event Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Mediterranean Mezze Platter", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Grilled Chicken with Wild Rice", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Chocolate Mousse Cups", maxLength: 50, aiField: true },
+    },
+    elopement: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Celebration Dinner", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Prosciutto & Fig Flatbread", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Seared Sea Bass", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Lemon Tartlets", maxLength: 50, aiField: true },
+    },
+    "civil-ceremony": {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Ceremony Reception Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Roasted Tomato Crostini", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Chicken Piccata", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Berry Chantilly Cake", maxLength: 50, aiField: true },
+    },
+    wedding: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Reception Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Burrata & Heirloom Tomato", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Herb-Crusted Lamb", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "Vanilla Bean Panna Cotta", maxLength: 50, aiField: true },
+    },
+    default: {
+      menuHeading: { key: "menuHeading", label: "Menu Heading", placeholder: "Event Menu", maxLength: 40, aiField: true },
+      appetizer: { key: "appetizer", label: "Appetizer", placeholder: "Seasonal Starter", maxLength: 50, aiField: true },
+      entree: { key: "entree", label: "Entree", placeholder: "Chef's Signature Entree", maxLength: 50, aiField: true },
+      dessert: { key: "dessert", label: "Dessert", placeholder: "House Dessert", maxLength: 50, aiField: true },
+    },
+  };
+
+  return { ...byKind[kind], ...menuByKind[kind] };
 }
 
 const sectionToPiece: Record<string, SuitePiece> = {

@@ -51,6 +51,13 @@ interface EventStarterCopy {
   thankYouMessage: string;
 }
 
+interface MenuStarterCopy {
+  menuHeading: string;
+  appetizer: string;
+  entree: string;
+  dessert: string;
+}
+
 function normalizeEventPreset(value?: string): string {
   const v = (value || "")
     .trim()
@@ -334,6 +341,109 @@ function starterCopyForPreset(eventType: string): EventStarterCopy {
   }
 }
 
+function menuStarterForPreset(eventType: string): MenuStarterCopy {
+  switch (eventType) {
+    case "birthday":
+      return {
+        menuHeading: "Birthday Menu",
+        appetizer: "Mini Sliders & Crispy Fries",
+        entree: "Build-Your-Own Taco Bar",
+        dessert: "Birthday Cake & Ice Cream Bar",
+      };
+    case "anniversary":
+      return {
+        menuHeading: "Anniversary Dinner",
+        appetizer: "Burrata with Heirloom Tomatoes",
+        entree: "Filet Mignon with Truffle Mash",
+        dessert: "Champagne Tiramisu",
+      };
+    case "engagement":
+      return {
+        menuHeading: "Engagement Soiree",
+        appetizer: "Smoked Salmon Crostini",
+        entree: "Lemon Herb Chicken",
+        dessert: "Macaron Tower",
+      };
+    case "vow-renewal":
+      return {
+        menuHeading: "Vow Renewal Dinner",
+        appetizer: "Seasonal Bruschetta Trio",
+        entree: "Roasted Salmon with Citrus Glaze",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    case "baby-shower":
+      return {
+        menuHeading: "Shower Brunch",
+        appetizer: "Fresh Fruit & Yogurt Parfaits",
+        entree: "Quiche Lorraine & Garden Salad",
+        dessert: "Cupcake Assortment",
+      };
+    case "bridal-shower":
+      return {
+        menuHeading: "Bridal Shower Menu",
+        appetizer: "Tea Sandwich Selection",
+        entree: "Lemon Ricotta Pasta",
+        dessert: "Strawberry Shortcake",
+      };
+    case "graduation":
+      return {
+        menuHeading: "Graduation Feast",
+        appetizer: "Buffalo Cauliflower Bites",
+        entree: "BBQ Chicken and Cornbread",
+        dessert: "Chocolate Brownie Sundaes",
+      };
+    case "retirement":
+      return {
+        menuHeading: "Retirement Reception",
+        appetizer: "Charcuterie and Artisan Cheese",
+        entree: "Herb-Crusted Prime Rib",
+        dessert: "Classic New York Cheesecake",
+      };
+    case "holiday-party":
+      return {
+        menuHeading: "Holiday Party Menu",
+        appetizer: "Seasonal Cranberry Brie Bites",
+        entree: "Roast Turkey with Winter Vegetables",
+        dessert: "Gingerbread Trifle",
+      };
+    case "corporate-event":
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Mediterranean Mezze Platter",
+        entree: "Grilled Chicken with Wild Rice",
+        dessert: "Chocolate Mousse Cups",
+      };
+    case "elopement":
+      return {
+        menuHeading: "Celebration Dinner",
+        appetizer: "Prosciutto & Fig Flatbread",
+        entree: "Seared Sea Bass",
+        dessert: "Lemon Tartlets",
+      };
+    case "civil-ceremony":
+      return {
+        menuHeading: "Ceremony Reception Menu",
+        appetizer: "Roasted Tomato Crostini",
+        entree: "Chicken Piccata",
+        dessert: "Berry Chantilly Cake",
+      };
+    case "wedding":
+      return {
+        menuHeading: "Reception Menu",
+        appetizer: "Burrata & Heirloom Tomato",
+        entree: "Herb-Crusted Lamb",
+        dessert: "Vanilla Bean Panna Cotta",
+      };
+    default:
+      return {
+        menuHeading: "Event Menu",
+        appetizer: "Seasonal Starter",
+        entree: "Chef's Signature Entree",
+        dessert: "House Dessert",
+      };
+  }
+}
+
 function normalizeLegacyEventCopy(content: Record<string, unknown>) {
   const normalized = { ...content };
 
@@ -444,12 +554,18 @@ function DesignPageInner() {
   const applyEventPreset = (eventType: string) => {
     const normalizedPreset = normalizeEventPreset(eventType);
     const starter = starterCopyForPreset(normalizedPreset);
+    const menuStarter = menuStarterForPreset(normalizedPreset);
     const update: Record<string, string> = { eventType: normalizedPreset };
     const starterSamples = EVENT_PRESETS.map((preset) =>
       starterCopyForPreset(preset.value),
     );
+    const menuStarterSamples = EVENT_PRESETS.map((preset) =>
+      menuStarterForPreset(preset.value),
+    );
     const allowFromStarters = (field: keyof EventStarterCopy) =>
       starterSamples.map((sample) => sample[field].trim().toLowerCase());
+    const allowFromMenuStarters = (field: keyof MenuStarterCopy) =>
+      menuStarterSamples.map((sample) => sample[field].trim().toLowerCase());
 
     if (
       shouldReplaceField(content.preHeading, [
@@ -575,6 +691,36 @@ function DesignPageInner() {
       ...allowFromStarters("thankYouMessage"),
     ])) {
       update.thankYouMessage = starter.thankYouMessage;
+    }
+    if (shouldReplaceField(content.menuHeading, [
+      "menu",
+      "event menu",
+      "reception menu",
+      ...allowFromMenuStarters("menuHeading"),
+    ])) {
+      update.menuHeading = menuStarter.menuHeading;
+    }
+    if (shouldReplaceField(content.appetizer, [
+      "burrata & heirloom tomato",
+      "seared scallops with citrus beurre blanc",
+      ...allowFromMenuStarters("appetizer"),
+    ])) {
+      update.appetizer = menuStarter.appetizer;
+    }
+    if (shouldReplaceField(content.entree, [
+      "herb-crusted lamb",
+      "herb-crusted lamb with rosemary jus",
+      ...allowFromMenuStarters("entree"),
+    ])) {
+      update.entree = menuStarter.entree;
+    }
+    if (shouldReplaceField(content.dessert, [
+      "vanilla bean panna cotta",
+      "vanilla bean crème brûlée",
+      "vanilla bean creme brulee",
+      ...allowFromMenuStarters("dessert"),
+    ])) {
+      update.dessert = menuStarter.dessert;
     }
 
     setContent(update);
